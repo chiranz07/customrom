@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Corrected local manifest for building Project Infinity-X (branch 16 / lineage-23.2 / QPR2)
+  for Google Pixel 8 (shiba).
+
+  Notes:
+   * The 'gitlab' and 'github' remotes are already defined by Infinity-X's default.xml,
+     so they are NOT re-declared here (doing so throws "remote already exists").
+   * Device/SoC/sepolicy trees aligned to 16.2 (QPR2) to match the lineage-23.2 platform.
+   * Kernel + proprietary blobs stay on their only / matched branches (16.0 / zuma);
+     all share stock firmware fingerprint BP4A.260205.001.
+   * Pixel 8a (akita / akita-kernels) intentionally omitted — not the target device.
+-->
+<manifest>
+
+  <!-- Common Pixel + extras (platform-matched) -->
+  <project name="LineageOS/android_device_google_gs-common" path="device/google/gs-common" revision="lineage-23.2" remote="github" clone-depth="1" />
+  <project name="crdroidandroid/proprietary_vendor_google_faceunlock" path="vendor/google/faceunlock" revision="16.0" remote="gitlab" clone-depth="1" />
+  <project name="ionutsandroidbuilds/proprietary_vendor_google_camera" path="vendor/google/camera" revision="zuma" remote="gitlab" clone-depth="1" />
+  <project name="ionutsandroidbuilds/proprietary_vendor_google_pixels_extras" path="vendor/google/pixels_extras" revision="16.0" remote="gitlab" clone-depth="1" />
+  <project name="crdroidandroid/android_vendor_bcr" path="vendor/bcr" revision="16.0" remote="github" clone-depth="1" />
+  <project name="ionutgherman/vendor_JamesDSP" path="vendor/JamesDSP" revision="aidl" remote="github" clone-depth="1" />
+
+  <!-- Google Pixel 8 (shiba) + 8 Pro (husky) share the shusky tree; SoC = zuma -->
+  <project name="ionutsandroidbuilds/android_device_google_shusky" path="device/google/shusky" revision="16.2" remote="github" clone-depth="1" />
+  <project name="ionutsandroidbuilds/android_device_google_zuma" path="device/google/zuma" revision="16.2" remote="github" clone-depth="1" />
+  <project name="ionutsandroidbuilds/android_device_google_shusky-kernels" path="device/google/shusky-kernels" revision="16.0" remote="github" clone-depth="1" />
+
+  <!-- Proprietary vendor blobs (only 16.0 branch exists; fingerprint BP4A.260205.001) -->
+  <project name="ionutsandroidbuilds/proprietary_vendor_google_shiba" path="vendor/google/shiba" revision="16.0" remote="gitlab" clone-depth="1" />
+  <project name="ionutsandroidbuilds/proprietary_vendor_google_husky" path="vendor/google/husky" revision="16.0" remote="gitlab" clone-depth="1" />
+
+</manifest>

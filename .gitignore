@@ -1,0 +1,11 @@
+# Never commit secrets or large regenerable artifacts
+.gitcookies
+*.keystore
+*.jks
+*.pem
+*.pk8
+*-keys/
+keys/
+*.zip
+*.img
+out/
