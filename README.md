@@ -1,16 +1,15 @@
 # customrom — Pixel 8 (shiba) custom ROM build notes
 
-Reproducible build notes + artifacts for custom ROMs on the **Google Pixel 8 "shiba"**, captured from working builds (June 2026). Two ROMs built from the same device sources: **Project Infinity-X** and **Project Mist OS** (both Android 16 / lineage-23.2).
+Reproducible build notes + artifacts for **Project Infinity-X (Android 16)** on the **Google Pixel 8 "shiba"**, captured from a working build (June 2026).
 
 ## What's here
 
 | File | Purpose |
 |---|---|
-| **[SHIBA_BUILD_GUIDE.md](SHIBA_BUILD_GUIDE.md)** | **Start here.** Device-specific, copy-paste recipe (Infinity-X worked example): exact commands, full file contents, every problem hit + fix, flashing. |
-| **[SOURCES.md](SOURCES.md)** | **All source repos** used (both ROMs) in one reference table — manifests, device/SoC/blob/kernel trees, branches, remotes. |
+| **[SHIBA_BUILD_GUIDE.md](SHIBA_BUILD_GUIDE.md)** | **Start here.** Device-specific, copy-paste recipe: exact commands, full file contents, every problem hit + fix, flashing. |
+| **[SOURCES.md](SOURCES.md)** | **All source repos** used in one reference table — manifest, device/SoC/blob/kernel trees, branches, remotes. |
 | [CUSTOM_ROM_BUILD_PLAYBOOK.md](CUSTOM_ROM_BUILD_PLAYBOOK.md) | Generic methodology version (transfers to other ROMs/devices). |
 | `staging/roomservice_infinity_shiba.xml` | Infinity-X device local manifest (drop in `.repo/local_manifests/`). |
-| `staging/roomservice_mist_shiba.xml` | Mist OS device local manifest (no `vendor/bcr`; Mist ships its own). |
 | `staging/infinity_shiba.mk` | The ROM product makefile the device tree lacks (→ `device/google/shusky/`). |
 | `staging/AndroidProducts.mk.shusky` | `shusky` AndroidProducts.mk with `infinity_shiba` registered. |
 | `staging/audio_effects_config.xml.zuma` | `zuma` audio config **with the JamesDSP fix** (→ `device/google/zuma/`). |
