@@ -99,7 +99,16 @@ PRODUCT_PACKAGES += \
     TagGoogle
 
 # system_ext/priv-app
+# DeviceConnectivityServicePrebuilt (com.google.android.apps.pixel.dcservice,
+# "DCS") is what implements Pixel Clear Calling: it drives the AoC audio
+# HAL's CCA API and injects the "Clear calling" toggle into Settings via
+# com.android.settings.action.IA_SETTINGS / CLEAR_CALLING. gms_full.mk ships
+# it; it was missing from the mini list. Its privapp/default-permission XMLs
+# (system_ext/blobs/etc/...) are already shipped by system-ext_blobs.mk and
+# are byte-identical to the shiba cp2a.260605.012 factory image; the APK is
+# the same version/signature as that factory image's copy.
 PRODUCT_PACKAGES += \
+    DeviceConnectivityServicePrebuilt_26.01.00 \
     GoogleServicesFramework \
     NexusLauncherRelease \
     SetupWizardPixelPrebuilt_versioned \

@@ -123,3 +123,1694 @@ index bd5f38ccb..b5519dbd2 100644
              android:process=":screenshot"
              android:exported="true" />
  
+diff --git a/packages/SystemUI/res/anim/audioanim_animation.xml b/packages/SystemUI/res/anim/audioanim_animation.xml
+new file mode 100644
+index 000000000..4d54a7cd8
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation.xml
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<animated-vector android:drawable="@anim/audioanim_animation__0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <target android:name="_R_G_L_2_G_D_0_P_0" android:animation="@anim/audioanim_animation__1" />
++    <target android:name="_R_G_L_2_G_D_0_P_0" android:animation="@anim/audioanim_animation__2" />
++    <target android:name="_R_G_L_2_G_T_1" android:animation="@anim/audioanim_animation__3" />
++    <target android:name="_R_G_L_2_G_T_1" android:animation="@anim/audioanim_animation__4" />
++    <target android:name="_R_G_L_2_G_T_1" android:animation="@anim/audioanim_animation__5" />
++    <target android:name="_R_G_L_2_G_N_2_T_1" android:animation="@anim/audioanim_animation__6" />
++    <target android:name="_R_G_L_2_G_N_2_N_1_T_0" android:animation="@anim/audioanim_animation__7" />
++    <target android:name="_R_G_L_1_G_D_0_P_0" android:animation="@anim/audioanim_animation__8" />
++    <target android:name="_R_G_L_1_G" android:animation="@anim/audioanim_animation__9" />
++    <target android:name="_R_G_L_1_G_N_4_T_1" android:animation="@anim/audioanim_animation__10" />
++    <target android:name="_R_G_L_1_G_N_4_T_1" android:animation="@anim/audioanim_animation__11" />
++    <target android:name="_R_G_L_1_G_N_4_T_1" android:animation="@anim/audioanim_animation__12" />
++    <target android:name="_R_G_L_1_G_N_4_N_2_T_1" android:animation="@anim/audioanim_animation__13" />
++    <target android:name="_R_G_L_1_G_N_4_N_2_N_1_T_0" android:animation="@anim/audioanim_animation__14" />
++    <target android:name="_R_G_L_0_G_D_0_P_0" android:animation="@anim/audioanim_animation__15" />
++    <target android:name="_R_G_L_0_G_T_1" android:animation="@anim/audioanim_animation__16" />
++    <target android:name="time_group" android:animation="@anim/audioanim_animation__17" />
++</animated-vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__0.xml b/packages/SystemUI/res/anim/audioanim_animation__0.xml
+new file mode 100644
+index 000000000..f8e653679
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__0.xml
+@@ -0,0 +1,38 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <group android:name="_R_G">
++        <group android:name="_R_G_L_2_G_N_2_N_1_T_0" android:scaleX="0.25" android:scaleY="0.25" android:translateX="12.0" android:translateY="12.0">
++            <group android:name="_R_G_L_2_G_N_2_T_1" android:scaleX="0.79643" android:scaleY="0.79643" android:translateX="-5.425" android:translateY="33.575">
++                <group android:name="_R_G_L_2_G_N_2_T_0" android:translateX="-4.575" android:translateY="14.425">
++                    <group android:name="_R_G_L_2_G_T_1" android:scaleX="1.00448" android:scaleY="0.50224" android:rotation="70.0" android:translateX="5.395" android:translateY="-17.916">
++                        <group android:name="_R_G_L_2_G" android:translateX="-2.478" android:translateY="-6.75">
++                            <path android:name="_R_G_L_2_G_D_0_P_0" android:fillColor="#ffffffff" android:pathData=" M5.23 -29.62 C5.23,-29.62 5.84,-7.8 5.84,-7.8 C5.84,-7.8 0.34,-7.8 0.34,-7.8 C0.34,-7.8 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:fillAlpha="0.0" android:fillType="nonZero" />
++                        </group>
++                    </group>
++                </group>
++            </group>
++        </group>
++        <group android:name="_R_G_L_1_G_N_4_N_2_N_1_T_0" android:scaleX="0.25" android:scaleY="0.25" android:translateX="12.0" android:translateY="12.0">
++            <group android:name="_R_G_L_1_G_N_4_N_2_T_1" android:scaleX="0.79643" android:scaleY="0.79643" android:translateX="-5.425" android:translateY="33.575">
++                <group android:name="_R_G_L_1_G_N_4_N_2_T_0" android:translateX="-4.575" android:translateY="14.425">
++                    <group android:name="_R_G_L_1_G_N_4_T_1" android:scaleX="1.00448" android:scaleY="0.50224" android:rotation="70.0" android:translateX="5.395" android:translateY="-17.916">
++                        <group android:name="_R_G_L_1_G_N_4_T_0" android:translateX="-2.478" android:translateY="-6.75">
++                            <group android:name="_R_G_L_1_G" android:pivotY="-25.0" android:scaleX="0.5" android:scaleY="1.0" android:translateX="-0.125" android:translateY="0.375">
++                                <path android:name="_R_G_L_1_G_D_0_P_0" android:fillColor="#ffffffff" android:pathData=" M15.96 -30.28 C15.96,-30.28 15.96,-19.78 15.96,-19.78 C15.96,-19.78 -0.04,-19.78 -0.04,-19.78 C-0.04,-19.78 -0.04,-30.28 -0.04,-30.28 C-0.04,-30.28 15.96,-30.28 15.96,-30.28c " android:fillAlpha="0.0" android:fillType="nonZero" />
++                            </group>
++                        </group>
++                    </group>
++                </group>
++            </group>
++        </group>
++        <group android:name="_R_G_L_0_G_N_1_T_0" android:scaleX="0.25" android:scaleY="0.25" android:translateX="12.0" android:translateY="12.0">
++            <group android:name="_R_G_L_0_G_T_1" android:scaleX="0.79643" android:scaleY="0.79643" android:translateX="-5.425" android:translateY="33.575">
++                <group android:name="_R_G_L_0_G" android:translateX="-4.575" android:translateY="14.425">
++                    <path android:name="_R_G_L_0_G_D_0_P_0" android:pathData=" M4.49 -51.24 C9.98,-51.24 13.95,-48.15 14.12,-39.95 C14.23,-34.45 14.23,-30.21 14.11,-14.74 C14.06,-9.31 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.25,-9 -5.25,-14.42 C-5.25,-29.11 -5.19,-32.41 -5.15,-38.17 C-5.09,-45.91 -2.58,-51.24 4.49,-51.24c " android:strokeColor="#ffffffff" android:strokeWidth="7.0" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeAlpha="1.0" />
++                </group>
++            </group>
++        </group>
++    </group>
++    <group android:name="time_group" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__1.xml b/packages/SystemUI/res/anim/audioanim_animation__1.xml
+new file mode 100644
+index 000000000..5bad8a40e
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__1.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__1__0" android:duration="450" android:startOffset="0" android:valueFrom="0" android:valueTo="0" android:valueType="floatType" android:propertyName="fillAlpha" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__1__1" android:duration="17" android:startOffset="450" android:valueFrom="0" android:valueTo="1" android:valueType="floatType" android:propertyName="fillAlpha" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__10.xml b/packages/SystemUI/res/anim/audioanim_animation__10.xml
+new file mode 100644
+index 000000000..492ec75a4
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__10.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__10__0" android:duration="483" android:startOffset="0" android:propertyName="translateXY" android:pathData="M 5.395,-17.916C 6.85986735343933,-17.916 3.9301326465606694,-17.916 5.395,-17.916" android:propertyXName="translateX" android:propertyYName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__10__1" android:duration="317" android:startOffset="483" android:propertyName="translateXY" android:pathData="M 5.395,-17.916C 6.85986735343933,-17.916 12.71913264656067,-17.916 14.184,-17.916" android:propertyXName="translateX" android:propertyYName="translateY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__10__0.xml b/packages/SystemUI/res/anim/audioanim_animation__10__0.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__10__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__10__1.xml b/packages/SystemUI/res/anim/audioanim_animation__10__1.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__10__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__11.xml b/packages/SystemUI/res/anim/audioanim_animation__11.xml
+new file mode 100644
+index 000000000..b7039e6bf
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__11.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__11__0" android:duration="483" android:startOffset="0" android:valueFrom="1.00448" android:valueTo="1.00448" android:valueType="floatType" android:propertyName="scaleX" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__11__1" android:duration="483" android:startOffset="0" android:valueFrom="0.50224" android:valueTo="0.50224" android:valueType="floatType" android:propertyName="scaleY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__11__2" android:duration="317" android:startOffset="483" android:valueFrom="1.00448" android:valueTo="1.2556" android:valueType="floatType" android:propertyName="scaleX" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__11__3" android:duration="317" android:startOffset="483" android:valueFrom="0.50224" android:valueTo="1.2556" android:valueType="floatType" android:propertyName="scaleY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__11__0.xml b/packages/SystemUI/res/anim/audioanim_animation__11__0.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__11__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__11__1.xml b/packages/SystemUI/res/anim/audioanim_animation__11__1.xml
+new file mode 100644
+index 000000000..7d6ecb6f1
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__11__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0.2,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__11__2.xml b/packages/SystemUI/res/anim/audioanim_animation__11__2.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__11__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__11__3.xml b/packages/SystemUI/res/anim/audioanim_animation__11__3.xml
+new file mode 100644
+index 000000000..7d6ecb6f1
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__11__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0.2,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__12.xml b/packages/SystemUI/res/anim/audioanim_animation__12.xml
+new file mode 100644
+index 000000000..0a9f5e7b2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__12.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__12__0" android:duration="483" android:startOffset="0" android:valueFrom="70" android:valueTo="70" android:valueType="floatType" android:propertyName="rotation" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__12__1" android:duration="317" android:startOffset="483" android:valueFrom="70" android:valueTo="0" android:valueType="floatType" android:propertyName="rotation" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__12__0.xml b/packages/SystemUI/res/anim/audioanim_animation__12__0.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__12__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__12__1.xml b/packages/SystemUI/res/anim/audioanim_animation__12__1.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__12__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__13.xml b/packages/SystemUI/res/anim/audioanim_animation__13.xml
+new file mode 100644
+index 000000000..d38c82ffe
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__13.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__13__0" android:duration="17" android:startOffset="0" android:valueFrom="33.575" android:valueTo="33.575" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__13__1" android:duration="183" android:startOffset="17" android:valueFrom="33.575" android:valueTo="-13.175" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__13__2" android:duration="250" android:startOffset="200" android:valueFrom="-13.175" android:valueTo="20.825" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__13__3" android:duration="17" android:startOffset="450" android:valueFrom="20.825" android:valueTo="32.075" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__13__4" android:duration="283" android:startOffset="467" android:valueFrom="32.075" android:valueTo="13.575" android:valueType="floatType" android:propertyName="translateY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__13__0.xml b/packages/SystemUI/res/anim/audioanim_animation__13__0.xml
+new file mode 100644
+index 000000000..7b4fd663c
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__13__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.055,0.148 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__13__1.xml b/packages/SystemUI/res/anim/audioanim_animation__13__1.xml
+new file mode 100644
+index 000000000..7b4fd663c
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__13__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.055,0.148 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__13__2.xml b/packages/SystemUI/res/anim/audioanim_animation__13__2.xml
+new file mode 100644
+index 000000000..914461321
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__13__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.801,0 0.946,0.786 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__13__3.xml b/packages/SystemUI/res/anim/audioanim_animation__13__3.xml
+new file mode 100644
+index 000000000..0f5055f04
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__13__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.6,0.48 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__13__4.xml b/packages/SystemUI/res/anim/audioanim_animation__13__4.xml
+new file mode 100644
+index 000000000..c6d3cf9fd
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__13__4.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.098,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__14.xml b/packages/SystemUI/res/anim/audioanim_animation__14.xml
+new file mode 100644
+index 000000000..fed330b10
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__14.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:duration="0" android:startOffset="467" android:valueFrom="0" android:valueTo="0.25" android:valueType="floatType" android:propertyName="scaleX" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__15.xml b/packages/SystemUI/res/anim/audioanim_animation__15.xml
+new file mode 100644
+index 000000000..a2823292b
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__15.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__15__0" android:duration="17" android:startOffset="0" android:valueFrom="M4.49 -51.24 C9.98,-51.24 13.95,-48.15 14.12,-39.95 C14.23,-34.45 14.23,-30.21 14.11,-14.74 C14.06,-9.31 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.25,-9 -5.25,-14.42 C-5.25,-29.11 -5.19,-32.41 -5.15,-38.17 C-5.09,-45.91 -2.58,-51.24 4.49,-51.24c " android:valueTo="M4.49 -51.24 C9.98,-51.24 13.95,-48.15 14.12,-39.95 C14.23,-34.45 14.23,-30.21 14.11,-14.74 C14.06,-9.31 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.25,-9 -5.25,-14.42 C-5.25,-29.11 -5.19,-32.41 -5.15,-38.17 C-5.09,-45.91 -2.58,-51.24 4.49,-51.24c " android:valueType="pathType" android:propertyName="pathData" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__15__1" android:duration="183" android:startOffset="17" android:valueFrom="M4.49 -51.24 C9.98,-51.24 13.95,-48.15 14.12,-39.95 C14.23,-34.45 14.23,-30.21 14.11,-14.74 C14.06,-9.31 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.25,-9 -5.25,-14.42 C-5.25,-29.11 -5.19,-32.41 -5.15,-38.17 C-5.09,-45.91 -2.58,-51.24 4.49,-51.24c " android:valueTo="M4.81 -24.96 C9.74,-24.8 14.13,-21.62 14.19,-15.37 C14.21,-15.15 14.17,-16.36 14.2,-14.78 C14.31,-9.35 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.25,-9 -5.25,-14.42 C-5.25,-18.12 -5.33,-14.91 -5.36,-15.57 C-5.41,-19.7 -1.72,-25.16 4.81,-24.96c " android:valueType="pathType" android:propertyName="pathData" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__15__2" android:duration="250" android:startOffset="200" android:valueFrom="M4.81 -24.96 C9.74,-24.8 14.13,-21.62 14.19,-15.37 C14.21,-15.15 14.17,-16.36 14.2,-14.78 C14.31,-9.35 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.25,-9 -5.25,-14.42 C-5.25,-18.12 -5.33,-14.91 -5.36,-15.57 C-5.41,-19.7 -1.72,-25.16 4.81,-24.96c " android:valueTo="M4.8 -37.67 C14.29,-37.59 14.46,-27.82 14.48,-25.64 C14.53,-20.25 14.53,-17.97 14.4,-14.42 C14.21,-9 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.19,-9 -5.25,-14.42 C-5.33,-21.42 -5.25,-23.94 -5.21,-25.88 C-5.12,-30.06 -4.78,-37.75 4.8,-37.67c " android:valueType="pathType" android:propertyName="pathData" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__15__3" android:duration="17" android:startOffset="450" android:valueFrom="M4.8 -37.67 C14.29,-37.59 14.46,-27.82 14.48,-25.64 C14.53,-20.25 14.53,-17.97 14.4,-14.42 C14.21,-9 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.19,-9 -5.25,-14.42 C-5.33,-21.42 -5.25,-23.94 -5.21,-25.88 C-5.12,-30.06 -4.78,-37.75 4.8,-37.67c " android:valueTo="M4.58 -24.25 C6.3,-24.25 7.92,-23.81 9.33,-23.03 C12.35,-21.35 14.24,-18.13 14.24,-14.42 C14.24,-9 10,-4.6 4.58,-4.6 C-0.85,-4.6 -5.25,-9 -5.25,-14.42 C-5.25,-18.12 -3.21,-21.34 -0.19,-23.02 C1.22,-23.8 2.85,-24.25 4.58,-24.25c " android:valueType="pathType" android:propertyName="pathData" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__15__0.xml b/packages/SystemUI/res/anim/audioanim_animation__15__0.xml
+new file mode 100644
+index 000000000..e03828c35
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__15__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0,0 0.833,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__15__1.xml b/packages/SystemUI/res/anim/audioanim_animation__15__1.xml
+new file mode 100644
+index 000000000..aabffba98
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__15__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__15__2.xml b/packages/SystemUI/res/anim/audioanim_animation__15__2.xml
+new file mode 100644
+index 000000000..83fb0278f
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__15__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.682,0 1,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__15__3.xml b/packages/SystemUI/res/anim/audioanim_animation__15__3.xml
+new file mode 100644
+index 000000000..e030a87f9
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__15__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.333,0 0.667,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__16.xml b/packages/SystemUI/res/anim/audioanim_animation__16.xml
+new file mode 100644
+index 000000000..d019fd619
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__16.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__16__0" android:duration="17" android:startOffset="0" android:valueFrom="33.575" android:valueTo="33.575" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__16__1" android:duration="183" android:startOffset="17" android:valueFrom="33.575" android:valueTo="-13.175" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__16__2" android:duration="250" android:startOffset="200" android:valueFrom="-13.175" android:valueTo="20.825" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__16__3" android:duration="17" android:startOffset="450" android:valueFrom="20.825" android:valueTo="32.075" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__16__4" android:duration="283" android:startOffset="467" android:valueFrom="32.075" android:valueTo="13.575" android:valueType="floatType" android:propertyName="translateY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__16__0.xml b/packages/SystemUI/res/anim/audioanim_animation__16__0.xml
+new file mode 100644
+index 000000000..7b4fd663c
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__16__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.055,0.148 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__16__1.xml b/packages/SystemUI/res/anim/audioanim_animation__16__1.xml
+new file mode 100644
+index 000000000..7b4fd663c
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__16__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.055,0.148 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__16__2.xml b/packages/SystemUI/res/anim/audioanim_animation__16__2.xml
+new file mode 100644
+index 000000000..914461321
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__16__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.801,0 0.946,0.786 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__16__3.xml b/packages/SystemUI/res/anim/audioanim_animation__16__3.xml
+new file mode 100644
+index 000000000..0f5055f04
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__16__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.6,0.48 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__16__4.xml b/packages/SystemUI/res/anim/audioanim_animation__16__4.xml
+new file mode 100644
+index 000000000..c6d3cf9fd
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__16__4.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.098,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__17.xml b/packages/SystemUI/res/anim/audioanim_animation__17.xml
+new file mode 100644
+index 000000000..0638cb5cd
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__17.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:duration="817" android:startOffset="0" android:valueFrom="0" android:valueTo="1" android:valueType="floatType" android:propertyName="translateX" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__1__0.xml b/packages/SystemUI/res/anim/audioanim_animation__1__0.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__1__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__1__1.xml b/packages/SystemUI/res/anim/audioanim_animation__1__1.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__1__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__2.xml b/packages/SystemUI/res/anim/audioanim_animation__2.xml
+new file mode 100644
+index 000000000..bccfe1cef
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__2.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__2__0" android:duration="483" android:startOffset="0" android:valueFrom="M5.23 -29.62 C5.23,-29.62 5.84,-7.8 5.84,-7.8 C5.84,-7.8 0.34,-7.8 0.34,-7.8 C0.34,-7.8 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueTo="M5.23 -29.62 C5.23,-29.62 5.84,-7.8 5.84,-7.8 C5.84,-7.8 0.34,-7.8 0.34,-7.8 C0.34,-7.8 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueType="pathType" android:propertyName="pathData" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__2__1" android:duration="17" android:startOffset="483" android:valueFrom="M5.23 -29.62 C5.23,-29.62 5.84,-7.8 5.84,-7.8 C5.84,-7.8 0.34,-7.8 0.34,-7.8 C0.34,-7.8 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueTo="M5.23 -29.62 C5.23,-29.62 5.81,-1.09 5.81,-1.09 C5.81,-1.09 0.32,-1.85 0.32,-1.85 C0.32,-1.85 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueType="pathType" android:propertyName="pathData" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__2__2" android:duration="83" android:startOffset="500" android:valueFrom="M5.23 -29.62 C5.23,-29.62 5.81,-1.09 5.81,-1.09 C5.81,-1.09 0.32,-1.85 0.32,-1.85 C0.32,-1.85 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueTo="M5.23 -29.62 C5.23,-29.62 5.38,4.33 5.38,4.33 C5.38,4.33 -0.05,-0.27 -0.05,-0.27 C-0.05,-0.27 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueType="pathType" android:propertyName="pathData" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__2__3" android:duration="33" android:startOffset="583" android:valueFrom="M5.23 -29.62 C5.23,-29.62 5.38,4.33 5.38,4.33 C5.38,4.33 -0.05,-0.27 -0.05,-0.27 C-0.05,-0.27 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueTo="M5.23 -29.62 C5.23,-29.62 5.23,8.38 5.23,8.38 C5.23,8.38 0.3,1.04 0.3,1.04 C0.3,1.04 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueType="pathType" android:propertyName="pathData" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__2__4" android:duration="167" android:startOffset="617" android:valueFrom="M5.23 -29.62 C5.23,-29.62 5.23,8.38 5.23,8.38 C5.23,8.38 0.3,1.04 0.3,1.04 C0.3,1.04 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueTo="M5.23 -29.62 C5.23,-29.62 5.23,8.38 5.23,8.38 C5.23,8.38 0.31,7.67 0.31,7.67 C0.31,7.67 -0.27,-29.62 -0.27,-29.62 C-0.27,-29.62 5.23,-29.62 5.23,-29.62c " android:valueType="pathType" android:propertyName="pathData" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__2__0.xml b/packages/SystemUI/res/anim/audioanim_animation__2__0.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__2__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__2__1.xml b/packages/SystemUI/res/anim/audioanim_animation__2__1.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__2__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__2__2.xml b/packages/SystemUI/res/anim/audioanim_animation__2__2.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__2__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__2__3.xml b/packages/SystemUI/res/anim/audioanim_animation__2__3.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__2__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__2__4.xml b/packages/SystemUI/res/anim/audioanim_animation__2__4.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__2__4.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__3.xml b/packages/SystemUI/res/anim/audioanim_animation__3.xml
+new file mode 100644
+index 000000000..81bbea37e
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__3.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__3__0" android:duration="483" android:startOffset="0" android:propertyName="translateXY" android:pathData="M 5.395,-17.916C 6.85986735343933,-17.916 3.9301326465606694,-17.916 5.395,-17.916" android:propertyXName="translateX" android:propertyYName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__3__1" android:duration="317" android:startOffset="483" android:propertyName="translateXY" android:pathData="M 5.395,-17.916C 6.85986735343933,-17.916 12.71913264656067,-17.916 14.184,-17.916" android:propertyXName="translateX" android:propertyYName="translateY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__3__0.xml b/packages/SystemUI/res/anim/audioanim_animation__3__0.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__3__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__3__1.xml b/packages/SystemUI/res/anim/audioanim_animation__3__1.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__3__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__4.xml b/packages/SystemUI/res/anim/audioanim_animation__4.xml
+new file mode 100644
+index 000000000..2b6232954
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__4.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__4__0" android:duration="483" android:startOffset="0" android:valueFrom="1.00448" android:valueTo="1.00448" android:valueType="floatType" android:propertyName="scaleX" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__4__1" android:duration="483" android:startOffset="0" android:valueFrom="0.50224" android:valueTo="0.50224" android:valueType="floatType" android:propertyName="scaleY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__4__2" android:duration="317" android:startOffset="483" android:valueFrom="1.00448" android:valueTo="1.2556" android:valueType="floatType" android:propertyName="scaleX" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__4__3" android:duration="317" android:startOffset="483" android:valueFrom="0.50224" android:valueTo="1.2556" android:valueType="floatType" android:propertyName="scaleY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__4__0.xml b/packages/SystemUI/res/anim/audioanim_animation__4__0.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__4__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__4__1.xml b/packages/SystemUI/res/anim/audioanim_animation__4__1.xml
+new file mode 100644
+index 000000000..7d6ecb6f1
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__4__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0.2,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__4__2.xml b/packages/SystemUI/res/anim/audioanim_animation__4__2.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__4__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__4__3.xml b/packages/SystemUI/res/anim/audioanim_animation__4__3.xml
+new file mode 100644
+index 000000000..7d6ecb6f1
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__4__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0.2,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__5.xml b/packages/SystemUI/res/anim/audioanim_animation__5.xml
+new file mode 100644
+index 000000000..6c2ebe485
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__5.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__5__0" android:duration="483" android:startOffset="0" android:valueFrom="70" android:valueTo="70" android:valueType="floatType" android:propertyName="rotation" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__5__1" android:duration="317" android:startOffset="483" android:valueFrom="70" android:valueTo="0" android:valueType="floatType" android:propertyName="rotation" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__5__0.xml b/packages/SystemUI/res/anim/audioanim_animation__5__0.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__5__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__5__1.xml b/packages/SystemUI/res/anim/audioanim_animation__5__1.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__5__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__6.xml b/packages/SystemUI/res/anim/audioanim_animation__6.xml
+new file mode 100644
+index 000000000..c2885ba8c
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__6.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__6__0" android:duration="17" android:startOffset="0" android:valueFrom="33.575" android:valueTo="33.575" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__6__1" android:duration="183" android:startOffset="17" android:valueFrom="33.575" android:valueTo="-13.175" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__6__2" android:duration="250" android:startOffset="200" android:valueFrom="-13.175" android:valueTo="20.825" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__6__3" android:duration="17" android:startOffset="450" android:valueFrom="20.825" android:valueTo="32.075" android:valueType="floatType" android:propertyName="translateY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__6__4" android:duration="283" android:startOffset="467" android:valueFrom="32.075" android:valueTo="13.575" android:valueType="floatType" android:propertyName="translateY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__6__0.xml b/packages/SystemUI/res/anim/audioanim_animation__6__0.xml
+new file mode 100644
+index 000000000..7b4fd663c
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__6__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.055,0.148 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__6__1.xml b/packages/SystemUI/res/anim/audioanim_animation__6__1.xml
+new file mode 100644
+index 000000000..7b4fd663c
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__6__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.055,0.148 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__6__2.xml b/packages/SystemUI/res/anim/audioanim_animation__6__2.xml
+new file mode 100644
+index 000000000..914461321
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__6__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.801,0 0.946,0.786 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__6__3.xml b/packages/SystemUI/res/anim/audioanim_animation__6__3.xml
+new file mode 100644
+index 000000000..0f5055f04
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__6__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.6,0.48 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__6__4.xml b/packages/SystemUI/res/anim/audioanim_animation__6__4.xml
+new file mode 100644
+index 000000000..c6d3cf9fd
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__6__4.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.098,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__7.xml b/packages/SystemUI/res/anim/audioanim_animation__7.xml
+new file mode 100644
+index 000000000..5c81e86cc
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__7.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:duration="0" android:startOffset="450" android:valueFrom="0" android:valueTo="0.25" android:valueType="floatType" android:propertyName="scaleX" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__8.xml b/packages/SystemUI/res/anim/audioanim_animation__8.xml
+new file mode 100644
+index 000000000..9bfce23dd
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__8.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__8__0" android:duration="467" android:startOffset="0" android:valueFrom="0" android:valueTo="0" android:valueType="floatType" android:propertyName="fillAlpha" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__8__1" android:duration="17" android:startOffset="467" android:valueFrom="0" android:valueTo="1" android:valueType="floatType" android:propertyName="fillAlpha" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__8__0.xml b/packages/SystemUI/res/anim/audioanim_animation__8__0.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__8__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__8__1.xml b/packages/SystemUI/res/anim/audioanim_animation__8__1.xml
+new file mode 100644
+index 000000000..12d9648d2
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__8__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.167,0.167 0.833,0.833 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__9.xml b/packages/SystemUI/res/anim/audioanim_animation__9.xml
+new file mode 100644
+index 000000000..962286773
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__9.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set android:ordering="together"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
++    <objectAnimator android:interpolator="@anim/audioanim_animation__9__0" android:duration="483" android:startOffset="0" android:valueFrom="0.5" android:valueTo="0.5" android:valueType="floatType" android:propertyName="scaleX" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__9__1" android:duration="483" android:startOffset="0" android:valueFrom="1" android:valueTo="1" android:valueType="floatType" android:propertyName="scaleY" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__9__2" android:duration="317" android:startOffset="483" android:valueFrom="0.5" android:valueTo="1" android:valueType="floatType" android:propertyName="scaleX" />
++    <objectAnimator android:interpolator="@anim/audioanim_animation__9__3" android:duration="317" android:startOffset="483" android:valueFrom="1" android:valueTo="1" android:valueType="floatType" android:propertyName="scaleY" />
++</set>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__9__0.xml b/packages/SystemUI/res/anim/audioanim_animation__9__0.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__9__0.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__9__1.xml b/packages/SystemUI/res/anim/audioanim_animation__9__1.xml
+new file mode 100644
+index 000000000..7d6ecb6f1
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__9__1.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0.2,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__9__2.xml b/packages/SystemUI/res/anim/audioanim_animation__9__2.xml
+new file mode 100644
+index 000000000..366056621
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__9__2.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/anim/audioanim_animation__9__3.xml b/packages/SystemUI/res/anim/audioanim_animation__9__3.xml
+new file mode 100644
+index 000000000..7d6ecb6f1
+--- /dev/null
++++ b/packages/SystemUI/res/anim/audioanim_animation__9__3.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<pathInterpolator android:pathData="M 0.0,0.0 c0.001,0 0.2,1 1.0,1.0"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" />
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/drawable/ic_cloud_off.xml b/packages/SystemUI/res/drawable/ic_cloud_off.xml
+new file mode 100644
+index 000000000..14257cac8
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_cloud_off.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#ff000000" android:pathData="M12,7c2.21,0 4,1.79 4,4v1h1.5c1.38,0 2.5,1.12 2.5,2.5 0,0.73 -0.32,1.39 -0.83,1.84l1.41,1.41c0.87,-0.81 1.42,-1.97 1.42,-3.25 0,-2.34 -1.79,-4.27 -4.08,-4.48C17.45,7.18 14.97,5 12,5c-1.17,0 -2.28,0.35 -3.22,0.95l1.46,1.46C10.78,7.15 11.38,7 12,7zM17,17L8.73,8.73 7.29,7.29 2.81,2.81 1.39,4.22l4.16,4.16C3.49,9.18 2,11.18 2,13.5 2,16.53 4.47,19 7.5,19h8.67l3.61,3.61 1.41,-1.41 -2.4,-2.4L17,17zM7.5,17C5.57,17 4,15.43 4,13.5c0,-1.81 1.42,-3.31 3.21,-3.46L14.17,17L7.5,17z" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/drawable/ic_error.xml b/packages/SystemUI/res/drawable/ic_error.xml
+new file mode 100644
+index 000000000..71edd750a
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_error.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#ff000000" android:pathData="M11,15h2v2h-2v-2zM11,7h2v6h-2L11,7zM11.99,2C6.47,2 2,6.48 2,12s4.47,10 9.99,10C17.52,22 22,17.52 22,12S17.52,2 11.99,2zM12,20c-4.42,0 -8,-3.58 -8,-8s3.58,-8 8,-8 8,3.58 8,8 -3.58,8 -8,8z" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/drawable/ic_favorite.xml b/packages/SystemUI/res/drawable/ic_favorite.xml
+new file mode 100644
+index 000000000..b231bd7d3
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_favorite.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#ff000000" android:pathData="M12,21.35l-1.45,-1.32C5.4,15.36 2,12.28 2,8.5 2,5.42 4.42,3 7.5,3c1.74,0 3.41,0.81 4.5,2.09C13.09,3.81 14.76,3 16.5,3 19.58,3 22,5.42 22,8.5c0,3.78 -3.4,6.86 -8.55,11.54L12,21.35z" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/drawable/ic_favorite_border.xml b/packages/SystemUI/res/drawable/ic_favorite_border.xml
+new file mode 100644
+index 000000000..f2c2731c1
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_favorite_border.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#ff000000" android:pathData="M16.5,3c-1.74,0 -3.41,0.81 -4.5,2.09C10.91,3.81 9.24,3 7.5,3 4.42,3 2,5.42 2,8.5c0,3.78 3.4,6.86 8.55,11.54L12,21.35l1.45,-1.32C18.6,15.36 22,12.28 22,8.5 22,5.42 19.58,3 16.5,3zM12.1,18.55l-0.1,0.1 -0.1,-0.1C7.14,14.24 4,11.39 4,8.5 4,6.5 5.5,5 7.5,5c1.54,0 3.04,0.99 3.57,2.36h1.87C13.46,5.99 14.96,5 16.5,5c2,0 3.5,1.5 3.5,3.5 0,2.89 -3.14,5.74 -7.9,10.05z" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/drawable/ic_favorite_note.xml b/packages/SystemUI/res/drawable/ic_favorite_note.xml
+new file mode 100644
+index 000000000..b7ceea7cd
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_favorite_note.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#ff000000" android:pathData="M17,21L16.42,20.4245C14.36,18.3886 13,17.0458 13,15.3978C13,14.055 13.968,13 15.2,13C16,13 16.564,13.642 17,14.2C17.436,13.642 18,13 18.8,13C20.032,13 21,14.055 21,15.3978C21,17.0458 19.64,18.3886 17.58,20.4289L17,21Z" />
++    <path android:fillColor="#ff000000" android:pathData="M8,3L8.01,13.55C7.42,13.21 6.74,13 6.01,13C3.79,13 2,14.79 2,17C2,19.21 3.79,21 6.01,21C8.23,21 10,19.21 10,17V7H14V3H8Z" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/drawable/ic_music_not_found.xml b/packages/SystemUI/res/drawable/ic_music_not_found.xml
+new file mode 100644
+index 000000000..4e0ddce63
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_music_not_found.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#ff000000" android:pathData="M21.19,21.19L14,14l-2,-2 -9.2,-9.2 -1.41,1.42 8.79,8.79c-0.06,0 -0.12,-0.01 -0.18,-0.01 -2.21,0 -4,1.79 -4,4s1.79,4 4.01,4S14,19.21 14,17v-0.17l5.78,5.78 1.41,-1.42zM14,11.17V7h4V3h-6v6.17z" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/drawable/ic_music_search.xml b/packages/SystemUI/res/drawable/ic_music_search.xml
+new file mode 100644
+index 000000000..961dff13a
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_music_search.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#00000000" android:pathData="M16.8033,17.3072L20.25,20.7539M18,8.2598C18.6361,9.3616 19,10.6402 19,12.0039C19,16.1461 15.6421,19.5039 11.5,19.5039C7.3579,19.5039 4,16.1461 4,12.0039C4,8.2008 6.8306,5.0589 10.5,4.57" android:strokeColor="#ff185abc" android:strokeWidth="2.0" />
++    <path android:fillColor="#ff185abc" android:pathData="M12.5,3.5L12.5075,11.1194C12.065,10.8739 11.555,10.7222 11.0075,10.7222C9.3425,10.7222 8,12.015 8,13.6111C8,15.2072 9.3425,16.5 11.0075,16.5C12.6725,16.5 14,15.2072 14,13.6111V6.3889H17V3.5H12.5Z" />
++</vector>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/layout/ambient_indication.xml b/packages/SystemUI/res/layout/ambient_indication.xml
+index 37ba35fd0..9a2c9f912 100644
+--- a/packages/SystemUI/res/layout/ambient_indication.xml
++++ b/packages/SystemUI/res/layout/ambient_indication.xml
+@@ -15,5 +15,17 @@
+   ~ limitations under the License.
+   -->
+ 
+-<!-- empty stub -->
+-<merge />
++<!-- Pixel "ambient indication" (Now Playing on the lock screen). Replaces AOSP's
++     empty <merge/> stub; included by keyguard_bottom_area.xml. Ported from
++     vendor_pixel-framework (fifteen) SystemUIGoogle. -->
++<com.google.android.systemui.ambientmusic.AmbientIndicationContainer
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:id="@+id/ambient_indication_container"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:forceHasOverlappingRendering="false"
++    android:layout="@layout/ambient_indication_inner"
++    android:layout_gravity="bottom"
++    android:layout_marginBottom="@dimen/ambient_indication_margin_bottom"
++    android:layout_marginStart="100dp"
++    android:layout_marginEnd="41dp" />
+diff --git a/packages/SystemUI/res/layout/ambient_indication_inner.xml b/packages/SystemUI/res/layout/ambient_indication_inner.xml
+new file mode 100644
+index 000000000..64a297146
+--- /dev/null
++++ b/packages/SystemUI/res/layout/ambient_indication_inner.xml
+@@ -0,0 +1,49 @@
++<?xml version="1.0" encoding="utf-8"?>
++<androidx.constraintlayout.widget.ConstraintLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:orientation="vertical"
++    android:id="@+id/ambient_indication"
++    android:paddingTop="4dp"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:forceHasOverlappingRendering="false">
++    <LinearLayout
++        android:layout_gravity="center"
++        android:orientation="horizontal"
++        android:id="@+id/ambient_indication_info_container"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content">
++    <ImageView
++        android:layout_gravity="center"
++        android:id="@+id/ambient_indication_icon"
++        android:visibility="gone"
++        android:clickable="true"
++        android:layout_width="48dp"
++        android:layout_height="48dp"
++        android:scaleType="center"/>
++    <TextView
++        android:textAppearance="@style/TextAppearance.Keyguard.BottomArea"
++        android:textSize="14sp"
++        android:gravity="center_vertical"
++        android:layout_gravity="center"
++        android:id="@+id/ambient_indication_text"
++        android:paddingTop="15sp"
++        android:paddingBottom="15sp"
++        android:visibility="gone"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:singleLine="true"
++        android:letterSpacing="0.02"
++        android:forceHasOverlappingRendering="false"/>
++    </LinearLayout>
++    <ImageView
++        android:layout_gravity="top|center_horizontal"
++        android:id="@+id/docked_top_icon"
++        android:padding="@dimen/dock_top_logo_padding"
++        android:visibility="gone"
++        android:clickable="true"
++        android:layout_width="@dimen/dock_logo_min_size"
++        android:layout_height="@dimen/dock_logo_min_size"
++        android:scaleType="fitXY"
++        android:cropToPadding="true"/>
++</androidx.constraintlayout.widget.ConstraintLayout>
+diff --git a/packages/SystemUI/res/values/dimens_ambient_indication.xml b/packages/SystemUI/res/values/dimens_ambient_indication.xml
+new file mode 100644
+index 000000000..129c5f88d
+--- /dev/null
++++ b/packages/SystemUI/res/values/dimens_ambient_indication.xml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Dimens for the Pixel ambient indication (Now Playing on lock screen) views,
++     ported from vendor_pixel-framework (fifteen) SystemUIGoogle.
++     ambient_indication_margin_bottom already exists in dimens.xml (AOSP). -->
++<resources>
++    <dimen name="ambient_indication_icon_size">20dp</dimen>
++    <dimen name="ambient_indication_note_icon_size">14dp</dimen>
++    <!-- Only used by the docked (Pixel Stand) constraint set; never active on shiba. -->
++    <dimen name="ambient_indication_container_margin_top">8dp</dimen>
++    <dimen name="dock_logo_min_size">48dp</dimen>
++    <dimen name="dock_top_logo_padding">8dp</dimen>
++</resources>
+diff --git a/packages/SystemUI/res/xml/ambient_indication_inner_downwards.xml b/packages/SystemUI/res/xml/ambient_indication_inner_downwards.xml
+new file mode 100644
+index 000000000..5c06a2e01
+--- /dev/null
++++ b/packages/SystemUI/res/xml/ambient_indication_inner_downwards.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ConstraintSet xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
++    <Constraint android:layout_gravity="center" android:orientation="horizontal" android:id="@+id/ambient_indication_info_container" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/ambient_indication_container_margin_top" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
++    <Constraint android:layout_gravity="center" android:id="@+id/ambient_indication_icon" android:visibility="gone" android:clickable="true" android:layout_width="48dp" android:layout_height="48dp" android:scaleType="center"/>
++    <Constraint android:textAppearance="@style/TextAppearance.Keyguard.BottomArea" android:textSize="14sp" android:gravity="center_vertical" android:layout_gravity="center" android:id="@+id/ambient_indication_text" android:paddingTop="15sp" android:paddingBottom="15sp" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:letterSpacing="0.02" android:forceHasOverlappingRendering="false"/>
++    <Constraint android:layout_gravity="top|center_horizontal" android:id="@+id/docked_top_icon" android:padding="@dimen/dock_top_logo_padding" android:visibility="gone" android:clickable="true" android:layout_width="@dimen/dock_logo_min_size" android:layout_height="@dimen/dock_logo_min_size" android:scaleType="fitXY" android:cropToPadding="true" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/ambient_indication_info_container"/>
++</ConstraintSet>
+diff --git a/packages/SystemUI/res/xml/ambient_indication_inner_upwards.xml b/packages/SystemUI/res/xml/ambient_indication_inner_upwards.xml
+new file mode 100644
+index 000000000..a889adfb6
+--- /dev/null
++++ b/packages/SystemUI/res/xml/ambient_indication_inner_upwards.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ConstraintSet xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
++    <Constraint android:layout_gravity="center" android:orientation="horizontal" android:id="@+id/ambient_indication_info_container" android:layout_width="wrap_content" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
++    <Constraint android:layout_gravity="center" android:id="@+id/ambient_indication_icon" android:visibility="gone" android:clickable="true" android:layout_width="48dp" android:layout_height="48dp" android:scaleType="center"/>
++    <Constraint android:textAppearance="@style/TextAppearance.Keyguard.BottomArea" android:textSize="14sp" android:gravity="center_vertical" android:layout_gravity="center" android:id="@+id/ambient_indication_text" android:paddingTop="15sp" android:paddingBottom="15sp" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:letterSpacing="0.02" android:forceHasOverlappingRendering="false"/>
++    <Constraint android:layout_gravity="top|center_horizontal" android:id="@+id/docked_top_icon" android:padding="@dimen/dock_top_logo_padding" android:visibility="gone" android:clickable="true" android:layout_width="@dimen/dock_logo_min_size" android:layout_height="@dimen/dock_logo_min_size" android:scaleType="fitXY" android:cropToPadding="true" app:layout_constraintBottom_toTopOf="@+id/ambient_indication_info_container" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
++</ConstraintSet>
+diff --git a/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt b/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt
+new file mode 100644
+index 000000000..0b3cbb43c
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt
+@@ -0,0 +1,95 @@
++/*
++ * Copyright (C) 2026 Mist-OS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.android.systemui.ambientmusic
++
++import android.app.AlarmManager
++import android.content.Context
++import android.os.Handler
++import android.util.Log
++import com.android.systemui.CoreStartable
++import com.android.systemui.dagger.SysUISingleton
++import com.android.systemui.dagger.qualifiers.Background
++import com.android.systemui.plugins.ActivityStarter
++import com.android.systemui.power.domain.interactor.PowerInteractor
++import com.android.systemui.res.R
++import com.android.systemui.shade.NotificationShadeWindowView
++import com.android.systemui.user.domain.interactor.SelectedUserInteractor
++import com.android.systemui.util.wakelock.WakeLockLogger
++import com.google.android.systemui.ambientmusic.AmbientIndicationContainer
++import com.google.android.systemui.ambientmusic.AmbientIndicationService
++import javax.inject.Inject
++
++/**
++ * Starts the Pixel "ambient indication" (Now Playing on the lock screen) pipeline: finds the
++ * [AmbientIndicationContainer] that keyguard_bottom_area.xml inflates via
++ * layout/ambient_indication.xml, initialises it and registers the
++ * [AmbientIndicationService] receiver for Android System Intelligence's broadcasts.
++ *
++ * This replaces the part of SystemUIGoogle's GoogleServices that Mist-OS never shipped. Every
++ * step is defensive: if the container is missing, nothing is registered and SystemUI keeps
++ * running as before.
++ */
++@SysUISingleton
++class AmbientIndicationStartable
++@Inject
++constructor(
++    private val context: Context,
++    private val activityStarter: ActivityStarter,
++    private val alarmManager: AlarmManager,
++    private val notificationShadeWindowView: NotificationShadeWindowView,
++    private val powerInteractor: PowerInteractor,
++    private val selectedUserInteractor: SelectedUserInteractor,
++    private val wakeLockLogger: WakeLockLogger,
++    @Background private val bgHandler: Handler,
++) : CoreStartable {
++
++    private var service: AmbientIndicationService? = null
++    private var attempts = 0
++
++    override fun start() {
++        tryStart()
++    }
++
++    private fun tryStart() {
++        if (service != null) return
++        val container =
++            notificationShadeWindowView.findViewById<AmbientIndicationContainer>(
++                R.id.ambient_indication_container
++            )
++        if (container == null) {
++            // The shade hierarchy may not be fully inflated yet on the very first call.
++            if (attempts++ < MAX_ATTEMPTS) {
++                notificationShadeWindowView.postDelayed({ tryStart() }, RETRY_DELAY_MS)
++            } else {
++                Log.w(TAG, "ambient_indication_container not found, Now Playing on lock screen disabled")
++            }
++            return
++        }
++        try {
++            container.initializeView(powerInteractor, activityStarter, wakeLockLogger, bgHandler)
++            service = AmbientIndicationService(context, container, selectedUserInteractor, alarmManager)
++            Log.i(TAG, "Ambient indication initialised")
++        } catch (e: Exception) {
++            Log.e(TAG, "Failed to initialise ambient indication", e)
++        }
++    }
++
++    companion object {
++        private const val TAG = "AmbientIndicationStartable"
++        private const val MAX_ATTEMPTS = 5
++        private const val RETRY_DELAY_MS = 1000L
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt b/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt
+index 0768b1eae..f34dc3702 100644
+--- a/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt
++++ b/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt
+@@ -38,6 +38,7 @@ import com.android.systemui.dreams.DreamOverlayRegistrant
+ import com.android.systemui.dreams.homecontrols.system.HomeControlsDreamStartable
+ import com.android.systemui.globalactions.GlobalActionsComponent
+ import com.android.systemui.haptics.msdl.MSDLCoreStartable
++import com.android.systemui.ambientmusic.AmbientIndicationStartable
+ import com.android.systemui.keyboard.KeyboardUI
+ import com.android.systemui.keyboard.PhysicalKeyboardCoreStartable
+ import com.android.systemui.keyevent.SysUIKeyGestureEventInitializer
+@@ -117,6 +118,12 @@ abstract class SystemUICoreStartableModule {
+     @ClassKey(KeyboardUI::class)
+     abstract fun bindKeyboardUI(sysui: KeyboardUI): CoreStartable
+ 
++    /** Inject into AmbientIndicationStartable (Pixel Now Playing on lock screen). */
++    @Binds
++    @IntoMap
++    @ClassKey(AmbientIndicationStartable::class)
++    abstract fun bindAmbientIndicationStartable(sysui: AmbientIndicationStartable): CoreStartable
++
+     /** Inject into MediaProjectionTaskSwitcherCoreStartable. */
+     @Binds
+     @IntoMap
+diff --git a/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt
+new file mode 100644
+index 000000000..5a4383081
+--- /dev/null
++++ b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt
+@@ -0,0 +1,406 @@
++/*
++ * Copyright (C) 2023 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// Ported from vendor_pixel-framework (branch fifteen) SystemUIGoogle
++// ambientmusic/AmbientIndicationContainer.kt for Mist-OS 17 (shiba).
++// Changes vs. the Android 15 original, all forced by SystemUI API drift:
++//  - NotificationMediaManager moved to com.android.systemui.media.
++//  - DelayedWakeLock no longer takes a main-thread Handler.
++//  - ShadeViewController.setAmbientIndicationTop() no longer exists; the
++//    call was dropped (it only nudged the panel's bottom-area layout).
++//  - Everything that touches views is null-safe so a missing inner view
++//    can never crash SystemUI.
++package com.google.android.systemui.ambientmusic
++
++import android.animation.Animator
++import android.animation.AnimatorListenerAdapter
++import android.animation.ValueAnimator
++import android.app.PendingIntent
++import android.content.Context
++import android.content.res.ColorStateList
++import android.graphics.Rect
++import android.graphics.drawable.AnimatedVectorDrawable
++import android.graphics.drawable.Drawable
++import android.graphics.drawable.DrawableWrapper
++import android.media.MediaMetadata
++import android.os.Handler
++import android.os.Looper
++import android.os.PowerManager
++import android.text.TextUtils
++import android.util.AttributeSet
++import android.util.Log
++import android.util.MathUtils
++import android.view.View
++import android.widget.FrameLayout
++import android.widget.ImageView
++import android.widget.TextView
++import com.android.app.animation.Interpolators.DECELERATE_QUINT
++import com.android.app.animation.Interpolators.LINEAR_OUT_SLOW_IN
++import com.android.systemui.AutoReinflateContainer
++import com.android.systemui.Dependency
++import com.android.systemui.doze.DozeReceiver
++import com.android.systemui.media.NotificationMediaManager
++import com.android.systemui.plugins.ActivityStarter
++import com.android.systemui.plugins.statusbar.StatusBarStateController
++import com.android.systemui.power.domain.interactor.PowerInteractor
++import com.android.systemui.res.R
++import com.android.systemui.statusbar.StatusBarState
++import com.android.systemui.util.wakelock.DelayedWakeLock
++import com.android.systemui.util.wakelock.WakeLock
++import com.android.systemui.util.wakelock.WakeLockLogger
++
++class AmbientIndicationContainer(private val context: Context, attrs: AttributeSet) :
++    AutoReinflateContainer(context, attrs),
++    DozeReceiver,
++    StatusBarStateController.StateListener,
++    NotificationMediaManager.MediaListener {
++
++    private var activityStarter: ActivityStarter? = null
++    private var powerInteractor: PowerInteractor? = null
++    private val handler: Handler = Handler(Looper.getMainLooper())
++    private val iconBounds: Rect = Rect()
++    private var wakeLock: WakeLock? = null
++    private var ambientIconOverride: Drawable? = null
++    private var ambientIndicationIconSize: Int = 0
++    private var ambientMusicAnimation: Drawable? = null
++    private var ambientMusicNoteIcon: Drawable? = null
++    private var ambientMusicNoteIconSize: Int = 0
++    private var ambientMusicText: String? = null
++    private var ambientSkipUnlock: Boolean = false
++    private var bottomMarginPx: Int = 0
++    private var dozing: Boolean = false
++    private var favoritingIntent: PendingIntent? = null
++    private var iconDescription: String? = null
++    private var iconOverride: Int = -1
++    private var iconView: ImageView? = null
++    private var indicationTextMode: Int = 0
++    private var mediaPlaybackState: Int = 0
++    private var openIntent: PendingIntent? = null
++    private var barState: Int = 0
++    private var textColor: Int = 0
++    private var textColorAnimator: ValueAnimator? = null
++    private var textView: TextView? = null
++    private var reverseChargingMessage: String = ""
++
++    fun initializeView(
++        powerInteractor: PowerInteractor,
++        activityStarter: ActivityStarter,
++        wakeLockLogger: WakeLockLogger,
++        bgHandler: Handler,
++    ) {
++        this.activityStarter = activityStarter
++        this.powerInteractor = powerInteractor
++        wakeLock = DelayedWakeLock(bgHandler, context, wakeLockLogger, TAG)
++        addInflateListener {
++            textView = findViewById(R.id.ambient_indication_text)
++            iconView = findViewById(R.id.ambient_indication_icon)
++            ambientMusicAnimation = context.getDrawable(R.anim.audioanim_animation)
++            ambientMusicNoteIcon = context.getDrawable(R.drawable.ic_music_note)
++            textColor = textView?.currentTextColor ?: textColor
++            ambientIndicationIconSize =
++                resources.getDimensionPixelSize(R.dimen.ambient_indication_icon_size)
++            ambientMusicNoteIconSize =
++                resources.getDimensionPixelSize(R.dimen.ambient_indication_note_icon_size)
++            textView?.isEnabled = !dozing
++            updateColors()
++            updatePill()
++            textView?.setOnClickListener { onTextClick() }
++            iconView?.setOnClickListener { onIconClick() }
++        }
++        addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateSpacing() }
++    }
++
++    override fun onAttachedToWindow() {
++        super.onAttachedToWindow()
++        Dependency.get(StatusBarStateController::class.java).addCallback(this)
++        Dependency.get(NotificationMediaManager::class.java).addCallback(this)
++    }
++
++    override fun onDetachedFromWindow() {
++        super.onDetachedFromWindow()
++        Dependency.get(StatusBarStateController::class.java).removeCallback(this)
++        Dependency.get(NotificationMediaManager::class.java).removeCallback(this)
++    }
++
++    fun setAmbientMusic(
++        text: String?,
++        openIntent: PendingIntent?,
++        favoriteIntent: PendingIntent?,
++        skipUnlock: Boolean,
++        iconOverride: Int,
++        iconDescription: String?,
++    ) {
++        if (
++            this.ambientMusicText != text ||
++                this.openIntent != openIntent ||
++                this.favoritingIntent != favoriteIntent ||
++                this.iconOverride != iconOverride ||
++                this.ambientSkipUnlock != skipUnlock ||
++                this.iconDescription != iconDescription
++        ) {
++            this.ambientMusicText = text
++            this.openIntent = openIntent
++            this.favoritingIntent = favoriteIntent
++            this.ambientSkipUnlock = skipUnlock
++            this.iconOverride = iconOverride
++            this.iconDescription = iconDescription
++            this.ambientIconOverride = getAmbientIconOverride(iconOverride)
++            updatePill()
++        }
++    }
++
++    private fun getAmbientIconOverride(iconOverride: Int): Drawable? {
++        return when (iconOverride) {
++            1 -> context.getDrawable(R.drawable.ic_music_search)
++            2 -> null
++            3 -> context.getDrawable(R.drawable.ic_music_not_found)
++            4 -> context.getDrawable(R.drawable.ic_cloud_off)
++            5 -> context.getDrawable(R.drawable.ic_favorite)
++            6 -> context.getDrawable(R.drawable.ic_favorite_border)
++            7 -> context.getDrawable(R.drawable.ic_error)
++            8 -> context.getDrawable(R.drawable.ic_favorite_note)
++            else -> null
++        }
++    }
++
++    private fun updatePill() {
++        val textView = textView ?: return
++        val iconView = iconView ?: return
++        val wakeLock = wakeLock ?: return
++        val oldIndicationTextMode = indicationTextMode
++        var updatePill = true
++        indicationTextMode = 1
++        var text = ambientMusicText
++        val textVisible = textView.visibility == View.VISIBLE
++        var icon: Drawable? = if (textVisible) ambientMusicNoteIcon else ambientMusicAnimation
++        if (ambientIconOverride != null) {
++            icon = ambientIconOverride
++        }
++        var showAmbientMusicText = ambientMusicText != null && ambientMusicText!!.isEmpty()
++        textView.isClickable = openIntent != null
++        iconView.isClickable = favoritingIntent != null || openIntent != null
++        var iconDescription = if (TextUtils.isEmpty(iconDescription)) text else this.iconDescription
++        if (!TextUtils.isEmpty(reverseChargingMessage)) {
++            indicationTextMode = 2
++            text = reverseChargingMessage
++            icon = null
++            textView.isClickable = false
++            iconView.isClickable = false
++            showAmbientMusicText = false
++            iconDescription = null
++        }
++        textView.text = text
++        textView.contentDescription = text
++        iconView.contentDescription = iconDescription
++        var drawableWrapper: Drawable? = null
++        if (icon != null) {
++            iconBounds.set(0, 0, icon.intrinsicWidth, icon.intrinsicHeight)
++            MathUtils.fitRect(
++                iconBounds,
++                if (icon == ambientMusicNoteIcon) ambientMusicNoteIconSize
++                else ambientIndicationIconSize,
++            )
++            drawableWrapper =
++                object : DrawableWrapper(icon) {
++                    override fun getIntrinsicWidth(): Int = iconBounds.width()
++                    override fun getIntrinsicHeight(): Int = iconBounds.height()
++                }
++            val endPadding =
++                if (!TextUtils.isEmpty(text)) (resources.displayMetrics.density * 24).toInt() else 0
++            textView.setPaddingRelative(
++                textView.paddingStart, textView.paddingTop, endPadding, textView.paddingBottom)
++        } else {
++            textView.setPaddingRelative(
++                textView.paddingStart, textView.paddingTop, 0, textView.paddingBottom)
++        }
++        iconView.setImageDrawable(drawableWrapper)
++        if (TextUtils.isEmpty(text) && !showAmbientMusicText) {
++            updatePill = false
++        }
++        val vis = if (updatePill) View.VISIBLE else View.GONE
++        textView.visibility = vis
++        iconView.visibility = if (icon == null) View.GONE else vis
++        if (!updatePill) {
++            textView.animate().cancel()
++            if (icon is AnimatedVectorDrawable) {
++                icon.reset()
++            }
++            handler.post(wakeLock.wrap {})
++        } else if (!textVisible) {
++            wakeLock.acquire(TAG)
++            if (icon is AnimatedVectorDrawable) {
++                icon.start()
++            }
++            textView.translationY = textView.height.toFloat() / 2f
++            textView.alpha = 0.0f
++            textView
++                .animate()
++                .alpha(1.0f)
++                .translationY(0.0f)
++                .setStartDelay(150L)
++                .setDuration(100L)
++                .setListener(
++                    object : AnimatorListenerAdapter() {
++                        override fun onAnimationEnd(animator: Animator) {
++                            wakeLock.release(TAG)
++                            textView.animate().setListener(null)
++                        }
++                    }
++                )
++                .setInterpolator(DECELERATE_QUINT)
++                .start()
++        } else if (oldIndicationTextMode != indicationTextMode) {
++            if (icon is AnimatedVectorDrawable) {
++                wakeLock.acquire(TAG)
++                icon.start()
++                wakeLock.release(TAG)
++            }
++        } else {
++            handler.post(wakeLock.wrap {})
++        }
++        updateSpacing()
++    }
++
++    private fun updateHorizontalSpacing() {
++        val textView = textView ?: return
++        val iconView = iconView ?: return
++        val lp = layoutParams as? FrameLayout.LayoutParams ?: return
++        val centerX = resources.displayMetrics.widthPixels / 2
++        val totalWidth = textView.width + iconView.width
++        lp.marginStart = centerX - totalWidth / 2
++    }
++
++    private fun updateSpacing() {
++        val marginBottom = resources.getDimensionPixelSize(R.dimen.ambient_indication_margin_bottom)
++        if (bottomMarginPx != marginBottom) {
++            bottomMarginPx = marginBottom
++            (layoutParams as? FrameLayout.LayoutParams)?.bottomMargin = bottomMarginPx
++        }
++        updateHorizontalSpacing()
++    }
++
++    fun hideAmbientMusic() {
++        setAmbientMusic(null, null, null, false, 0, null)
++    }
++
++    private fun onTextClick() {
++        openIntent?.let {
++            powerInteractor?.wakeUpIfDozing("AMBIENT_MUSIC_CLICK", PowerManager.WAKE_REASON_GESTURE)
++            if (ambientSkipUnlock) {
++                sendBroadcastWithoutDismissingKeyguard(it)
++            } else {
++                activityStarter?.startPendingIntentDismissingKeyguard(it)
++            }
++        }
++    }
++
++    private fun onIconClick() {
++        favoritingIntent?.let {
++            powerInteractor?.wakeUpIfDozing("AMBIENT_MUSIC_CLICK", PowerManager.WAKE_REASON_GESTURE)
++            sendBroadcastWithoutDismissingKeyguard(it)
++            return
++        }
++        onTextClick()
++    }
++
++    override fun onDozingChanged(isDozing: Boolean) {
++        dozing = isDozing
++        updateVisibility()
++        textView?.let {
++            it.isEnabled = !isDozing
++            updateColors()
++        }
++    }
++
++    override fun dozeTimeTick() = updatePill()
++
++    private fun updateColors() {
++        val textView = textView ?: return
++        val iconView = iconView ?: return
++        textColorAnimator?.let {
++            if (it.isRunning) {
++                it.cancel()
++            }
++        }
++        val defaultColor = textView.textColors.defaultColor
++        val dozeColor = if (dozing) -1 else textColor
++        if (dozeColor == defaultColor) {
++            textView.setTextColor(dozeColor)
++            iconView.imageTintList = ColorStateList.valueOf(dozeColor)
++        }
++        val animator = ValueAnimator.ofArgb(defaultColor, dozeColor)
++        animator.interpolator = LINEAR_OUT_SLOW_IN
++        animator.duration = 500L
++        animator.addUpdateListener {
++            val color = it.animatedValue as Int
++            textView.setTextColor(color)
++            iconView.imageTintList = ColorStateList.valueOf(color)
++        }
++        animator.addListener(
++            object : AnimatorListenerAdapter() {
++                override fun onAnimationEnd(a: Animator) {
++                    textColorAnimator = null
++                }
++            }
++        )
++        textColorAnimator = animator
++        animator.start()
++    }
++
++    override fun onStateChanged(state: Int) {
++        barState = state
++        updateVisibility()
++    }
++
++    private fun sendBroadcastWithoutDismissingKeyguard(pendingIntent: PendingIntent) {
++        if (pendingIntent.isActivity) {
++            return
++        }
++        try {
++            pendingIntent.send()
++        } catch (e: PendingIntent.CanceledException) {
++            Log.w(TAG, "Sending intent failed: $e")
++        }
++    }
++
++    private fun updateVisibility() {
++        visibility = if (barState == StatusBarState.KEYGUARD) View.VISIBLE else View.INVISIBLE
++    }
++
++    override fun onPrimaryMetadataOrStateChanged(mediaMetadata: MediaMetadata?, mediaState: Int) {
++        if (mediaPlaybackState != mediaState) {
++            mediaPlaybackState = mediaState
++            if (!isMediaPlaying()) {
++                return
++            }
++            hideAmbientMusic()
++        }
++    }
++
++    private fun isMediaPlaying(): Boolean = NotificationMediaManager.isPlayingState(mediaPlaybackState)
++
++    fun setReverseChargingMessage(message: String) {
++        if (TextUtils.isEmpty(message) && reverseChargingMessage == message) {
++            return
++        }
++        reverseChargingMessage = message
++        updatePill()
++    }
++
++    companion object {
++        private const val TAG = "AmbientIndication"
++    }
++}
+diff --git a/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java
+new file mode 100644
+index 000000000..b46d30589
+--- /dev/null
++++ b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java
+@@ -0,0 +1,147 @@
++/*
++ * Copyright (C) 2023 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// Ported from vendor_pixel-framework (branch fifteen) SystemUIGoogle
++// ambientmusic/AmbientIndicationService.java for Mist-OS 17 (shiba).
++// Receives the Now Playing "ambient indication" broadcasts sent by Android
++// System Intelligence (com.google.android.as) and drives the lock screen
++// AmbientIndicationContainer. Unchanged apart from this header.
++package com.google.android.systemui.ambientmusic;
++
++import android.app.AlarmManager;
++import android.app.PendingIntent;
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.os.SystemClock;
++import android.os.UserHandle;
++import android.util.Log;
++
++import com.android.keyguard.KeyguardUpdateMonitor;
++import com.android.keyguard.KeyguardUpdateMonitorCallback;
++import com.android.systemui.Dependency;
++import com.android.systemui.user.domain.interactor.SelectedUserInteractor;
++
++public final class AmbientIndicationService extends BroadcastReceiver {
++    private static final String TAG = "AmbientIndication";
++
++    private final AlarmManager mAlarmManager;
++    private final AmbientIndicationContainer mAmbientIndicationContainer;
++    private final Context mContext;
++    private final SelectedUserInteractor mSelectedUserInteractor;
++    private boolean mStarted = false;
++
++    private final KeyguardUpdateMonitorCallback mCallback = new KeyguardUpdateMonitorCallback() {
++        @Override
++        public void onUserSwitchComplete(int userId) {
++            onUserSwitched();
++        }
++    };
++
++    private final AlarmManager.OnAlarmListener mHideIndicationListener;
++
++    public AmbientIndicationService(
++            Context context,
++            AmbientIndicationContainer ambientIndicationContainer,
++            SelectedUserInteractor selectedUserInteractor,
++            AlarmManager alarmManager) {
++        mContext = context;
++        mAmbientIndicationContainer = ambientIndicationContainer;
++        mAlarmManager = alarmManager;
++        mSelectedUserInteractor = selectedUserInteractor;
++        // Created here (not as a field initializer) so javac's definite-assignment
++        // check is satisfied for the final container field it captures.
++        mHideIndicationListener =
++                () -> mAmbientIndicationContainer.setAmbientMusic(null, null, null, false, 0, null);
++        start();
++    }
++
++    void start() {
++        if (mStarted) {
++            return;
++        }
++        mStarted = true;
++        IntentFilter intentFilter = new IntentFilter();
++        intentFilter.addAction("com.google.android.ambientindication.action.AMBIENT_INDICATION_SHOW");
++        intentFilter.addAction("com.google.android.ambientindication.action.AMBIENT_INDICATION_HIDE");
++        mContext.registerReceiverAsUser(this, UserHandle.ALL, intentFilter,
++                "com.google.android.ambientindication.permission.AMBIENT_INDICATION", null,
++                Context.RECEIVER_EXPORTED);
++        Dependency.get(KeyguardUpdateMonitor.class).registerCallback(mCallback);
++        Log.i(TAG, "AmbientIndicationService started.");
++    }
++
++    @Override
++    public void onReceive(Context context, Intent intent) {
++        if (!isForCurrentUser()) {
++            Log.i(TAG, "Suppressing ambient, not for this user.");
++            return;
++        }
++        int version = intent.getIntExtra("com.google.android.ambientindication.extra.VERSION", 0);
++        if (version != 1) {
++            Log.e(TAG, "AmbientIndicationApi.EXTRA_VERSION is 1, but received an intent with version "
++                    + version + ", dropping intent.");
++            return;
++        }
++        String action = intent.getAction();
++        if (action == null) {
++            return;
++        }
++        if (action.equals("com.google.android.ambientindication.action.AMBIENT_INDICATION_HIDE")) {
++            mAlarmManager.cancel(mHideIndicationListener);
++            mAmbientIndicationContainer.setAmbientMusic(null, null, null, false, 0, null);
++            Log.i(TAG, "Hiding ambient indication.");
++            return;
++        }
++        if (action.equals("com.google.android.ambientindication.action.AMBIENT_INDICATION_SHOW")) {
++            long ttl = Math.min(Math.max(intent.getLongExtra(
++                    "com.google.android.ambientindication.extra.TTL_MILLIS", 180000L), 0L), 180000L);
++            boolean skipUnlock = intent.getBooleanExtra(
++                    "com.google.android.ambientindication.extra.SKIP_UNLOCK", false);
++            int iconOverride = intent.getIntExtra(
++                    "com.google.android.ambientindication.extra.ICON_OVERRIDE", 0);
++            String iconDescription = intent.getStringExtra(
++                    "com.google.android.ambientindication.extra.ICON_DESCRIPTION");
++            CharSequence text = intent.getCharSequenceExtra(
++                    "com.google.android.ambientindication.extra.TEXT");
++            mAmbientIndicationContainer.setAmbientMusic(
++                    text != null ? text.toString() : null,
++                    intent.getParcelableExtra(
++                            "com.google.android.ambientindication.extra.OPEN_INTENT",
++                            PendingIntent.class),
++                    intent.getParcelableExtra(
++                            "com.google.android.ambientindication.extra.FAVORITING_INTENT",
++                            PendingIntent.class),
++                    skipUnlock, iconOverride, iconDescription);
++            mAlarmManager.setExact(AlarmManager.ELAPSED_REALTIME,
++                    SystemClock.elapsedRealtime() + ttl, TAG, mHideIndicationListener, null);
++            Log.i(TAG, "Showing ambient indication.");
++        }
++    }
++
++    private boolean isForCurrentUser() {
++        return getSendingUserId() == getCurrentUser() || getSendingUserId() == UserHandle.USER_ALL;
++    }
++
++    private int getCurrentUser() {
++        return mSelectedUserInteractor.getSelectedUserId();
++    }
++
++    private void onUserSwitched() {
++        mAmbientIndicationContainer.hideAmbientMusic();
++    }
++}

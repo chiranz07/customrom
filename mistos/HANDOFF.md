@@ -1111,10 +1111,46 @@ special tooling) than anything else in this build, and requires the user's
 own explicit, deliberate decision with a full matching factory image in
 hand.
 
-## Gotchas — Clear Calling (dropped by user; root cause preserved for reference only)
+## Gotchas — Clear Calling (REVIVED 2026-09-17 — the earlier "DCS doesn't exist" claim was WRONG)
 
-**User explicitly dropped this feature. Do not re-attempt unless
-specifically asked again.** Root cause was fully mapped for completeness:
+**Correction:** the DCS APK **was in the tree the whole time** at
+`vendor/gms/system_ext/packages/privileged_apps/DeviceConnectivityServicePrebuilt_26.01.00/`
+(module `DeviceConnectivityServicePrebuilt_26.01.00`, `Android.mk`,
+`LOCAL_SYSTEM_EXT_MODULE`/`LOCAL_PRIVILEGED_MODULE`). It is listed in
+`gms_full.mk` only — the mini GMS choice dropped it (same pattern as Quick
+Tap and Velvet). The `PRODUCT_PACKAGES += com.google.android.apps.pixel.dcservice`
+line in `system-ext_blobs.mk` is not dangling either: it's the privapp
+permission XML module (`system_ext/blobs/etc/permissions/Android.bp`).
+Verified against the real factory image `shiba-cp2a.260605.012`
+(downloaded to `~/factory/`, images extracted under
+`~/factory/shiba-cp2a.260605.012/img/`, ext4 via `debugfs`):
+- factory `/system_ext/priv-app/DeviceConnectivityServicePrebuilt_26.01.00/`
+  APK = same versionCode 25253 / versionName `25.42.00.821424992…` / same
+  signing cert as the tree copy (raw sha differs only by packaging);
+- factory `system_ext/etc/permissions/com.google.android.apps.pixel.dcservice.xml`
+  and `default-permissions-…dcservice.xml` are byte-identical to ours;
+  `privapp-permissions-google-p.xml` grants (INTERACT_ACROSS_USERS,
+  MODIFY_AUDIO_ROUTING) identical; hidden-API allowlist entry present in
+  both; vendor `persist.vendor.audio.cca.enabled/unsupported=false`
+  identical. (The earlier note about missing `CAPTURE_AUDIO_OUTPUT` /
+  `CONTROL_INCALL_EXPERIENCE` grants was wrong — Google doesn't grant them
+  to DCS either.)
+- DCS's own manifest has an `IA_SETTINGS` activity with action
+  `com.android.settings.action.CLEAR_CALLING`, so the toggle appears in
+  AOSP-based Settings too — **SettingsGoogle is not required**.
+- Side finding: that factory image ships bootloader
+  `ripcurrent-17.0-15199481` — identical to what's on the phone — so the
+  bootloader is NOT older than the blobs; the "version skew" chain in the
+  earlier section is wrong on that point (radio/vendor/bootloader all match
+  cp2a.260605). The empty `ro.boot.boot_patchlevel` therefore is simply how
+  this firmware behaves, not a mismatch.
+**Fix:** `DeviceConnectivityServicePrebuilt_26.01.00` added to
+`gms_mini.mk`'s system_ext/priv-app list. Verify on-device: Settings →
+Sound & vibration → "Clear calling" toggle; `dumpsys package
+com.google.android.apps.pixel.dcservice`; during a call `getprop
+persist.vendor.audio.cca.enabled` flips with the toggle.
+
+Original root-cause notes (kept; the "APK missing" conclusion is superseded):
 
 - The audio HAL and kernel driver sides are **both already fully capable**
   — confirmed via `strings` on the real `android.hardware.audio.
@@ -1156,6 +1192,209 @@ specifically asked again.** Root cause was fully mapped for completeness:
   tying this to the deferred Pixel Framework question (see below) — even
   if DCS itself were extracted and wired in, there may be no UI surface to
   enable/see it without a real Google Settings app.
+
+## Pixel Framework port — INVESTIGATED AND PARKED (2026-09-17, ~2.5 h, 3 agents)
+
+**Outcome:** not integrated. The clone was **moved out of the tree to
+`~/pixel-framework_rising_sixteen`** (with one local edit kept:
+`SystemUIGoogle/proto/Android.bp` emptied because it duplicated
+`smartspace-proto-java`/`smartspace-proto-lite-java` from
+`frameworks/base/packages/SystemUI/proto/Android.bp` and broke whole-tree
+Soong analysis). **Never leave it inside `~/mistos/vendor/` unless you also
+add `filegroup { name: "Settings_manifest", srcs: ["AndroidManifest.xml"] }`
+to `packages/apps/Settings/Android.bp`** — otherwise Soong fails tree-wide
+("SettingsGoogle-core depends on undefined module Settings_manifest") and
+NO module builds, not just the Google ones.
+
+Targeted-compile findings (build agent):
+- `SettingsGoogle`: javac/kotlinc of `SettingsGoogle-core` + `SettingsGoogle`
+  **compile clean** once `Settings_manifest` exists; the next blocker is the
+  manifest merge (`<application android:name>` conflict → needs
+  `tools:replace="android:name"` on SettingsGoogle's `<application>`,
+  `AndroidManifest.xml:171`). aapt2/R8/dex stages never reached. The jar's
+  API-skew symbols (below) would surface at R8/runtime, not javac.
+- `SystemUIGoogle`: 42 javac/kotlinc errors, all in
+  `com.google.android.systemui.smartspace.*` against Mist's
+  `BcSmartspaceDataPlugin`/`LogBufferFactory` APIs — confirms it's a stale
+  duplicate of what Mist's SystemUI already has.
+- Logs: `/tmp/claude-4392/pf/build/BUILDLOG.md` (session scratch).
+
+- Base was cloned (plain `git clone`, never in the manifest) as
+  `vendor/pixel-framework` = RisingOS-Revived/android_vendor_pixel-framework
+  branch `sixteen` (HEAD 2bf5674, "Adapt SystemUIGoogle/SettingsGoogle for
+  16-QPR0"). Contents: `SystemUIGoogle` (61 Google source files stacked on
+  our `SystemUI-core`, overrides `SystemUI`), `SettingsGoogle` (prebuilt
+  `SettingsGoogle-lib.jar` + 11 sources on our `Settings-core`, overrides
+  `Settings`), `google_battery`/`fingerprint_ext` AIDL, `proto`, `config.mk`
+  (just `PRODUCT_PACKAGES += SystemUIGoogle SettingsGoogle`).
+- Verified 2026-09-17: no Android-17 port exists anywhere on GitHub.
+- RisingOS needed hook commits in their frameworks/base + Settings
+  (`sixteen` branches) — e.g. "Integrate Pixel framework hooks and
+  wrappers" e63eec8, "Add required priv-app permissions for SystemUIGoogle"
+  2cf8a69, "HierarchySnapshotter (2/2)" 50ebe39, "Stub PluginProtector"
+  b5f5428, "EnhancedEstimates: Device Health Services" 3cd5ff7,
+  "SettingsGoogle: ContextualScreenTimeout" 0ed3df4. Analysis reports land
+  in `/tmp/claude-4392/pf/{sysui,settings}/REPORT.md`, build iteration log
+  in `/tmp/claude-4392/pf/build/BUILDLOG.md` (session-scratch; copy
+  anything durable here).
+- Method: targeted `m SettingsGoogle` / `m SystemUIGoogle` builds (one at a
+  time), fix inside vendor/pixel-framework first, apply framework/Settings
+  hooks centrally, re-build; only then add `config.mk` to `mist_shiba.mk`
+  and do a full build. Treat SystemUIGoogle as high-risk (a crash-looping
+  SystemUI makes the phone unusable) — the first flash of it is a test.
+- **`vendor/pixel-framework` is NOT wired into the product yet.** The
+  published `...-1036` build does not contain it.
+
+**SystemUIGoogle analysis result (2026-09-17, decisive — don't redo):**
+- RisingOS `sixteen`'s "Adapt SystemUIGoogle for 16-QPR0" commit (9e349ee)
+  deleted **27,126 lines**: `columbus`, `ambientmusic` (Now Playing on
+  lockscreen), `assist`, `dreamliner`, `power`, `reversecharging`, `qs`,
+  `statusbar`, `theme`, `elmyra`, `controls`, `screenshot`, `gesture`,
+  `input`, plus `GoogleServices`/`SystemUIGoogleInitializer`. What's left
+  is 59 Smartspace files + 2 Dagger glue files + 48 res files + back-gesture
+  tflite assets, and four Google jars (`nga-lib`, `matchmaker`,
+  `touchcontext`, `googlebattery-lib`) that **no remaining source
+  references** (R8 would strip them).
+- Mist's own `frameworks/base/packages/SystemUI` **already contains the
+  same `com.google.android.systemui.smartspace.*` package (52 files) and
+  wires it in `SystemUIModule.java`** (`BcSmartspaceDataProvider`,
+  `SmartspaceGoogleModule`). pixel-framework's copy differs in 46 files and
+  adds 10 (an AppSearch "next alarm" card: `AlarmAppSearchController`,
+  `NextClockAlarmController*`). Static-linking `SystemUIGoogle-core` on top
+  of `SystemUI-core` therefore produces **duplicate classes** — RisingOS's
+  frameworks_base has only 1 file under `packages/SystemUI/src/com/google`,
+  so their tree never had the conflict. Net value of `sixteen`
+  SystemUIGoogle over Mist's SystemUI ≈ a newer smartspace + alarm card, at
+  the cost of replacing the whole shell. **Verdict: not worth it; skipped.**
+- Everything the user actually wants from "Pixel SystemUI" lives in the
+  **`fifteen`** branch (Android 15, last touched 2025-03-06; crDroid `15.0`
+  is the same set). Porting that to Android 17's SystemUI (Compose scenes,
+  keyguard blueprints, new QS) is a multi-week expert project; RisingOS
+  didn't do it for 16, Evolution-X dropped SystemUIGoogle entirely. If ever
+  attempted: start from `fifteen`, feature-by-feature (e.g. `reversecharging`
+  QS tile, `ambientmusic`), as additions to Mist's SystemUI — not by
+  overriding `SystemUI` wholesale.
+- Hook-commit facts for the record (from a partial clone of RisingOS
+  frameworks_base `sixteen` at `/tmp/claude-4392/pf/rising_fb`, patches in
+  `/tmp/claude-4392/pf/sysui/patches/`): priv-app permission commits
+  (2cf8a69, 17ec508, e61ef88) are already satisfied by Mist's
+  `data/etc/com.android.systemui.xml`; e63eec8 "Integrate Pixel framework
+  hooks" is obsolete (Mist uses the newer `PhoneSystemUIAppComponentFactory`
+  / `ReferenceGlobalRootComponent` mechanism, a Google variant would be a
+  new `GoogleGlobalRootComponent`, not that patch); the SHAs 50ebe39,
+  b5f5428, 82cb913 from the commit search were phantoms (tree objects);
+  `PluginProtector` and `EnhancedEstimates` already exist in Mist. One
+  genuinely useful, standalone item: a798cbc "Do not crash SystemUI if
+  smartspace cannot be built" — Mist's `LockscreenSmartspaceController.kt`
+  still throws `RuntimeException("Cannot build view when not enabled")` at
+  three sites (~lines 366/386/406); hand-port "return null" there if a
+  smartspace-related SystemUI crash ever shows up.
+
+**SettingsGoogle analysis result (2026-09-17):** buildable in principle —
+every module in `SettingsGoogle/Android.bp` resolves in Mist's tree
+(`Settings-core`, `SpaLib`, `SettingsLib-search-defaults`, datastore/room
+libs, `android.hidl.base-V1.0-java` and `android.frameworks.stats-V1-java`
+are auto-generated, `vendor-pixelatoms-java` comes from
+`vendor/pixel-framework/proto`). But: (1) the prebuilt
+`SettingsGoogle-lib.jar` (1101 classes) targets an older
+`com.android.settings` API than Mist's — it wants
+`accessibility.AccessibilityMetricsFeatureProvider` (Mist has the renamed
+`AccessibilityPageIdFeatureProvider`) and
+`biometrics.fingerprint.feature.SfpsRestToUnlockFeature` (RisingOS Settings
+a9913cb), so a compat shim/manual port is needed; (2) 8 of the 9 RisingOS
+hook commits do NOT apply to Mist (Settings: ec6dcb5 face auto-rotate,
+01575ba advanced VPN, ffb6e7e ContextualScreenTimeout [the SHA 0ed3df4
+doesn't exist], a9913cb SfpsRestToUnlock; frameworks/base: 3cd5ff7
+EnhancedEstimates DHS, 5c26426 BatteryManager intent, 376d014
+BatteryService capacity API) — only c64f7f7 "localepicker" 3-way-applies;
+(3) `SettingsGoogle/res` collides on **116 non-values resource files**
+with Mist's `packages/apps/Settings/res`, all recently re-themed by Mist
+(`c29acb1`), and SettingsGoogle's copies would silently win; (4) one
+source fix: `BatterySaverModePreferenceController.java` imports
+`com.android.internal.util.android.Utils` → Mist's is
+`com.android.internal.util.mist.Utils` (same `isPackageInstalled`
+signature). Patches + symbol lists were saved under
+`/tmp/claude-4392/pf/settings/` (session scratch). **Verdict: real work
+(days), and it delivers none of the user's actual goals** — see next item.
+
+**What the user actually wanted from "Pixel Framework" (stated
+2026-09-17): Now Playing on the lock screen, and Clear Calling.** Neither
+needs Pixel Framework: Clear Calling is blocked on the missing DCS app
+regardless (SettingsGoogle only has the toggle UI), and lockscreen Now
+Playing is a **Mist-native feature** that was simply never enabled:
+- Mist's SystemUI has its own implementation
+  (`packages/SystemUI/src/com/android/systemui/nowplaying/`,
+  `ax/AxPlatformObservers.kt` registers the
+  `com.google.android.ambientindication.action.AMBIENT_INDICATION_SHOW/
+  EXPAND/HIDE` receiver guarded by the
+  `com.google.android.ambientindication.permission.AMBIENT_INDICATION`
+  permission that SystemUI's own manifest declares as
+  `signature|privileged`).
+- Gate: `Settings.System.nowplaying_enabled`, **default 0**
+  (`NowPlayingSettingsRepository.kt`). UI toggle: **Mistify → Lock screen
+  → Now Playing** (`packages/apps/Mistify/res/xml/nowplaying_settings.xml`).
+- Sender is **Android System Intelligence** (`com.google.android.as`,
+  `product/priv-app/DevicePersonalizationAiAiPrebuiltPixel2023`), which
+  requests that permission (`uses-permission` confirmed via aapt2; the
+  new `NowPlayingPrebuilt` app `com.google.android.apps.pixel.nowplaying`
+  never references ambientindication — it's only the history UI). No
+  privapp-permissions file in the image lists `AMBIENT_INDICATION` for
+  any package (`ro.control_privapp_permissions=enforce`). Whether that
+  matters depends on whether the allowlist is enforced for
+  SystemUI-declared (non-`android`) permissions — verify on-device with
+  `dumpsys package com.google.android.as | grep -A1 ambientindication`
+  (`granted=true/false`). If false: add
+  `<permission name="com.google.android.ambientindication.permission.AMBIENT_INDICATION"/>`
+  to the `com.google.android.as` block in
+  `vendor/gms/product/blobs/etc/permissions/privapp-permissions-google-p.xml`
+  and rebuild.
+
+## Now Playing on the lock screen — ported Pixel "ambient indication" (2026-09-17)
+
+**Root cause (device agent + source):** Mist's "Now Playing" lockscreen
+feature (`SystemUI/nowplaying/`, Mistify → Lock screen → Now Playing) is a
+*local media-session* widget (title/artist/lyrics of whatever app is
+playing) — unrelated to Google's ambient song recognition. ASI
+(`com.google.android.as`) recognizes songs fine, holds the
+`AMBIENT_INDICATION` permission, and its `AMBIENT_INDICATION_SHOW`
+broadcast is delivered to SystemUI (verified via `dumpsys activity
+broadcasts`) — but the only receiver, `ax/AxPlatformObservers.kt`,
+forwards it to `AxPlatformClient.KEY_NOW_PLAYING`, which **nothing in the
+tree consumes**. AOSP's hook points exist (`layout/ambient_indication.xml`
+is an empty `<merge/>` stub included by `keyguard_bottom_area.xml`;
+`CentralSurfacesImpl`/`DozeServiceHost` already look up
+`R.id.ambient_indication_container`), so the fix is porting Pixel's small
+`ambientmusic` implementation into Mist's SystemUI.
+
+**What was added (frameworks/base/packages/SystemUI, from
+`~/pixel-framework_rising_sixteen` branch `fifteen`, FETCH_HEAD):**
+- `src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt`
+  (adapted: `NotificationMediaManager` is now in `com.android.systemui.media`;
+  `DelayedWakeLock(bgHandler, context, logger, tag)` lost its main-handler
+  arg; `ShadeViewController.setAmbientIndicationTop()` no longer exists →
+  call dropped; all view access null-safe).
+- `src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java`
+  (as upstream, receiver for SHOW/HIDE with the permission guard, TTL alarm,
+  user-switch handling; typed `getParcelableExtra`).
+- `src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt`
+  (new, Mist-side): `CoreStartable` that finds the container in
+  `NotificationShadeWindowView` (retries 5×1s if not inflated yet), calls
+  `initializeView(...)` and creates the service; bound in
+  `dagger/SystemUICoreStartableModule.kt` (`@ClassKey(AmbientIndicationStartable::class)`).
+  Replaces SystemUIGoogle's `GoogleServices` wiring.
+- `res/layout/ambient_indication.xml` (stub → real container),
+  `res/layout/ambient_indication_inner.xml`,
+  `res/xml/ambient_indication_inner_{downwards,upwards}.xml`,
+  `res/values/dimens_ambient_indication.xml` (icon sizes + dock dimens),
+  7 drawables (`ic_music_search/not_found`, `ic_cloud_off`, `ic_favorite*`,
+  `ic_error`), 69 `res/anim/audioanim_animation*.xml` frames (the animated
+  music-note icon). `TextAppearance.Keyguard.BottomArea` already exists in
+  `res-keyguard`. SystemUI's manifest already declared/used the permission.
+- Verify on-device: `logcat | grep -E "AmbientIndication"` should show
+  `AmbientIndicationService started` at boot and `Showing ambient
+  indication.` when ASI recognizes a song; song text appears above the
+  bottom of the lock screen / on AOD. Mist's own "Now Playing" toggle in
+  Mistify is unrelated to this and can stay off.
 
 ## Deliberately deferred — Pixel Framework (real SystemUI/Settings source)
 
@@ -1553,6 +1792,16 @@ the actual flashable artifact. Before reporting anything as fixed:
    to see whether the component actually completes its job (e.g. "HAL has
    started successfully" *and* servicemanager confirming registration,
    not just the absence of an immediate crash).
+
+## Documentation repo (GitHub)
+
+Everything in this file plus all patches, new files, manifests and scripts
+is published at **https://github.com/chiranz07/customrom/tree/main/mistos**
+(commit 0669851, 2026-09-17). A local clone lives at `~/customrom_stage/repo`
+(remote over SSH, key `~/.ssh/id_ed25519_github`, identity
+`chiranz <chiranz07@users.noreply.github.com>`). After any future change:
+re-export patches (the loop in `mistos/README.md` §3 / `~/mistos_patches_*`),
+copy this HANDOFF.md into `mistos/`, commit, `git push origin main`.
 
 ## Publishing to SourceForge (set up 2026-09-17)
 
