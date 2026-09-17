@@ -6,7 +6,7 @@ Mist-OS update. Read this file top to bottom first; then read `HANDOFF.md`,
 which is the full knowledge base (every root cause, dead end and gotcha, ~1400
 lines). This README is the *procedure*; HANDOFF.md is the *why*.
 
-Maintainer: chiranz · Releases: https://sourceforge.net/projects/mistos-shiba-unofficial/files/
+Maintainer: chiranz · Releases: https://sourceforge.net/projects/chiranz/files/ (`shiba/`, `husky/`, each with `img/`)
 
 ---
 
@@ -106,7 +106,13 @@ what they do, so you know what you're re-applying:
 - `vendor_JamesDSP.patch` — `audio_effects_config.xml` rewritten for the libraries that actually exist on shiba; new `allowlist_james_dsp.xml` power-save allowlist (fixes the screen-off crash).
 - `build_make.patch`, `hardware_google_pixel.patch` — remove the virtual biometrics HALs (they hijack the real ones).
 - `device_lineage_sepolicy.patch` — `toolbox` may search `/data/adb` (Mist's own root-hiding cleanup script was silently failing).
-- `packages_apps_Settings.patch` — face-enroll resource flags; harmless, not the face fix.
+- `packages_apps_Settings.patch` — face-enroll resource flags (harmless, not the face fix) + `tap_screen_gesture_settings.xml` fixed to use Mist's `SecureSettingSwitchPreference` (the page crashed on a non-existent Evolution-X class).
+- `vendor_pixel-style.patch` also raises `GoogleSettingsOverlay` to priority 2 so Settings → Lock screen → Shortcuts targets the installed Google wallpaper picker.
+
+**Features added on top (all in the patches above + `files/`):**
+- `frameworks_base.patch` — SystemUI: Pixel ambient indication (Now Playing on the lock screen) via `AmbientIndicationAreaSection` + `com/google/android/systemui/ambientmusic/*` + resources; `services/core/.../display/HighBrightnessModeController.java`: honours `Settings.Secure` `hbm_force`, `auto_hbm`, `auto_hbm_threshold`, `auto_hbm_no_time_limit`.
+- `device_google_zuma.patch` — `parts/` (GoogleParts): Settings → Display → "High brightness mode" page (`autohbm/HbmController`, `AutoHbmFragment`, `AutoHbmActivity`, `HbmTileService` QS tile) writing those Secure keys. Do **not** write the panel's sysfs `hbm_mode` — the display HAL overrides it (tried, see HANDOFF).
+- `vendor_gms.patch` — `gms_mini.mk` also enables `DeviceConnectivityServicePrebuilt` (Clear Calling) and `TARGET_SUPPORTS_QUICK_TAP` makes `ColumbusService` (Quick Tap) ship.
 
 Sanity check after applying: `xmllint --noout` every XML you touched (a `--`
 inside an XML comment breaks the build), and `repo status` should list the
