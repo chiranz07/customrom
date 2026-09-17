@@ -10,8 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.lineageos.settings.autohbm.AutoHbmService;
-
 public class BootCompletedReceiver extends BroadcastReceiver {
     private static final String TAG = "GoogleParts";
 
@@ -19,6 +17,5 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
         Log.d(TAG, "Received boot completed intent");
         EuiccDisabler.enableOrDisableEuicc(context);
-        AutoHbmService.sync(context);
     }
 }

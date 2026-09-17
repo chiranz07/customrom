@@ -10,9 +10,10 @@
 
     <PreferenceCategory android:title="@string/hbm_manual_category">
         <SwitchPreferenceCompat
-            android:key="hbm"
+            android:key="hbm_force"
             android:title="@string/hbm_enable_title"
             android:summary="@string/hbm_enable_summary"
+            android:persistent="false"
             android:defaultValue="false" />
     </PreferenceCategory>
 
@@ -21,6 +22,7 @@
             android:key="auto_hbm"
             android:title="@string/auto_hbm_enable_title"
             android:summary="@string/auto_hbm_enable_summary"
+            android:persistent="false"
             android:defaultValue="false" />
 
         <SeekBarPreference
@@ -28,33 +30,20 @@
             android:title="@string/auto_hbm_threshold_title"
             android:summary="@string/auto_hbm_threshold_summary"
             android:dependency="auto_hbm"
-            android:defaultValue="20000"
+            android:persistent="false"
+            android:defaultValue="10000"
             android:max="60000"
             app:min="1000"
             app:seekBarIncrement="1000"
             app:showSeekBarValue="true" />
 
-        <SeekBarPreference
-            android:key="auto_hbm_enable_time"
-            android:title="@string/auto_hbm_enable_time_title"
-            android:summary="@string/auto_hbm_enable_time_summary"
+        <SwitchPreferenceCompat
+            android:key="auto_hbm_no_time_limit"
+            android:title="@string/auto_hbm_no_time_limit_title"
+            android:summary="@string/auto_hbm_no_time_limit_summary"
             android:dependency="auto_hbm"
-            android:defaultValue="1"
-            android:max="10"
-            app:min="0"
-            app:seekBarIncrement="1"
-            app:showSeekBarValue="true" />
-
-        <SeekBarPreference
-            android:key="auto_hbm_disable_time"
-            android:title="@string/auto_hbm_disable_time_title"
-            android:summary="@string/auto_hbm_disable_time_summary"
-            android:dependency="auto_hbm"
-            android:defaultValue="3"
-            android:max="30"
-            app:min="0"
-            app:seekBarIncrement="1"
-            app:showSeekBarValue="true" />
+            android:persistent="false"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
     <Preference

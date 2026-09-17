@@ -1886,3 +1886,157 @@ index 000000000..91d91159a
 +        mAmbientIndicationContainer.hideAmbientMusic();
 +    }
 +}
+diff --git a/services/core/java/com/android/server/display/HighBrightnessModeController.java b/services/core/java/com/android/server/display/HighBrightnessModeController.java
+index e6cd18dd2..461f133ab 100644
+--- a/services/core/java/com/android/server/display/HighBrightnessModeController.java
++++ b/services/core/java/com/android/server/display/HighBrightnessModeController.java
+@@ -110,6 +110,20 @@ class HighBrightnessModeController {
+     private float mMaxDesiredHdrSdrRatio = DEFAULT_MAX_DESIRED_HDR_SDR_RATIO;
+     private boolean mForceHbmChangeCallback = false;
+     private boolean mIsBlockedByLowPowerMode = false;
++
++    // Mist-OS: user-controlled HBM (Settings.Secure, written by GoogleParts).
++    //  hbm_force            manual HBM: allow the HBM brightness range at any time
++    //  auto_hbm             use a custom lux threshold instead of the config's minimumLux
++    //  auto_hbm_threshold   that threshold (lux, > 0)
++    //  auto_hbm_no_time_limit  ignore the config's timeMaxSecs/timeWindowSecs cap
++    static final String SETTING_HBM_FORCE = "hbm_force";
++    static final String SETTING_AUTO_HBM = "auto_hbm";
++    static final String SETTING_AUTO_HBM_THRESHOLD = "auto_hbm_threshold";
++    static final String SETTING_AUTO_HBM_NO_TIME_LIMIT = "auto_hbm_no_time_limit";
++    private boolean mHbmForced = false;
++    private boolean mAutoHbmCustom = false;
++    private float mAutoHbmThresholdLux = 0f;
++    private boolean mAutoHbmNoTimeLimit = false;
+     private int mWidth;
+     private int mHeight;
+     private float mAmbientLux;
+@@ -183,6 +197,14 @@ class HighBrightnessModeController {
+         recalculateTimeAllowance();
+     }
+ 
++    /** Mist-OS: config minimumLux unless the user set a custom Auto HBM threshold. */
++    private float getEffectiveMinimumLux() {
++        if (mAutoHbmCustom && mAutoHbmThresholdLux > 0) {
++            return mAutoHbmThresholdLux;
++        }
++        return mHbmData.minimumLux;
++    }
++
+     float getCurrentBrightnessMin() {
+         return mBrightnessMin;
+     }
+@@ -230,8 +252,9 @@ class HighBrightnessModeController {
+             return;
+         }
+ 
+-        final boolean isHighLux = (ambientLux >= mHbmData.minimumLux);
+-        Slog.d(TAG, "onAmbientLuxChange: " + ambientLux + "/" + mHbmData.minimumLux
++        final float minimumLux = getEffectiveMinimumLux();
++        final boolean isHighLux = (ambientLux >= minimumLux);
++        Slog.d(TAG, "onAmbientLuxChange: " + ambientLux + "/" + minimumLux
+                 + ", IsHighLux: " + isHighLux);
+         if (isHighLux != mIsInAllowedAmbientRange) {
+             mIsInAllowedAmbientRange = isHighLux;
+@@ -352,6 +375,9 @@ class HighBrightnessModeController {
+         pw.println("  remainingTime=" + calculateRemainingTime(mClock.uptimeMillis()));
+         pw.println("  mIsTimeAvailable= " + mIsTimeAvailable);
+         pw.println("  mIsBlockedByLowPowerMode=" + mIsBlockedByLowPowerMode);
++        pw.println("  mist: mHbmForced=" + mHbmForced + " mAutoHbmCustom=" + mAutoHbmCustom
++                + " mAutoHbmThresholdLux=" + mAutoHbmThresholdLux
++                + " mAutoHbmNoTimeLimit=" + mAutoHbmNoTimeLimit);
+         pw.println("  width*height=" + mWidth + "*" + mHeight);
+         pw.println("  mHdrBoostDisabled=" + mHdrBoostDisabled);
+ 
+@@ -401,6 +427,10 @@ class HighBrightnessModeController {
+             // Assumed that HBM is being handled externally.
+             return mHbmData != null && mBrightness > mHbmData.transitionPoint;
+         }
++        if (mHbmForced) {
++            // Mist-OS manual HBM: ignore ambient light and the time cap; HDR/low-power still win.
++            return !mIsHdrLayerPresent && !mIsBlockedByLowPowerMode;
++        }
+         return !mIsHdrLayerPresent
+                 && ((mIsAutoBrightnessEnabled && mIsTimeAvailable && mIsInAllowedAmbientRange)
+                     || (!mIsAutoBrightnessEnabled && mHbmData.timeWindowMillis == 0))
+@@ -495,7 +525,9 @@ class HighBrightnessModeController {
+         final boolean isAllowedWithoutRestrictions = remainingTime >= mHbmData.timeMinMillis;
+         final boolean isOnlyAllowedToStayOn = !isAllowedWithoutRestrictions
+                 && remainingTime > 0 && mBrightness > mHbmData.transitionPoint;
+-        mIsTimeAvailable = isAllowedWithoutRestrictions || isOnlyAllowedToStayOn;
++        mIsTimeAvailable = isAllowedWithoutRestrictions || isOnlyAllowedToStayOn
++                // Mist-OS: user opted out of the per-window HBM time cap
++                || mHbmForced || (mAutoHbmCustom && mAutoHbmNoTimeLimit);
+ 
+         // Calculate the time at which we want to recalculate mIsTimeAvailable in case a lux or
+         // brightness change doesn't happen before then.
+@@ -705,6 +737,13 @@ class HighBrightnessModeController {
+     private final class SettingsObserver extends ContentObserver {
+         private final Uri mLowPowerModeSetting = Settings.Global.getUriFor(
+                 Settings.Global.LOW_POWER_MODE);
++        // Mist-OS HBM settings
++        private final Uri[] mHbmSettings = new Uri[] {
++                Settings.Secure.getUriFor(SETTING_HBM_FORCE),
++                Settings.Secure.getUriFor(SETTING_AUTO_HBM),
++                Settings.Secure.getUriFor(SETTING_AUTO_HBM_THRESHOLD),
++                Settings.Secure.getUriFor(SETTING_AUTO_HBM_NO_TIME_LIMIT),
++        };
+         private boolean mStarted;
+ 
+         SettingsObserver(Handler handler) {
+@@ -714,17 +753,55 @@ class HighBrightnessModeController {
+         @Override
+         public void onChange(boolean selfChange, Uri uri) {
+             updateLowPower();
++            updateMistHbmSettings();
+         }
+ 
+         void startObserving() {
+             if (!mStarted) {
+                 mContext.getContentResolver().registerContentObserver(mLowPowerModeSetting,
+                         false /*notifyForDescendants*/, this, UserHandle.USER_ALL);
++                for (Uri uri : mHbmSettings) {
++                    mContext.getContentResolver().registerContentObserver(uri,
++                            false /*notifyForDescendants*/, this, UserHandle.USER_ALL);
++                }
+                 mStarted = true;
+                 updateLowPower();
++                updateMistHbmSettings();
+             }
+         }
+ 
++        /** Mist-OS: re-read the user HBM settings and re-evaluate the HBM state. */
++        private void updateMistHbmSettings() {
++            final android.content.ContentResolver cr = mContext.getContentResolver();
++            final boolean forced = Settings.Secure.getIntForUser(cr, SETTING_HBM_FORCE, 0,
++                    UserHandle.USER_CURRENT) != 0;
++            final boolean custom = Settings.Secure.getIntForUser(cr, SETTING_AUTO_HBM, 0,
++                    UserHandle.USER_CURRENT) != 0;
++            final float threshold = Settings.Secure.getIntForUser(cr, SETTING_AUTO_HBM_THRESHOLD,
++                    0, UserHandle.USER_CURRENT);
++            final boolean noLimit = Settings.Secure.getIntForUser(cr,
++                    SETTING_AUTO_HBM_NO_TIME_LIMIT, 0, UserHandle.USER_CURRENT) != 0;
++            if (forced == mHbmForced && custom == mAutoHbmCustom
++                    && threshold == mAutoHbmThresholdLux && noLimit == mAutoHbmNoTimeLimit) {
++                return;
++            }
++            Slog.d(TAG, "Mist HBM settings: force=" + forced + " auto=" + custom
++                    + " threshold=" + threshold + " noTimeLimit=" + noLimit);
++            mHbmForced = forced;
++            mAutoHbmCustom = custom;
++            mAutoHbmThresholdLux = threshold;
++            mAutoHbmNoTimeLimit = noLimit;
++            if (!hbmControllerEnabled()) {
++                return;
++            }
++            // Re-apply the (possibly new) lux threshold to the last known ambient value.
++            if (mIsAutoBrightnessEnabled) {
++                mIsInAllowedAmbientRange = mAmbientLux >= getEffectiveMinimumLux();
++            }
++            recalculateTimeAllowance();
++            updateHbmMode();
++        }
++
+         void stopObserving() {
+             mIsBlockedByLowPowerMode = false;
+             if (mStarted) {

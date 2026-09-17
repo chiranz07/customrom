@@ -394,18 +394,15 @@ index f8663d6..9497e5d 100644
  /vendor/bin/hw/vendor\.dolby\.media\.c2-default-service u:object_r:mediacodec_exec:s0
 +/vendor/bin/gpuflag u:object_r:gpuflag_exec:s0
 diff --git a/sepolicy/vendor/genfs_contexts b/sepolicy/vendor/genfs_contexts
-index 7995265..dfeb4ed 100644
+deleted file mode 100644
+index 7995265..0000000
 --- a/sepolicy/vendor/genfs_contexts
-+++ b/sepolicy/vendor/genfs_contexts
-@@ -1,4 +1,4 @@
++++ /dev/null
+@@ -1,4 +0,0 @@
 -genfscon sysfs /devices/platform/10c90000.hsi2c/i2c-9/9-003c u:object_r:sysfs_wlc:s0
 -genfscon sysfs /devices/platform/111e0000.spi/spi_master/spi21/spi21.0/nstandby u:object_r:sysfs_gps:s0
 -genfscon sysfs /devices/platform/bbd_pps/pps_assert u:object_r:sysfs_gps_assert:s0
 -genfscon sysfs /devices/virtual/pps/pps0/assert_elapsed u:object_r:sysfs_gps_assert:s0
-+# Panel high-brightness-mode knob written by GoogleParts' Auto HBM service
-+# (see sysfs_hbm.te). More specific than zuma's sysfs_leds label on the
-+# parent backlight directory, so it wins for this one node.
-+genfscon sysfs /devices/platform/19440000.drmdsim/19440000.drmdsim.0/backlight/panel0-backlight/hbm_mode u:object_r:sysfs_hbm:s0
 diff --git a/sepolicy/vendor/gpuflag.te b/sepolicy/vendor/gpuflag.te
 new file mode 100644
 index 0000000..66bea4d
@@ -464,25 +461,6 @@ index 0000000..763fb31
 +# still figuring that out (property name not visible in the on-device
 +# logcat capture we have so far, only its unlabeled fallback context).
 +allow hal_face_default metadata_file:dir r_dir_perms;
-diff --git a/sepolicy/vendor/sysfs_hbm.te b/sepolicy/vendor/sysfs_hbm.te
-new file mode 100644
-index 0000000..2f45ec9
---- /dev/null
-+++ b/sepolicy/vendor/sysfs_hbm.te
-@@ -0,0 +1,13 @@
-+# Auto HBM (device/google/zuma/parts, package org.lineageos.settings, runs as
-+# system_app via android.uid.system). The Samsung panel driver exposes the
-+# high-brightness-mode knob at
-+#   /sys/class/backlight/panel0-backlight/hbm_mode
-+# (-> /sys/devices/platform/19440000.drmdsim/19440000.drmdsim.0/backlight/
-+#     panel0-backlight/hbm_mode). zuma labels the whole backlight dir
-+# sysfs_leds, which system_app can neither search nor write, so the single
-+# node gets its own type (genfs_contexts in this directory) and system_app
-+# is allowed through to it.
-+type sysfs_hbm, sysfs_type, fs_type;
-+
-+allow system_app sysfs_leds:dir search;
-+allow system_app sysfs_hbm:file rw_file_perms;
 diff --git a/sepolicy/vendor/trusty_apploader_faceauth.te b/sepolicy/vendor/trusty_apploader_faceauth.te
 new file mode 100644
 index 0000000..3061254

@@ -1468,7 +1468,50 @@ Settings → Network & internet → SIMs. If it ever disappears, the gate is
 (`showEuiccSettings()` logs its reason under tag `EuiccRepository`:
 EuiccManager not enabled / cid ignored / dev-settings / country support).
 
-## Auto HBM (added 2026-09-17 evening, opt-in, first build pending)
+## High brightness mode — FINAL DESIGN (framework route; the sysfs route below is DEAD)
+
+Build `...-1723` shipped the sysfs implementation described in the next
+section and it **did not work**: the device agent proved the write to
+`hbm_mode` succeeds (no SELinux denials, `AutoHbmService: HBM enabled`)
+but the composer keeps reporting `Hbm=0` in every `hwc-display` line — the
+display HAL owns the panel's HBM state and re-asserts it via the DRM
+`hbm_mode` property on the next commit. (Bonus: `hbm_mode_store` also
+returns EPERM while the panel is off/LP, which was the one "Failed to
+write" line.) So the sysfs service, `sysfs_hbm.te` and the genfs label
+were removed again.
+
+**How HBM really works on shiba/husky:** framework
+`services/core/.../display/HighBrightnessModeController.java` reads
+`/vendor/etc/displayconfig/display_id_*.xml` → `<highBrightnessMode>`
+(`transitionPoint 0.57/0.67`, `minimumLux 10000`, `timeMaxSecs 300` per
+`timeWindowSecs 1800`, thermal `light`, not in low-power) and only allows
+brightness above the transition point when adaptive brightness is on, lux
+≥ minimumLux, time budget left. The HAL then engages panel HBM by itself.
+
+**Mist-OS patch (frameworks/base, `HighBrightnessModeController.java`):**
+four `Settings.Secure` keys, observed live by its `SettingsObserver`:
+- `hbm_force` → `isHbmCurrentlyAllowed()` returns true regardless of
+  ambient light / time budget (HDR layer and Battery Saver still block).
+- `auto_hbm` + `auto_hbm_threshold` → `getEffectiveMinimumLux()` replaces
+  the config's `minimumLux` in `onAmbientLuxChange()`.
+- `auto_hbm_no_time_limit` → `recalculateTimeAllowance()` treats time as
+  always available. Dump shows `mist: mHbmForced=...` in `dumpsys display`.
+Auto mode still needs adaptive brightness ON (the lux feed comes from it).
+
+**App side (`device/google/zuma/parts`, GoogleParts):** `autohbm/HbmController`
+writes those keys; manual on = save brightness mode+level, set
+`SCREEN_BRIGHTNESS_MODE_MANUAL`, `DisplayManager.setBrightness(DEFAULT_DISPLAY, 1.0f)`;
+off = restore both. `AutoHbmFragment` (page under Settings → Display →
+"High brightness mode": Manual switch; Automatic: custom-threshold switch,
+lux slider 1000–60000 default 10000, "No time limit" switch) uses
+`persistent="false"` prefs and reads/writes Settings.Secure directly;
+`HbmTileService` = QS tile for manual. Manifest has
+`WRITE_SECURE_SETTINGS` + `CONTROL_DISPLAY_BRIGHTNESS` (system uid). No
+sepolicy needed. Verify: `settings get secure hbm_force`, `dumpsys display
+| grep -A8 HighBrightnessModeController`, and `hwc-display` logcat lines
+showing `Hbm=1` with high `level`/`nits`.
+
+## (superseded) Auto HBM via sysfs — kept only as the record of what didn't work
 
 User asked for an "Auto HBM" option under Display. Nothing existed for
 zuma in any tree (Lineage/crDroid/Evolution/Rising `GoogleParts` is only

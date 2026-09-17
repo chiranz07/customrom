@@ -113,10 +113,19 @@ index 594360b..7132c4a 100644
  
      optimize: {
 diff --git a/parts/AndroidManifest.xml b/parts/AndroidManifest.xml
-index a8570bd..316a714 100644
+index a8570bd..7ef1845 100644
 --- a/parts/AndroidManifest.xml
 +++ b/parts/AndroidManifest.xml
-@@ -25,6 +25,40 @@
+@@ -16,6 +16,8 @@
+     </queries>
+ 
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
++    <uses-permission android:name="android.permission.CONTROL_DISPLAY_BRIGHTNESS" />
+ 
+     <uses-sdk
+         android:minSdkVersion="30"
+@@ -25,6 +27,36 @@
          android:label="@string/device_settings_app_name"
          android:persistent="true">
  
@@ -137,10 +146,6 @@ index a8570bd..316a714 100644
 +                android:name="com.android.settings.summary"
 +                android:resource="@string/hbm_summary" />
 +        </activity>
-+
-+        <service
-+            android:name=".autohbm.AutoHbmService"
-+            android:exported="false" />
 +
 +        <!-- Quick Settings tile: manual HBM -->
 +        <service
@@ -186,10 +191,10 @@ index 0000000..3fec892
 +</vector>
 diff --git a/parts/res/values/strings.xml b/parts/res/values/strings.xml
 new file mode 100644
-index 0000000..0bc66ab
+index 0000000..628443d
 --- /dev/null
 +++ b/parts/res/values/strings.xml
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,24 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!--
 +     SPDX-FileCopyrightText: 2026 Mist-OS
@@ -197,31 +202,29 @@ index 0000000..0bc66ab
 +-->
 +<resources>
 +    <string name="hbm_title">High brightness mode</string>
-+    <string name="hbm_summary">Manual HBM, Quick Settings tile, automatic HBM in sunlight</string>
++    <string name="hbm_summary">Peak brightness on demand, Quick Settings tile, sunlight threshold</string>
 +    <string name="hbm_tile_label">HBM</string>
 +
 +    <string name="hbm_manual_category">Manual</string>
 +    <string name="hbm_enable_title">High brightness mode</string>
-+    <string name="hbm_enable_summary">Force the panel to peak brightness while the screen is on</string>
++    <string name="hbm_enable_summary">Unlock the panel\'s peak brightness at any time and set brightness to maximum. Turning it off restores your previous brightness.</string>
 +
-+    <string name="hbm_auto_category">Automatic</string>
-+    <string name="auto_hbm_enable_title">Automatic high brightness mode</string>
-+    <string name="auto_hbm_enable_summary">Switch to high brightness mode when ambient light stays above the threshold</string>
++    <string name="hbm_auto_category">Automatic (sunlight)</string>
++    <string name="auto_hbm_enable_title">Custom sunlight threshold</string>
++    <string name="auto_hbm_enable_summary">Use your own light threshold for automatic peak brightness (requires adaptive brightness)</string>
 +    <string name="auto_hbm_threshold_title">Light threshold (lux)</string>
-+    <string name="auto_hbm_threshold_summary">Direct sunlight is typically above 20000 lux</string>
-+    <string name="auto_hbm_enable_time_title">Turn-on delay (seconds)</string>
-+    <string name="auto_hbm_enable_time_summary">How long the light must stay above the threshold before HBM turns on</string>
-+    <string name="auto_hbm_disable_time_title">Turn-off delay (seconds)</string>
-+    <string name="auto_hbm_disable_time_summary">How long the light must stay below the threshold before HBM turns off (prevents flicker)</string>
++    <string name="auto_hbm_threshold_summary">Stock is 10000 lux; direct sunlight is usually above 20000</string>
++    <string name="auto_hbm_no_time_limit_title">No time limit</string>
++    <string name="auto_hbm_no_time_limit_summary">Stock allows peak brightness for only 5 minutes in every 30. Removing the limit increases heat and battery use.</string>
 +
-+    <string name="hbm_footer">HBM is always released when the screen turns off. Manual mode takes precedence over automatic mode. Adaptive brightness already boosts the display in sunlight; HBM forces the panel\'s peak mode regardless of the brightness slider and uses more power.</string>
++    <string name="hbm_footer">Peak brightness is still disabled while HDR content is on screen, in Battery Saver, and when the display gets hot. Automatic mode only works with adaptive brightness on, because the ambient light reading comes from it.</string>
 +</resources>
 diff --git a/parts/res/xml/autohbm_settings.xml b/parts/res/xml/autohbm_settings.xml
 new file mode 100644
-index 0000000..3be8039
+index 0000000..f666635
 --- /dev/null
 +++ b/parts/res/xml/autohbm_settings.xml
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,53 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!--
 +     SPDX-FileCopyrightText: 2026 Mist-OS
@@ -234,9 +237,10 @@ index 0000000..3be8039
 +
 +    <PreferenceCategory android:title="@string/hbm_manual_category">
 +        <SwitchPreferenceCompat
-+            android:key="hbm"
++            android:key="hbm_force"
 +            android:title="@string/hbm_enable_title"
 +            android:summary="@string/hbm_enable_summary"
++            android:persistent="false"
 +            android:defaultValue="false" />
 +    </PreferenceCategory>
 +
@@ -245,6 +249,7 @@ index 0000000..3be8039
 +            android:key="auto_hbm"
 +            android:title="@string/auto_hbm_enable_title"
 +            android:summary="@string/auto_hbm_enable_summary"
++            android:persistent="false"
 +            android:defaultValue="false" />
 +
 +        <SeekBarPreference
@@ -252,33 +257,20 @@ index 0000000..3be8039
 +            android:title="@string/auto_hbm_threshold_title"
 +            android:summary="@string/auto_hbm_threshold_summary"
 +            android:dependency="auto_hbm"
-+            android:defaultValue="20000"
++            android:persistent="false"
++            android:defaultValue="10000"
 +            android:max="60000"
 +            app:min="1000"
 +            app:seekBarIncrement="1000"
 +            app:showSeekBarValue="true" />
 +
-+        <SeekBarPreference
-+            android:key="auto_hbm_enable_time"
-+            android:title="@string/auto_hbm_enable_time_title"
-+            android:summary="@string/auto_hbm_enable_time_summary"
++        <SwitchPreferenceCompat
++            android:key="auto_hbm_no_time_limit"
++            android:title="@string/auto_hbm_no_time_limit_title"
++            android:summary="@string/auto_hbm_no_time_limit_summary"
 +            android:dependency="auto_hbm"
-+            android:defaultValue="1"
-+            android:max="10"
-+            app:min="0"
-+            app:seekBarIncrement="1"
-+            app:showSeekBarValue="true" />
-+
-+        <SeekBarPreference
-+            android:key="auto_hbm_disable_time"
-+            android:title="@string/auto_hbm_disable_time_title"
-+            android:summary="@string/auto_hbm_disable_time_summary"
-+            android:dependency="auto_hbm"
-+            android:defaultValue="3"
-+            android:max="30"
-+            app:min="0"
-+            app:seekBarIncrement="1"
-+            app:showSeekBarValue="true" />
++            android:persistent="false"
++            android:defaultValue="false" />
 +    </PreferenceCategory>
 +
 +    <Preference
@@ -286,26 +278,6 @@ index 0000000..3be8039
 +        android:selectable="false"
 +        android:summary="@string/hbm_footer" />
 +</PreferenceScreen>
-diff --git a/parts/src/org/lineageos/settings/BootCompletedReceiver.java b/parts/src/org/lineageos/settings/BootCompletedReceiver.java
-index a50f0ec..fc7ca03 100644
---- a/parts/src/org/lineageos/settings/BootCompletedReceiver.java
-+++ b/parts/src/org/lineageos/settings/BootCompletedReceiver.java
-@@ -10,6 +10,8 @@ import android.content.Context;
- import android.content.Intent;
- import android.util.Log;
- 
-+import org.lineageos.settings.autohbm.AutoHbmService;
-+
- public class BootCompletedReceiver extends BroadcastReceiver {
-     private static final String TAG = "GoogleParts";
- 
-@@ -17,5 +19,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
-     public void onReceive(final Context context, Intent intent) {
-         Log.d(TAG, "Received boot completed intent");
-         EuiccDisabler.enableOrDisableEuicc(context);
-+        AutoHbmService.sync(context);
-     }
- }
 diff --git a/parts/src/org/lineageos/settings/autohbm/AutoHbmActivity.java b/parts/src/org/lineageos/settings/autohbm/AutoHbmActivity.java
 new file mode 100644
 index 0000000..9b9e7be
@@ -338,10 +310,10 @@ index 0000000..9b9e7be
 +}
 diff --git a/parts/src/org/lineageos/settings/autohbm/AutoHbmFragment.java b/parts/src/org/lineageos/settings/autohbm/AutoHbmFragment.java
 new file mode 100644
-index 0000000..53cc246
+index 0000000..9417aba
 --- /dev/null
 +++ b/parts/src/org/lineageos/settings/autohbm/AutoHbmFragment.java
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,75 @@
 +/*
 + * SPDX-FileCopyrightText: 2026 Mist-OS
 + * SPDX-License-Identifier: Apache-2.0
@@ -349,10 +321,12 @@ index 0000000..53cc246
 +
 +package org.lineageos.settings.autohbm;
 +
++import android.content.Context;
 +import android.os.Bundle;
 +
 +import androidx.preference.Preference;
 +import androidx.preference.PreferenceFragmentCompat;
++import androidx.preference.SeekBarPreference;
 +import androidx.preference.SwitchPreferenceCompat;
 +
 +import org.lineageos.settings.R;
@@ -360,313 +334,190 @@ index 0000000..53cc246
 +public class AutoHbmFragment extends PreferenceFragmentCompat
 +        implements Preference.OnPreferenceChangeListener {
 +
++    private SwitchPreferenceCompat mForce;
++    private SwitchPreferenceCompat mAuto;
++    private SeekBarPreference mThreshold;
++    private SwitchPreferenceCompat mNoTimeLimit;
++
 +    @Override
 +    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 +        setPreferencesFromResource(R.xml.autohbm_settings, rootKey);
-+        for (String key : new String[] {AutoHbmService.KEY_HBM, AutoHbmService.KEY_AUTO_HBM}) {
-+            final SwitchPreferenceCompat pref = findPreference(key);
-+            if (pref != null) {
-+                pref.setOnPreferenceChangeListener(this);
-+            }
++        mForce = findPreference(HbmController.KEY_HBM);
++        mAuto = findPreference(HbmController.KEY_AUTO_HBM);
++        mThreshold = findPreference(HbmController.KEY_THRESHOLD);
++        mNoTimeLimit = findPreference(HbmController.KEY_NO_TIME_LIMIT);
++        for (Preference p : new Preference[] {mForce, mAuto, mThreshold, mNoTimeLimit}) {
++            if (p != null) p.setOnPreferenceChangeListener(this);
 +        }
++        loadFromSettings();
 +    }
 +
 +    @Override
 +    public void onResume() {
 +        super.onResume();
-+        // The QS tile may have flipped the manual switch while we were away.
-+        final SwitchPreferenceCompat manual = findPreference(AutoHbmService.KEY_HBM);
-+        if (manual != null) {
-+            manual.setChecked(manual.getPreferenceManager().getSharedPreferences()
-+                    .getBoolean(AutoHbmService.KEY_HBM, false));
-+        }
++        loadFromSettings(); // the QS tile may have changed the manual state
++    }
++
++    /** The source of truth is Settings.Secure (read by the framework), not SharedPreferences. */
++    private void loadFromSettings() {
++        final Context context = requireContext();
++        if (mForce != null) mForce.setChecked(HbmController.isForced(context));
++        if (mAuto != null) mAuto.setChecked(HbmController.isAutoEnabled(context));
++        if (mThreshold != null) mThreshold.setValue(HbmController.getThreshold(context));
++        if (mNoTimeLimit != null) mNoTimeLimit.setChecked(HbmController.isNoTimeLimit(context));
 +    }
 +
 +    @Override
 +    public boolean onPreferenceChange(Preference preference, Object newValue) {
-+        final String key = preference.getKey();
-+        if (AutoHbmService.KEY_HBM.equals(key) || AutoHbmService.KEY_AUTO_HBM.equals(key)) {
-+            // Persist now (returning true would do it after this callback) so sync() sees it.
-+            preference.getPreferenceManager().getSharedPreferences()
-+                    .edit().putBoolean(key, (Boolean) newValue).apply();
-+            AutoHbmService.sync(requireContext());
++        final Context context = requireContext();
++        switch (preference.getKey()) {
++            case HbmController.KEY_HBM:
++                HbmController.setForced(context, (Boolean) newValue);
++                break;
++            case HbmController.KEY_AUTO_HBM:
++                HbmController.setAutoEnabled(context, (Boolean) newValue);
++                break;
++            case HbmController.KEY_THRESHOLD:
++                HbmController.setThreshold(context, (Integer) newValue);
++                break;
++            case HbmController.KEY_NO_TIME_LIMIT:
++                HbmController.setNoTimeLimit(context, (Boolean) newValue);
++                break;
++            default:
++                break;
 +        }
 +        return true;
 +    }
 +}
-diff --git a/parts/src/org/lineageos/settings/autohbm/AutoHbmService.java b/parts/src/org/lineageos/settings/autohbm/AutoHbmService.java
+diff --git a/parts/src/org/lineageos/settings/autohbm/HbmController.java b/parts/src/org/lineageos/settings/autohbm/HbmController.java
 new file mode 100644
-index 0000000..5f7201e
+index 0000000..9b51c67
 --- /dev/null
-+++ b/parts/src/org/lineageos/settings/autohbm/AutoHbmService.java
-@@ -0,0 +1,261 @@
++++ b/parts/src/org/lineageos/settings/autohbm/HbmController.java
+@@ -0,0 +1,117 @@
 +/*
 + * SPDX-FileCopyrightText: 2026 Mist-OS
 + * SPDX-License-Identifier: Apache-2.0
 + *
-+ * High brightness mode (HBM) controller for Pixel 8 / 8 Pro (zuma).
++ * High brightness mode control for Pixel 8 / 8 Pro (zuma).
 + *
-+ * Two modes, both driving the Samsung panel driver's sysfs knob
-+ * (panel-samsung-drv.c hbm_mode_store: 0 = off, 1 = on/IRC on, 2 = on/IRC off;
-+ * vendor sepolicy labels the node sysfs_hbm so system_app may write it):
-+ *  - Manual ("hbm" pref, also toggled by the Quick Settings tile): HBM is forced on
-+ *    whenever the screen is on.
-+ *  - Auto ("auto_hbm" pref): HBM turns on once ambient light stays above the lux
-+ *    threshold for the "enable time", and turns off once it stays below it for the
-+ *    "disable time" (hysteresis so it doesn't flicker at the threshold edge).
-+ * HBM is always released on screen-off and when the service stops.
++ * The panel's HBM range is owned by the framework's HighBrightnessModeController
++ * (services/core/.../display/HighBrightnessModeController.java, Mist-OS patched),
++ * which reads these Settings.Secure keys:
++ *   hbm_force               1 = allow the HBM brightness range at any time
++ *   auto_hbm                1 = use auto_hbm_threshold instead of the config's minimumLux
++ *   auto_hbm_threshold      lux
++ *   auto_hbm_no_time_limit  1 = ignore the config's "5 min per 30 min" HBM cap
++ * Writing the panel's sysfs hbm_mode directly does not work on these panels: the
++ * display HAL re-asserts its own HBM state through the DRM property on the next
++ * commit, so the user-space write is undone almost immediately.
 + */
 +
 +package org.lineageos.settings.autohbm;
 +
-+import android.app.Service;
-+import android.content.BroadcastReceiver;
++import android.content.ContentResolver;
 +import android.content.Context;
-+import android.content.Intent;
-+import android.content.IntentFilter;
 +import android.content.SharedPreferences;
-+import android.hardware.Sensor;
-+import android.hardware.SensorEvent;
-+import android.hardware.SensorEventListener;
-+import android.hardware.SensorManager;
++import android.hardware.display.DisplayManager;
 +import android.os.Handler;
-+import android.os.IBinder;
 +import android.os.Looper;
-+import android.os.PowerManager;
-+import android.util.Log;
++import android.provider.Settings;
++import android.view.Display;
 +
 +import androidx.preference.PreferenceManager;
 +
-+import org.lineageos.settings.utils.FileUtils;
-+
-+public class AutoHbmService extends Service {
-+    private static final String TAG = "AutoHbmService";
-+    private static final boolean DEBUG = false;
-+
-+    static final String HBM_NODE =
-+            "/sys/class/backlight/panel0-backlight/hbm_mode";
-+    static final String HBM_ON = "1";
-+    static final String HBM_OFF = "0";
-+
-+    static final String KEY_HBM = "hbm";
++public final class HbmController {
++    static final String KEY_HBM = "hbm_force";
 +    static final String KEY_AUTO_HBM = "auto_hbm";
 +    static final String KEY_THRESHOLD = "auto_hbm_threshold";
-+    static final String KEY_ENABLE_TIME = "auto_hbm_enable_time";
-+    static final String KEY_DISABLE_TIME = "auto_hbm_disable_time";
-+    static final int DEFAULT_THRESHOLD_LUX = 20000;
-+    static final int DEFAULT_ENABLE_TIME_S = 1;
-+    static final int DEFAULT_DISABLE_TIME_S = 3;
++    static final String KEY_NO_TIME_LIMIT = "auto_hbm_no_time_limit";
++    static final int DEFAULT_THRESHOLD_LUX = 10000; // shiba/husky display config minimumLux
 +
-+    private SensorManager mSensorManager;
-+    private Sensor mLightSensor;
-+    private PowerManager mPowerManager;
-+    private SharedPreferences mPrefs;
-+    private final Handler mHandler = new Handler(Looper.getMainLooper());
++    private static final String PREF_SAVED_BRIGHTNESS = "hbm_saved_brightness";
++    private static final String PREF_SAVED_MODE = "hbm_saved_brightness_mode";
 +
-+    private boolean mScreenOn;
-+    private boolean mListening;
-+    private boolean mHbmActive;
-+    private boolean mEnableScheduled;
-+    private boolean mDisableScheduled;
-+    private boolean mManual;
-+    private boolean mAuto;
-+    private int mThresholdLux = DEFAULT_THRESHOLD_LUX;
-+    private long mEnableTimeMs = DEFAULT_ENABLE_TIME_S * 1000L;
-+    private long mDisableTimeMs = DEFAULT_DISABLE_TIME_S * 1000L;
++    private HbmController() {}
 +
-+    private final Runnable mEnableHbm = () -> {
-+        mEnableScheduled = false;
-+        setHbm(true);
-+    };
-+
-+    private final Runnable mDisableHbm = () -> {
-+        mDisableScheduled = false;
-+        setHbm(false);
-+    };
-+
-+    private final SensorEventListener mLightListener = new SensorEventListener() {
-+        @Override
-+        public void onSensorChanged(SensorEvent event) {
-+            if (mManual) return; // manual mode owns the panel
-+            final float lux = event.values[0];
-+            if (DEBUG) Log.d(TAG, "lux=" + lux + " threshold=" + mThresholdLux);
-+            if (lux >= mThresholdLux) {
-+                cancelDisable();
-+                if (!mHbmActive && !mEnableScheduled) {
-+                    mEnableScheduled = true;
-+                    mHandler.postDelayed(mEnableHbm, mEnableTimeMs);
-+                }
-+            } else {
-+                cancelEnable();
-+                if (mHbmActive && !mDisableScheduled) {
-+                    mDisableScheduled = true;
-+                    mHandler.postDelayed(mDisableHbm, mDisableTimeMs);
-+                }
-+            }
-+        }
-+
-+        @Override
-+        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-+    };
-+
-+    private final SharedPreferences.OnSharedPreferenceChangeListener mPrefListener =
-+            (prefs, key) -> {
-+                loadPrefs();
-+                applyState();
-+            };
-+
-+    private final BroadcastReceiver mScreenReceiver = new BroadcastReceiver() {
-+        @Override
-+        public void onReceive(Context context, Intent intent) {
-+            final String action = intent.getAction();
-+            if (Intent.ACTION_SCREEN_ON.equals(action)) {
-+                mScreenOn = true;
-+            } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-+                mScreenOn = false;
-+            }
-+            applyState();
-+        }
-+    };
-+
-+    @Override
-+    public void onCreate() {
-+        super.onCreate();
-+        if (DEBUG) Log.d(TAG, "onCreate");
-+        mSensorManager = getSystemService(SensorManager.class);
-+        mPowerManager = getSystemService(PowerManager.class);
-+        mLightSensor = mSensorManager != null
-+                ? mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) : null;
-+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-+        mPrefs.registerOnSharedPreferenceChangeListener(mPrefListener);
-+        loadPrefs();
-+
-+        final IntentFilter filter = new IntentFilter();
-+        filter.addAction(Intent.ACTION_SCREEN_ON);
-+        filter.addAction(Intent.ACTION_SCREEN_OFF);
-+        registerReceiver(mScreenReceiver, filter);
-+
-+        mScreenOn = mPowerManager == null || mPowerManager.isInteractive();
-+        applyState();
++    public static boolean isForced(Context context) {
++        return Settings.Secure.getInt(context.getContentResolver(), KEY_HBM, 0) != 0;
 +    }
 +
-+    @Override
-+    public int onStartCommand(Intent intent, int flags, int startId) {
-+        return START_STICKY;
-+    }
-+
-+    @Override
-+    public void onDestroy() {
-+        if (DEBUG) Log.d(TAG, "onDestroy");
-+        stopListening();
-+        cancelEnable();
-+        cancelDisable();
-+        if (mHbmActive) setHbm(false);
-+        unregisterReceiver(mScreenReceiver);
-+        mPrefs.unregisterOnSharedPreferenceChangeListener(mPrefListener);
-+        super.onDestroy();
-+    }
-+
-+    @Override
-+    public IBinder onBind(Intent intent) {
-+        return null;
-+    }
-+
-+    private void loadPrefs() {
-+        mManual = mPrefs.getBoolean(KEY_HBM, false);
-+        mAuto = mPrefs.getBoolean(KEY_AUTO_HBM, false);
-+        mThresholdLux = mPrefs.getInt(KEY_THRESHOLD, DEFAULT_THRESHOLD_LUX);
-+        mEnableTimeMs = mPrefs.getInt(KEY_ENABLE_TIME, DEFAULT_ENABLE_TIME_S) * 1000L;
-+        mDisableTimeMs = mPrefs.getInt(KEY_DISABLE_TIME, DEFAULT_DISABLE_TIME_S) * 1000L;
-+    }
-+
-+    /** Reconciles panel state with screen state + preferences. */
-+    private void applyState() {
-+        if (!mScreenOn) {
-+            stopListening();
-+            cancelEnable();
-+            cancelDisable();
-+            if (mHbmActive) setHbm(false);
-+            return;
-+        }
-+        if (mManual) {
-+            stopListening();
-+            cancelEnable();
-+            cancelDisable();
-+            if (!mHbmActive) setHbm(true);
-+            return;
-+        }
-+        if (mAuto) {
-+            startListening();
-+            // Sensor callbacks decide from here.
-+            return;
-+        }
-+        // Neither mode: release and idle (sync() normally stops us in this case).
-+        stopListening();
-+        cancelEnable();
-+        cancelDisable();
-+        if (mHbmActive) setHbm(false);
-+    }
-+
-+    private void startListening() {
-+        if (mListening) return;
-+        if (mLightSensor == null) {
-+            Log.w(TAG, "No ambient light sensor, Auto HBM inactive");
-+            return;
-+        }
-+        mListening = true;
-+        mSensorManager.registerListener(mLightListener, mLightSensor,
-+                SensorManager.SENSOR_DELAY_NORMAL);
-+    }
-+
-+    private void stopListening() {
-+        if (mListening) {
-+            mSensorManager.unregisterListener(mLightListener);
-+            mListening = false;
-+        }
-+    }
-+
-+    private void cancelEnable() {
-+        if (mEnableScheduled) {
-+            mHandler.removeCallbacks(mEnableHbm);
-+            mEnableScheduled = false;
-+        }
-+    }
-+
-+    private void cancelDisable() {
-+        if (mDisableScheduled) {
-+            mHandler.removeCallbacks(mDisableHbm);
-+            mDisableScheduled = false;
-+        }
-+    }
-+
-+    private void setHbm(boolean on) {
-+        final boolean ok = FileUtils.writeLine(HBM_NODE, on ? HBM_ON : HBM_OFF);
-+        if (ok) {
-+            mHbmActive = on;
-+            Log.i(TAG, "HBM " + (on ? "enabled" : "disabled"));
-+        } else {
-+            // Leave mHbmActive as-is so the next event retries.
-+            Log.w(TAG, "Failed to write HBM node");
-+        }
-+    }
-+
-+    /** Starts or stops the service according to the saved preferences. */
-+    public static void sync(Context context) {
++    /**
++     * Manual HBM: allow the HBM range, switch to manual brightness and push it to peak (with
++     * adaptive brightness on, the auto controller would otherwise keep the level low). On
++     * disable, restore the brightness mode and level the user had before.
++     */
++    public static void setForced(Context context, boolean enabled) {
++        final ContentResolver cr = context.getContentResolver();
++        final DisplayManager dm = context.getSystemService(DisplayManager.class);
 +        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-+        final Intent intent = new Intent(context, AutoHbmService.class);
-+        if (prefs.getBoolean(KEY_HBM, false) || prefs.getBoolean(KEY_AUTO_HBM, false)) {
-+            context.startService(intent);
++        if (enabled) {
++            final int mode = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE,
++                    Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
++            final SharedPreferences.Editor e = prefs.edit().putInt(PREF_SAVED_MODE, mode);
++            if (dm != null) {
++                e.putFloat(PREF_SAVED_BRIGHTNESS, dm.getBrightness(Display.DEFAULT_DISPLAY));
++            }
++            e.apply();
++            Settings.Secure.putInt(cr, KEY_HBM, 1);
++            Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE,
++                    Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
++            if (dm != null) {
++                // The framework's HBM controller observes hbm_force asynchronously on the
++                // display thread; give it a moment to raise the allowed maximum above the
++                // HBM transition point (0.71 on shiba) before asking for peak brightness,
++                // otherwise the request is clamped to 0.71 until the next update.
++                new Handler(Looper.getMainLooper()).postDelayed(
++                        () -> dm.setBrightness(Display.DEFAULT_DISPLAY, 1.0f), 400);
++            }
 +        } else {
-+            context.stopService(intent);
++            Settings.Secure.putInt(cr, KEY_HBM, 0);
++            if (dm != null) {
++                final float saved = prefs.getFloat(PREF_SAVED_BRIGHTNESS, -1f);
++                if (saved >= 0f && saved <= 1f) {
++                    dm.setBrightness(Display.DEFAULT_DISPLAY, saved);
++                }
++            }
++            final int mode = prefs.getInt(PREF_SAVED_MODE, -1);
++            if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
++                    || mode == Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL) {
++                Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, mode);
++            }
 +        }
++    }
++
++    public static boolean isAutoEnabled(Context context) {
++        return Settings.Secure.getInt(context.getContentResolver(), KEY_AUTO_HBM, 0) != 0;
++    }
++
++    public static void setAutoEnabled(Context context, boolean enabled) {
++        Settings.Secure.putInt(context.getContentResolver(), KEY_AUTO_HBM, enabled ? 1 : 0);
++    }
++
++    public static int getThreshold(Context context) {
++        return Settings.Secure.getInt(context.getContentResolver(), KEY_THRESHOLD,
++                DEFAULT_THRESHOLD_LUX);
++    }
++
++    public static void setThreshold(Context context, int lux) {
++        Settings.Secure.putInt(context.getContentResolver(), KEY_THRESHOLD, lux);
++    }
++
++    public static boolean isNoTimeLimit(Context context) {
++        return Settings.Secure.getInt(context.getContentResolver(), KEY_NO_TIME_LIMIT, 0) != 0;
++    }
++
++    public static void setNoTimeLimit(Context context, boolean enabled) {
++        Settings.Secure.putInt(context.getContentResolver(), KEY_NO_TIME_LIMIT,
++                enabled ? 1 : 0);
 +    }
 +}
 diff --git a/parts/src/org/lineageos/settings/autohbm/HbmTileService.java b/parts/src/org/lineageos/settings/autohbm/HbmTileService.java
 new file mode 100644
-index 0000000..100df46
+index 0000000..6fa8c10
 --- /dev/null
 +++ b/parts/src/org/lineageos/settings/autohbm/HbmTileService.java
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,33 @@
 +/*
 + * SPDX-FileCopyrightText: 2026 Mist-OS
 + * SPDX-License-Identifier: Apache-2.0
@@ -674,11 +525,8 @@ index 0000000..100df46
 +
 +package org.lineageos.settings.autohbm;
 +
-+import android.content.SharedPreferences;
 +import android.service.quicksettings.Tile;
 +import android.service.quicksettings.TileService;
-+
-+import androidx.preference.PreferenceManager;
 +
 +/** Quick Settings tile toggling manual high brightness mode. */
 +public class HbmTileService extends TileService {
@@ -692,19 +540,14 @@ index 0000000..100df46
 +    @Override
 +    public void onClick() {
 +        super.onClick();
-+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-+        final boolean enabled = !prefs.getBoolean(AutoHbmService.KEY_HBM, false);
-+        prefs.edit().putBoolean(AutoHbmService.KEY_HBM, enabled).apply();
-+        AutoHbmService.sync(this);
++        HbmController.setForced(this, !HbmController.isForced(this));
 +        updateTile();
 +    }
 +
 +    private void updateTile() {
 +        final Tile tile = getQsTile();
 +        if (tile == null) return;
-+        final boolean enabled = PreferenceManager.getDefaultSharedPreferences(this)
-+                .getBoolean(AutoHbmService.KEY_HBM, false);
-+        tile.setState(enabled ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
++        tile.setState(HbmController.isForced(this) ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
 +        tile.updateTile();
 +    }
 +}
