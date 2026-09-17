@@ -1,0 +1,400 @@
+c499f12716 Fixup! Battery saver section crash with pixel-fw
+eaf3421d58 Revamp LockScreen customize section [2/3]
+9f64901474 Move into the buttom and blur the default search bar
+867c405075 location: Allow to override Mock Location restriction [2/2]
+85146eae07 Update WifiDialogActivity to Expressive theme
+1d9bee4b96 Add Notification Summaries Settings animation
+6d864562a7 Feature flag for multiuser wifi configurations
+8856991d83 Update button style for audio stream dialog
+81e0688501 [Expressive] Update styling of NLS dialog
+a0b1e1e385 Refine the "Edit VPN profile" dialog layout
+46b17dfbd2 Update button style of bluetooth pairing dialog
+28e292975a Update string of bluetooth pairing dialog
+881cff6b42 [Expressive design] apply new style to SpellCheckerPreference
+7402b500be Adding share toggle to the network details page
+301c32ff01 Adding allow edit toggle to the Wifi network details page
+b428e2ac7b [Expressive design] update BatteryHeaderTextPreference
+acdaf28fbd network: Link to custom eSIM settings
+57f1f7fe2e [TMP] Settings: Add changes for SettingsGoogle
+71bb1a73af Settings: Add toggle for 60Hz refresh rate on battery saver
+df35023edf Revert "Settings: Introduce new refresh rate selector page"
+249bf926eb Settings: store cloned profile user id
+cb8a376fe5 Settings: explicitly enable cloned apps
+e7363cd384 Revert "Settings: Enable clone apps"
+cafdcea970 Settings: Enable "install available apps"
+428d8beba4 Refresh rate: Add display refresh rate illustration
+b298d5c7f3 Settings: Implement RefreshRateManager [2/2]
+dbc1c05976 Settings: Add config check for screen off UDFPS
+3a39e270f6 display: allow changing HDR brightness intensity
+4c67c277cf Notification bundles: remove empty drawable
+e3231bebcc Settings: Fix stray divider in connected devices screen
+d780a33390 DevelopmentSettings: Remove system update and other prefs
+0acc5e12e8 Settings: Fix gpu renderer options unsetting hwui renderer
+5c2b9c3dde Update lottie animations from Pixel 9 Pro XL BP2A.250805.005
+700080bac3 Settings: Use the same color we use for background for statusbar
+1305df9a79 Revert "Settings: Follow navbar color in base"
+214caa9e65 Settings: Improve battery divider handling in BatteryHeaderPreferenceController
+1adea0816b Settings: Reduce the churn for running services
+8aeb1f6e22 Settings: enrollment fix for low-positioned udfps
+7722a12755 Settings: power off verify
+e2ae6def7f Remove stray closing tag in mode_interstitial_layout.xml
+59a7872fdc Settings: add three finger swipe actions/screenshot combo intercept
+38f15246a3 Revert "Settings: Add three-fingers-swipe to screenshot [2/2]"
+19e9e699fc Settings: biometrics features enhance
+7c865fa793 Settings: add abstract fragment class to reduce fragments boilerplate
+4c6387b631 Settings: add SearchIndexProviderHolder interface
+035e50496e Settings: deviceinfo: Try read designed capacity from PowerProfile if unavailable
+e4992c21e3 Revert "Settings: Add icon for WEP in wifi network settings"
+03cd8c6e13 Settings: Fixup compose preference layout
+9549c17c3f Settings: Allow using icon for ComposePreference
+f9a2b4142e Settings: Allow configuring haptics for wake gestures [2/2]
+fda75c0e00 Settings: Enable expressive theme layout for various activities
+c4b59166b1 Settings: Make ticks visible for Vibration intensity prefs
+af7bbcd0e9 Settings: Fix illegal state exception on StorageSelectionPreferenceController
+53bdf24db4 Settings: Update power button sensitivity slider to SliderPreference
+97ded403f4 Settings: Update gesture LabeledSeekBarPreference to SliderPreference component
+aec22537cd Settings: Update ExtraDim slider to SliderPreference component
+331aff3427 Settings: Add support for daily and weekly data usage cycles [2/2]
+cd952eb9b1 DevelopmentSettings: Disable automatic updates
+bb52884a0c Settings: Move force dark mode to dark mode settings
+b416987f58 Settings: Hide the nav bar during udfps fp enrolling
+eac2412a93 Settings: Enable redirect vibration toggle unconditionally
+b2c7e49208 Update dev preference strings
+e945faf7cf Settings: Follow navbar color in base
+59fe52e938 Settings: Fix slice data illegal state in credentials
+2720c67207 Themes: use legacy material background color
+916a41d8d8 Revert "themes: Expose values for theming settings"
+cca9d42f5e [BUGFIX] fix screen off udfps preference visibility
+5e863691f5 fix upstream NPE crash in UserAspectRatioDetails.launchApplication()
+e4cf8a0659 AppLockPackageListFragment: fix app filter
+bb5863612c Settings: Move applock to apps section
+54a863ba86 Settings: AppLock: Update for kotlin errors
+6bb513ecdb Settings: Don't make app lock settings searchable
+3e62bd7ab5 Settings: Let app lock use face unlock
+f1ef84e1da Settings: Add app lock settings for alternate security settings provider
+e5d88be99b Settings: Add app lock summary for 0 protected apps
+7b83296aa7 AppLock: Slightly bigger icon size
+c10e60a464 Settings: Update AppLock API
+3caa8f1242 Settings: Allow locking all apps visible in launcher
+c70fbdf7b9 Settings: Introduce App Lock [3/4]
+15bcfb67b5 Fixup! Incorrect Backup and Copy Option on Rising Styles
+0ef7584076 Revert "Settings: Hide the nav bar during udfps fp enrolling"
+419af275d5 AmbientDisplay: Add custom pref for devices with custom doze packages
+fa05bd5547 Fixup SearchBar Style 0 overlapping
+9cbafa97e4 Settings: expressive design for our personalizations
+0f9f57870d Settings: Migrate Touchpad visualizer to SwitchPreferenceCompat
+5a64a26aa4 Settings: Fix setting device name based on market name
+400dcd48e9 Settings: Set device name from marketname if available
+589170405d settings: Prevent crash when a category service is empty or null
+330f8911b0 Settings: Fix duplicated baseband string on all devices.
+06433df408 use 2021-01-01 as minimum battery date
+307748456e add isLoggable check to overly verbose PrefCtrlListHelper log statement
+782b820b55 Settings: Add pocket lock toggle
+46c1f0bbaa NfcAndPaymentFragmentController: fix crash
+c3340eee31 Settings: Update FaceEnroll ActivityDirector and Confirmation
+f11180dca4 Settings: Create face confirmation activity
+200fc3551a Settings: Create a ActivityDirector to optionally use SettingsGoogleFutureFaceEnroll
+4132cbfcf6 Update the AOD preferences
+333dfc385d Implement risingOS easter egg/plat logo
+85bd8a3e3e Add setting for adblock
+9eea3eb681 add toggle to set captiveportal settings
+de9a495d79 (fingerprint): guard against out-of-bounds access in getVendorString()
+f1bb9102b7 EnableBlursPreferenceController: fix default blur value
+796b73fff6 Settings: Skip auth for USB func ctrl when unlocked in the last 60s
+1052b7c64e Force the use of simple style when in split layout mode
+bb3b6bb34e Settings: Always make gesture navigation settings available
+031e3677f9 Revert "Settings: Do not hide navigation modes"
+3c48080a02 Remove the unused service causing crash
+c8cab30e03 Settings: Add Comss DNS provider
+1238c05f85 display: add hdr display switch preference
+708ea794ea Settings: Introduce new refresh rate selector page
+0893ecbb81 Settings: Use ActionPrimaryButton style for face buttons
+b5accd5152 fixup! Fix background data clobbering other policies
+6bdc23b387 AmbientDisplayAlwaysOnPreferenceController: disable aod preference if aod on charge is active
+6ccc690511 TopLevelSettings: Do not hide the icons on split layout change
+eda23e380b Fix NPE on Settings initialization on tablets
+763e5ebef8 Settings: Adapt to The gms Backup and Copy workaround
+93f2a8259f DashboardFragment: Sort uncategorized keys
+db26db20d9 Add keyhint for OPlusExtras
+6ac2f34f83 Chinese translation update
+d4dc99eb56 Revert "Settings: Pass empty lottie resource for quickly open camera animation"
+ca938db388 ManageStoragePreferenceController: Explicitly disable storage management preference
+737f6424d6 Settings: Support hiding gesture hint in NexusLauncher
+9da7db7bbb Settings: Move Notch Cutout to Display
+5165156703 Settings: Prevent IllegalArgumentException in storage settings
+bef3a29f03 Settings: Do not hide navigation modes
+975f564afa Mark all DSU options as unsupported
+26122abb2c add support for disabling non-system apps
+670eaf9706 fix fingerprint enrollment on Google devices with side FP scanner
+bf0d040b81 add app battery optimization settings link to Battery screen
+999904e175 make "App info > App battery usage" item directly open the inner screen
+33cc1f1bbd [temporary] don't show battery usage info in App info item summary
+4a28f08379 don't disable App info > Battery usage item while its summary is loading
+e83d929e71 show current app battery usage mode in summary of App battery usage item
+bea55bcca4 Settings: Check GSA package too for CTS availability
+0780fe8231 Settings: bluetooth: Fix generateSummary out-of-bounds
+e9fc711afd Settings: Improve RAM summary for devices >12GB of RAM
+d65ff93c20 Settings: Prevent Wifi Tethering NPE
+9ed7fe99c5 colors: Introduce Reality display engine [2/2]
+1c5544e385 Settings: Allow to quickly open Running Services from meminfo view
+14e3fe3e2b Settings: Better check for GSA package
+371b042c36 Settings: Add Circle To Search [2/2]
+f15b4fb4a3 Settings: Add a toggle for long press on navbar to search [3/3]
+75088bc128 sound: Add system haptics settings
+3adb4ba75f Settings: Modernize dev option insults
+0914e59794 Disable SettingsDumpService
+312bc287a6 themes: Expose values for theming settings
+4f0d62f772 Fix long click intent for Smart Pixels tile [2/2]
+53263b3386 Settings: Add support for disabling fingerprint lockout [2/2]
+f6283b5da9 Settings: Extend protect sensitive info to MAC [2/2]
+41ce6d76b0 Battery: Implement background process killer [2/2]
+9fac019eaa Use default letter spacing for category titles
+4731fc2788 Settings: Improve udfps enroll introduction layout
+1b6be1ba86 Settings: Use internal display brightness in overlay displays
+3600db26ad Settings: Fixup fingerprint enroll finish layout
+fde885c018 Settings: Retain udfps overlay shown state on restoring activity
+074595b184 Settings: Adaptive Playback: Enable dynamicColor on lottie
+6cafcd0b34 Settings: Move custom vib pattern to its own preference
+bec1824f34 Settings: Follow new ringtone vibration patterns
+09f5f1fdf9 Settings: Preview ringtone vibration pattern
+54e6377428 Settings: Allow choosing a custom vibration pattern [3/3]
+902f3eea78 Settings: Add vibration patterns from OOS [3/3]
+e170f41b3b Fix memory leak on wifi
+01ff58057e WifiTetherClientLimitPreference: Fix compilation
+716a5e1b12 [TMP] Settings: Bluetooth: Don't check persistable uri permission for BtHelper
+65f199874a Settings: Move to lowercase of "Apps" in Cloned Apps title
+4df49bdac7 Settings: Import androidx.room_room-runtime
+136b08ed01 Settings: buttons text should no longer be allCaps
+a40a318d88 Settings: disable all bugreport settings
+a1a5829524 Settings: Use List Preference for Zen mode settings
+2e157c0959 Settings: Use List Preference for Dock speaker plays and Emergency tone
+f8d08d0548 Settings: Add developer setting to set the default GPU renderer.
+893e9bcb7d Settings: Disable financed lock
+08b83ec533 Settings: Make google's battery widget work
+7c210b8469 Settings: Show package name in app info header
+17a3386a80 Settings: Address a memory leak
+1bbcac90c0 Settings: Introduce AutoDimService [2/2]
+3cda940011 Settings: Allow scheduling always on display [2/2]
+30f8b0e845 Settings: Allow showing Ambient instead of fully waking [2/2]
+2bccad2d88 Settings: Add a preference controller for Volume steps settings
+3999d27c5f Settings: Allow customizing volume stream steps [2/2]
+65d3208647 Settings: Remove DSU Loader if unsupported
+a67ab77b19 Settings: Remove A/B preference if unsupported
+0466119ced Settings: Add PixelLauncher to allowlist for settings search
+efc820230a Settings: gestures: Enable Cycle through ringer modes for all
+15b282104f Settings: Add option to cycle through ringer modes [2/2]
+9d7ea7797f Settings: Export an activity for private DNS settings
+b064567eec Settings: Allow disabling private DNS for VPN [2/2]
+5832078665 Settings: Display auto rotate settings instead of toggle
+ec50564ff9 Show appropriate title for gesture navigation settings
+a81a454b0f Allow to hide arrow for back gesture [2/2]
+780469af4d Settings: Change back gesture height intervals
+775037ca80 Allow changing back gesture height [2/2]
+be7052e46e Settings: Add back increasing ring feature (2/3)
+b27ab0385c Settings: Add simcard number title for SIM1
+0353153753 Settings: Fix ringtone selection for devices with e-SIM
+32502706bb MSIM Ringtone: Improve on devices with ESIM
+402faad30b Settings: Use AOSP translations for MSIM ringtone
+29bcab9d3f Settings: enable SIM card ringtone only if slot not empty [1/2]
+e9c0387e17 Settings: Phone ringtone setting for Multi SIM device [2/3]
+e8e62acd96 Settings: Incall vibration option [3/3]
+9129c39483 Settings: add option to enable AOD on charging only [2/2]
+6f8feb8181 Settings: Hide force full screen settings
+a646ea0d32 Settings: HideDevStatus: Query all apps installed by any user [2/2]
+f81323679f Settings: Hide ADB and developer setting enable status [2/2]
+db00c9d282 Settings: Allow skipping mirroring confirmation dialog [2/2]
+f86ffabb1b ExternalStorageProvider: Conditionally remove SAF restrictions [2/2]
+43ac7a205b Settings: Allow to hide screen capture status from apps [2/2]
+d67813a837 Settings: Add a dev option to unlimit screenrecord filesize [2/2]
+55b5486c18 Settings: Add Game Space support
+1b6ae628fb Settings: Whitelist WRITE_DEVICE_CONFIG permission
+ad101d70af Settings: Expose clipboard auto clear setting [2/2]
+fbf7bd1641 Settings: Double tap to trigger doze [2/2]
+f7abc2c07c Settings: Add three-fingers-swipe to screenshot [2/2]
+0fdc22e3ea Settings: Add toggle for Smart 5G [2/2]
+9d7b9ba793 Settings: Show user's Google avatar on the homepage
+759c5c664a Settings: Set the default account provider to Google
+7179aa0464 Settings: SoftAp: add Hidden SSID preference
+a141edf6f2 Settings: SoftAp: add support for setting shutdown timeout
+6fbc7791cd Settings: SoftAP: Add client manager
+64d0023bde Settings: Add BatteryDivider to fuelgauge
+677f8a0711 Settings: Long press to copy wifi password
+f9ed140b99 Settings: Add config to show/hide vendor security patch level
+013737af47 Settings: fix npe in ImeiInfoPreferenceController
+cb27086fc1 Add support for manually installed google sound picker
+caa6dc51fd Move developer options to the most bottom part
+dfacb01228 AppUtils: Filter cloneable apps to include only launchable packages
+804fca463c Settings: Ambient Music Ticker - Allow to pulse on new tracks [2/2]
+fc6ac84c4e Settings: Fix total RAM calculation
+29569ff91b Revert "[Wi-Fi] Remove 'Do not validate' option in CA certificate spinner"
+bc6d5f098e Settings: Add missing summary for Display size and text
+c3d97c9931 Settings: Make sure settings shortcut icons follow system accent
+a56865a5e4 InstalledApp: Hide GooglePlay icon for webapps
+fca4c68bd5 InstalledApp: show link to Google Play
+734e324076 Allow sorting Applications by size
+155351b09e Settings: Use marketname for App Aspect Ratio summary
+004f4d7b3a UsbDefaultFragment: Remove DeveloperOptionAwareMixin
+abfc6389f9 Settings: Add Default USB Configuration
+577ab05d4f Settings: Hide radio info if device don't support voice
+93a293ebc9 Settings: Expose radio info (*#*#4636#*#*)
+7c0981edaa Settings: Introduce Smart Pause [2/2]
+c0dadce87d WifiDisplaySettings: Fix some NPE
+0c7ec1d153 Settings: Make AppCloning independent of DeviceConfig
+f2b324eaac Settings: Enable clone apps
+c6cf77b5a9 Settings: Add icon for WEP in wifi network settings
+44de446316 Open app when clicking on icon in App Info
+b4e90da3fe BatteryStateDatabase: Set exportSchema to false
+cc070429ac Settings: Forcefully enable Hotspot Speed setting
+d50fd48078 WiFi: Remove country code checking.
+5ab856ca5b DataProcessor: Do not skip and replace screen on component with screen on time
+c7c6f70821 ChooseLockPassword: Decrease minimum pin length for auto confirm
+41f8835c53 Refactor AppPicker page to adopt Settings main theme
+053be4956f FaceEnroll: Fix circle camera view background color
+0dd24d5495 Settings: Add permission to hold wake lock
+4b0c5e4b16 Settings: Disable automatic system server heap dumps by default
+04ae5683df InstalledAppDetails: fix refreshing storage summary after force stop
+c90233b65f Settings: Improve code for time spent in app
+ebfd51549e AppInfo: Add time spent in app from Wellbeing
+7d92397586 Settings: OverlayCategoryPreferenceController: Sort overlays by name
+611793ded6 Expand abbreviation in average memory usage string
+44bf002b84 Setting: batteryinfo: Add config to enable/disable battery design & maximum capacity info
+37590b232f Fix memory leak on sensormanager
+70fb90af69 Settings: Skip auth for WiFi net share when unlocked in the last 60s
+eb6ba09321 Settings: Move Vo5G toggle right below VoLTE
+af5bf0d0f2 fuelgauge: Hide screen time since last full charge if not valid
+8a2106e4fa Port "Battery Usage Alerts" feature from factory images
+1f815cac47 Settings: Follow system theme for SD card activities
+96cec65181 Settings: Add missing icon for media output
+5200e382d9 Settings: Remove typo in manifest to fix predictive back
+aba1007c2f Drawables: Dark mode support for app installation restriction icon
+45743ec8e6 Settings: Add icon for emergency broadcasts
+1e4a91a2a8 Settings: Move blur toggle to Display options.
+98571d5b41 Settings: move Extra Dim feature to display
+9ef4f1124f Settings: Fix up panel theme and layout
+972a0c05e9 Settings: Add icon for 'WiFi cellular data fallback'
+bd110d7fce Settings: Add icon for 'WiFi direct'
+81055da286 Settings: Add icon for WiFi -> Install certificates
+6dfeb692de Settings: Add icon for 'WiFi timeout'
+256fe0a6a2 Settings: Fix potential NPE in WifiTetherSecurityPreferenceController
+d0b211c4e3 Add back arrow to Desktop backup password
+105cd065a6 Settings: Remove divider from Battery Manager
+87183f891a Settings: Remove dividers in Network & Internet
+a73054a608 Settings: Add illustration to dark mode preference
+cdfd1e09c6 Settings: Check wifi direct feature for showing preferences
+bdf0013f2f Settings: Desktop backup password: Tint buttons to match system theme
+2735c809a8 display: Import screen resolution from cheetah stock
+d3909af131 battery usage UI: use a fallback name for unknown components
+21c5603a2d Wi-Fi timeout feature
+c93d16b878 Bluetooth timeout feature
+d64d2dc878 Settings: Remove remaining hardcoded fonts
+6416e07150 Settings: Fix rest of the edit menu icon tint
+ffef63c723 NightDisplay Settings: Use List Preference for NightLight settings
+1ba10630c5 Settings: Use ListPreference instead of DropDownPreference
+ed894b0df2 Settings: Use List Preference for Dark mode
+50f39ad438 Enable FeatureFlags on "user" builds too
+a8d09ceb4b Settings: Fix regulatory info availability check
+862ffab76f Settings: Don't show module version if isn't a date
+91a4cbe7d0 Settings: add sim status listener in about phone
+7f600841fa Settings: Add a DEVICE field to the getSummary() function
+8a93618af8 Settings: Add Market Name to device info
+dde6e7e623 Settings: Show SoC Model rather than value of ro.board.platform if available
+c27b63d613 Settings: Add platform and RAM to Model & Hardware
+50a21c2076 add App info > Storage > Manage storage button for apps that support it
+315e43a61c Settings: Do not hide Now Playing for Pixel devices
+aee3aa999e Settings: Add config to display Now Playing
+dbc240a6cd add per-connection Wi-Fi MAC address randomization option
+c417911a89 Settings: Hide the nav bar during udfps fp enrolling
+786d29a479 Settings: Prevent NPE in LoadingViewController
+cfc31deb1b Settings: Safeguard ringtone pref against faulty gapps
+eafa014d33 Settings: Fix crash with face lock preference for limited access users
+d94c4bb9dd Settings: Import missing Face Unlock animation
+cc652e74c5 Settings: Fix loading iconpack-based Wellbeing icon
+44f8e292df AppVolumeSlice: Allow querying icon of apps installed by any user
+781907defe Settings: support per-app volume [3/3]
+7ec07aa01e Add the rest of Cloudflare and Quad9 Private DNS options
+c06c01dd02 Settings: Use seekbar to allow setting arbitrary animation values
+89e9e4afcc Settings: add TextView for summary into SeekBarDialogPreference
+e5768fa55c Settings: Fix invalid private DNS help text if URI is missing
+027a47e474 Settings: Avoid enforcing weird backgrounds
+56c3a3ce90 Settings: Add more DNS providers
+f96b69aa6a Settings: Add AdGuard DNS as a private DNS Provider
+be552ed517 Settings: Add a toggle to force LTE_CA
+850d2fb4d4 Settings: Allow disabling color inversion support [2/2]
+41c7b2f1ca Settings: Properly handle ASI and WallpaperPreference for gms and vanilla builds
+eabf491b22 Settings: Allow disabling clipboard overlay [2/2]
+496371a183 Add deep sleep preference controller [2/2]
+0750b40b0c Settings: Allow disabling of screenshot shutter sound [2/2]
+0bf7686c16 Add Face Unlock with ParanoidSense
+0dd0ae9301 Settings: Make all user apps cloneable
+2f164ad58f Settings: Use font configs instead fonts directly
+26f1a2ecfe Settings: Add Glide library
+d8428ba01f Developer options toast insulter
+6be8dc77ed Settings: Change kernel preference behavior
+e13e26eb2e Settings: Show full proc/version information
+2926faa765 fixup! Add option to reset network settings to factory
+048f80c563 fixup! Add toggle to enable ADB root
+c73e614efd Settings: Add a toggle for Settings UI Styles [2/2]
+8b8a60423c Introduce back arrow styles [2/3]
+390d62454c Add the new Settings design [2/3]
+b6c8427711 Sort top level preferences
+03ca108a2f FingerPrintEnrollEnrolling: Avoid setting footer background
+2f991c0c82 Move about phone to top_level_security_privacy_category
+c68b20b6c3 Make sure OEM parts gets high priority order
+5c302d46dc [RisingUI] Update search bar
+193f2492a8 Update default search bar UI
+88483c8a24 HomepagePreference: Implement NetworkUtils
+713b84e9da [RisingUI] Implement highlight tiles changes
+ae75638932 Fix bluetooth summary showing previous bonded device
+8e221fd1c5 Settings: Link smallest width options in display settings
+f1fa31bc34 Fix broken google preference
+3331893074 top_level_settings_v2: Move about phone to support category
+1d6c7198a2 Revert "Sort top level settings categories"
+a9890ccd54 TopLevelSettings: Fix null pointer crash on high dpi devices
+8455a0f22f Sort top level settings categories
+3a2349a22b [RisingUI] Add user card for A15 search bar style
+28d8ddb880 Fix DateTimeSettings leak
+61c89bbc18 Hide empty preference category settings
+7584af3b1e [RisingUI] Personalizations Revamp V3
+b8b44b50ab Move media output preference to the top
+3fcb49f738 [RisingUI] Revamp personalization dashboard
+e2214af8b9 HomepagePreference: Fix bluetooth summary not updating
+f9f57f8430 RunningServices: Remove DeveloperOptionAwareMixin interface
+9147dc1c70 Themes: Introduce search bar style [1/2]
+aa39415ec9 Settings: Replace broken wellbeing preference for revamped homepage
+6146d5091c [RisingUI] Implement v6.0 UI changes
+67ba74be4e Homepage: Introduce Settings Icon Styles [2/3]
+50afe26261 Settings: Handle OEM parts and other possible feature preferences
+167d121fd9 Display: Do not theme show touches preference
+d0e561d0cc Display: Expose Show Touches preference
+3704ab9bf7 [RisingUI] Settings UI Changes
+e276828f89 Settings: Integrate Personalizations into Settings
+d78bd7dde6 Settings: Add VendorSupport dependencies
+4bb53cd6a1 Settings: Switch back to udfps_enroll_enrolling_non_scroll layout
+3e78b26ac9 Settings: Disable clipping in biometrics_glif_content
+6565aca233 Automatic translation import
+9825632c3d Hide sensistive content from locked profiles
+da67a8c705 Ignore face settings extras when called by an external package.
+1e44157e84 startActivityForResult with earlier new Intent
+6793413e7a Prevent SettingsSliceProvider from accessing unused packages
+2182d82a5b Hide notification content in history
+643a2fbb2d Use correct API to get calling package name in CredentialStorage
+0e6ed9eb8d Drop PendingIntent extras from external packages during enrollment.
+c2d109aed9 Do not enable the Content Protection toggle for non-admin users.
+7ddff23376 Add ComponentName explicitly to make sure arbitary intents aren't launched from Settings.
+e09a33b18c AppRestrictions - use vetted component
+8f7cf2c861 Settings: DevicePicker: Adapt to S style
+9deea9c089 SlicesDatabaseHelper: Use Build.VERSION.INCREMENTAL
+b25bd103be Settings: fix typo in settings namespace for qr scanner on ls
+720337de41 Partially revert "[Settings] Start SettingsDumpService to dump the db log after the db is"
+28c40f76d1 Fix development color mode preference
+64de97c728 Biometrics: Pass halHandlesDisplayTouches to FingerprintSensorPropertiesInternal
+4d7aa10c21 Settings: Only show gesture navigation if device has a software nav bar
+95d3909299 Add a mobile data toggle for setup
+736da0ca6c Settings: Make SIM toggle unchangable when not supported
+0979c853ed BatteryTip: Hide Learn more button if URL is empty
+9c0141b6d7 Fix background data clobbering other policies
+b5b0168bdc Settings: support black theme for dark mode [2/4]
+e3863afe68 Settings: Place and order Google & Digital Wellbeing
+7045bdead2 Settings: Move Google Setting way down
+9486e87179 Settings: Set correct categories for GMS top level activities
+6b959b35d8 Revert "[Sim UI enhancement] remove the "Tap to show info""

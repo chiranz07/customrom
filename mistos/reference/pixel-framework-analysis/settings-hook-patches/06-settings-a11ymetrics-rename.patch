@@ -1,0 +1,308 @@
+From b511fe690bcf3a051e8149655bbc422777cfc6f1 Mon Sep 17 00:00:00 2001
+From: Menghan Li <menghanli@google.com>
+Date: Mon, 3 Mar 2025 02:58:50 +0000
+Subject: [PATCH] refactor(A11yFeedback): Rename
+ AccessibilityMetricsFeatureProvider
+
+The AccessibilityMetricsFeatureProvider currently provides page IDs
+derived from component names, primarily for metrics purposes.
+However, its functionality should be expanded to also support
+feedback needs, not just metrics collection, by returning
+appropriate settings enum values.
+
+Bug: 393980229
+Test: atest AccessibilityMetricsFeatureProviderGoogleImplTest
+Flag: com.android.server.accessibility.enable_low_vision_generic_feedback
+Change-Id: I2d64db866010ae5e3c6a9738f92860df3d0b86aa
+---
+ .../accessibility/AccessibilityActivityPreference.java |  7 +++----
+ .../AccessibilityDetailsSettingsFragment.java          |  9 ++++-----
+ ...er.java => AccessibilityPageIdFeatureProvider.java} |  6 +++---
+ ...ava => AccessibilityPageIdFeatureProviderImpl.java} | 10 ++++++----
+ .../accessibility/AccessibilityServicePreference.java  |  7 +++----
+ src/com/android/settings/overlay/FeatureFactory.kt     |  6 +++---
+ src/com/android/settings/overlay/FeatureFactoryImpl.kt |  8 ++++----
+ .../android/settings/testutils/FakeFeatureFactory.java | 10 +++++-----
+ .../android/settings/testutils/FakeFeatureFactory.kt   |  4 ++--
+ .../android/settings/testutils/FakeFeatureFactory.java | 10 +++++-----
+ 10 files changed, 38 insertions(+), 39 deletions(-)
+ rename src/com/android/settings/accessibility/{AccessibilityMetricsFeatureProvider.java => AccessibilityPageIdFeatureProvider.java} (84%)
+ rename src/com/android/settings/accessibility/{AccessibilityMetricsFeatureProviderImpl.java => AccessibilityPageIdFeatureProviderImpl.java} (75%)
+
+diff --git a/src/com/android/settings/accessibility/AccessibilityActivityPreference.java b/src/com/android/settings/accessibility/AccessibilityActivityPreference.java
+index a8e456d3e35..3ae64fcb873 100644
+--- a/src/com/android/settings/accessibility/AccessibilityActivityPreference.java
++++ b/src/com/android/settings/accessibility/AccessibilityActivityPreference.java
+@@ -127,14 +127,13 @@ public class AccessibilityActivityPreference extends RestrictedPreference {
+         final String htmlDescription = mA11yShortcutInfo.loadHtmlDescription(mPm);
+         final String settingsClassName = mA11yShortcutInfo.getSettingsActivityName();
+         final String tileServiceClassName = mA11yShortcutInfo.getTileServiceName();
+-        final int metricsCategory = FeatureFactory.getFeatureFactory()
+-                .getAccessibilityMetricsFeatureProvider()
+-                .getDownloadedFeatureMetricsCategory(mComponentName);
++        final int pageIdCategory = FeatureFactory.getFeatureFactory()
++                .getAccessibilityPageIdFeatureProvider().getCategory(mComponentName);
+ 
+         ThreadUtils.getUiThreadHandler().post(() -> {
+             RestrictedPreferenceHelper.putBasicExtras(
+                     this, prefKey, getTitle(), intro, description, imageRes,
+-                    htmlDescription, mComponentName, metricsCategory);
++                    htmlDescription, mComponentName, pageIdCategory);
+             RestrictedPreferenceHelper.putSettingsExtras(this, getPackageName(), settingsClassName);
+             RestrictedPreferenceHelper.putTileServiceExtras(
+                     this, getPackageName(), tileServiceClassName);
+diff --git a/src/com/android/settings/accessibility/AccessibilityDetailsSettingsFragment.java b/src/com/android/settings/accessibility/AccessibilityDetailsSettingsFragment.java
+index be7a73ba85a..347c7693356 100644
+--- a/src/com/android/settings/accessibility/AccessibilityDetailsSettingsFragment.java
++++ b/src/com/android/settings/accessibility/AccessibilityDetailsSettingsFragment.java
+@@ -228,11 +228,10 @@ public class AccessibilityDetailsSettingsFragment extends InstrumentedFragment {
+                     new ComponentName(packageName, tileServiceClassName).flattenToString());
+         }
+ 
+-        final int metricsCategory = FeatureFactory.getFeatureFactory()
+-                .getAccessibilityMetricsFeatureProvider()
+-                .getDownloadedFeatureMetricsCategory(componentName);
+-        extras.putInt(AccessibilitySettings.EXTRA_METRICS_CATEGORY, metricsCategory);
+-        extras.putInt(AccessibilitySettings.EXTRA_FEEDBACK_CATEGORY, metricsCategory);
++        final int pageIdCategory = FeatureFactory.getFeatureFactory()
++                .getAccessibilityPageIdFeatureProvider().getCategory(componentName);
++        extras.putInt(AccessibilitySettings.EXTRA_METRICS_CATEGORY, pageIdCategory);
++        extras.putInt(AccessibilitySettings.EXTRA_FEEDBACK_CATEGORY, pageIdCategory);
+         extras.putParcelable(AccessibilitySettings.EXTRA_COMPONENT_NAME, componentName);
+         extras.putInt(AccessibilitySettings.EXTRA_ANIMATED_IMAGE_RES, info.getAnimatedImageRes());
+ 
+diff --git a/src/com/android/settings/accessibility/AccessibilityMetricsFeatureProvider.java b/src/com/android/settings/accessibility/AccessibilityPageIdFeatureProvider.java
+similarity index 84%
+rename from src/com/android/settings/accessibility/AccessibilityMetricsFeatureProvider.java
+rename to src/com/android/settings/accessibility/AccessibilityPageIdFeatureProvider.java
+index a9d7c0551d1..698efbeee90 100644
+--- a/src/com/android/settings/accessibility/AccessibilityMetricsFeatureProvider.java
++++ b/src/com/android/settings/accessibility/AccessibilityPageIdFeatureProvider.java
+@@ -21,9 +21,9 @@ import android.content.ComponentName;
+ import androidx.annotation.Nullable;
+ 
+ /**
+- * Provider for Accessibility metrics related features.
++ * Provider for Accessibility page id related features.
+  */
+-public interface AccessibilityMetricsFeatureProvider {
++public interface AccessibilityPageIdFeatureProvider {
+ 
+     /**
+      * Returns {@link android.app.settings.SettingsEnums} value according to the {@code
+@@ -32,5 +32,5 @@ public interface AccessibilityMetricsFeatureProvider {
+      * @param componentName the component name of the downloaded service or activity
+      * @return value in {@link android.app.settings.SettingsEnums}
+      */
+-    int getDownloadedFeatureMetricsCategory(@Nullable ComponentName componentName);
++    int getCategory(@Nullable ComponentName componentName);
+ }
+diff --git a/src/com/android/settings/accessibility/AccessibilityMetricsFeatureProviderImpl.java b/src/com/android/settings/accessibility/AccessibilityPageIdFeatureProviderImpl.java
+similarity index 75%
+rename from src/com/android/settings/accessibility/AccessibilityMetricsFeatureProviderImpl.java
+rename to src/com/android/settings/accessibility/AccessibilityPageIdFeatureProviderImpl.java
+index 0f85f38f571..acd8aab3291 100644
+--- a/src/com/android/settings/accessibility/AccessibilityMetricsFeatureProviderImpl.java
++++ b/src/com/android/settings/accessibility/AccessibilityPageIdFeatureProviderImpl.java
+@@ -19,14 +19,16 @@ package com.android.settings.accessibility;
+ import android.app.settings.SettingsEnums;
+ import android.content.ComponentName;
+ 
++import androidx.annotation.Nullable;
++
+ /**
+- * Provider implementation for Accessibility metrics related features.
++ * Provider implementation for Accessibility page id related features.
+  */
+-public class AccessibilityMetricsFeatureProviderImpl implements
+-        AccessibilityMetricsFeatureProvider {
++public class AccessibilityPageIdFeatureProviderImpl implements
++        AccessibilityPageIdFeatureProvider {
+ 
+     @Override
+-    public int getDownloadedFeatureMetricsCategory(ComponentName componentName) {
++    public int getCategory(@Nullable ComponentName componentName) {
+         return SettingsEnums.ACCESSIBILITY_SERVICE;
+     }
+ }
+diff --git a/src/com/android/settings/accessibility/AccessibilityServicePreference.java b/src/com/android/settings/accessibility/AccessibilityServicePreference.java
+index 8a22d820af9..703277422d6 100644
+--- a/src/com/android/settings/accessibility/AccessibilityServicePreference.java
++++ b/src/com/android/settings/accessibility/AccessibilityServicePreference.java
+@@ -123,13 +123,12 @@ public class AccessibilityServicePreference extends RestrictedPreference {
+         final String settingsClassName = mA11yServiceInfo.getSettingsActivityName();
+         final String tileServiceClassName = mA11yServiceInfo.getTileServiceName();
+         final ResolveInfo resolveInfo = mA11yServiceInfo.getResolveInfo();
+-        final int metricsCategory = FeatureFactory.getFeatureFactory()
+-                .getAccessibilityMetricsFeatureProvider()
+-                .getDownloadedFeatureMetricsCategory(mComponentName);
++        final int pageIdCategory = FeatureFactory.getFeatureFactory()
++                .getAccessibilityPageIdFeatureProvider().getCategory(mComponentName);
+         ThreadUtils.getUiThreadHandler().post(() -> {
+             RestrictedPreferenceHelper.putBasicExtras(
+                     this, prefKey, getTitle(), intro, description, imageRes,
+-                    htmlDescription, mComponentName, metricsCategory);
++                    htmlDescription, mComponentName, pageIdCategory);
+             RestrictedPreferenceHelper.putServiceExtras(this, resolveInfo, mServiceEnabled);
+             RestrictedPreferenceHelper.putSettingsExtras(this, getPackageName(), settingsClassName);
+             RestrictedPreferenceHelper.putTileServiceExtras(
+diff --git a/src/com/android/settings/overlay/FeatureFactory.kt b/src/com/android/settings/overlay/FeatureFactory.kt
+index 46aa19b0d05..7e04f0d4373 100644
+--- a/src/com/android/settings/overlay/FeatureFactory.kt
++++ b/src/com/android/settings/overlay/FeatureFactory.kt
+@@ -17,7 +17,7 @@ package com.android.settings.overlay
+ 
+ import android.content.Context
+ import com.android.settings.accessibility.AccessibilityFeedbackFeatureProvider
+-import com.android.settings.accessibility.AccessibilityMetricsFeatureProvider
++import com.android.settings.accessibility.AccessibilityPageIdFeatureProvider
+ import com.android.settings.accessibility.AccessibilitySearchFeatureProvider
+ import com.android.settings.accounts.AccountFeatureProvider
+ import com.android.settings.applications.ApplicationFeatureProvider
+@@ -145,9 +145,9 @@ abstract class FeatureFactory {
+     abstract val accessibilitySearchFeatureProvider: AccessibilitySearchFeatureProvider
+ 
+     /**
+-     * Retrieves implementation for Accessibility metrics category feature.
++     * Retrieves implementation for Accessibility page id category feature.
+      */
+-    abstract val accessibilityMetricsFeatureProvider: AccessibilityMetricsFeatureProvider
++    abstract val accessibilityPageIdFeatureProvider: AccessibilityPageIdFeatureProvider
+ 
+     /**
+      * Retrieves implementation for advanced vpn feature.
+diff --git a/src/com/android/settings/overlay/FeatureFactoryImpl.kt b/src/com/android/settings/overlay/FeatureFactoryImpl.kt
+index 08abf2bd466..4949c3f7f0c 100644
+--- a/src/com/android/settings/overlay/FeatureFactoryImpl.kt
++++ b/src/com/android/settings/overlay/FeatureFactoryImpl.kt
+@@ -22,8 +22,8 @@ import android.net.VpnManager
+ import android.os.UserManager
+ import com.android.settings.accessibility.AccessibilityFeedbackFeatureProvider
+ import com.android.settings.accessibility.AccessibilityFeedbackFeatureProviderImpl
+-import com.android.settings.accessibility.AccessibilityMetricsFeatureProvider
+-import com.android.settings.accessibility.AccessibilityMetricsFeatureProviderImpl
++import com.android.settings.accessibility.AccessibilityPageIdFeatureProvider
++import com.android.settings.accessibility.AccessibilityPageIdFeatureProviderImpl
+ import com.android.settings.accessibility.AccessibilitySearchFeatureProvider
+ import com.android.settings.accessibility.AccessibilitySearchFeatureProviderImpl
+ import com.android.settings.accounts.AccountFeatureProvider
+@@ -174,8 +174,8 @@ open class FeatureFactoryImpl : FeatureFactory() {
+         AccessibilitySearchFeatureProviderImpl()
+     }
+ 
+-    override val accessibilityMetricsFeatureProvider: AccessibilityMetricsFeatureProvider by lazy {
+-        AccessibilityMetricsFeatureProviderImpl()
++    override val accessibilityPageIdFeatureProvider: AccessibilityPageIdFeatureProvider by lazy {
++        AccessibilityPageIdFeatureProviderImpl()
+     }
+ 
+     override val advancedVpnFeatureProvider by lazy { AdvancedVpnFeatureProviderImpl() }
+diff --git a/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java b/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java
+index c5d4c36228a..e002de1e391 100644
+--- a/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java
++++ b/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java
+@@ -20,7 +20,7 @@ import static org.mockito.Mockito.mock;
+ import android.content.Context;
+ 
+ import com.android.settings.accessibility.AccessibilityFeedbackFeatureProvider;
+-import com.android.settings.accessibility.AccessibilityMetricsFeatureProvider;
++import com.android.settings.accessibility.AccessibilityPageIdFeatureProvider;
+ import com.android.settings.accessibility.AccessibilitySearchFeatureProvider;
+ import com.android.settings.accounts.AccountFeatureProvider;
+ import com.android.settings.applications.ApplicationFeatureProvider;
+@@ -94,7 +94,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+     public WifiTrackerLibProvider wifiTrackerLibProvider;
+     public SecuritySettingsFeatureProvider securitySettingsFeatureProvider;
+     public AccessibilitySearchFeatureProvider mAccessibilitySearchFeatureProvider;
+-    public AccessibilityMetricsFeatureProvider mAccessibilityMetricsFeatureProvider;
++    public AccessibilityPageIdFeatureProvider mAccessibilityPageIdFeatureProvider;
+     public AdvancedVpnFeatureProvider mAdvancedVpnFeatureProvider;
+     public WifiFeatureProvider mWifiFeatureProvider;
+     public KeyboardSettingsFeatureProvider mKeyboardSettingsFeatureProvider;
+@@ -145,7 +145,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+         wifiTrackerLibProvider = mock(WifiTrackerLibProvider.class);
+         securitySettingsFeatureProvider = mock(SecuritySettingsFeatureProvider.class);
+         mAccessibilitySearchFeatureProvider = mock(AccessibilitySearchFeatureProvider.class);
+-        mAccessibilityMetricsFeatureProvider = mock(AccessibilityMetricsFeatureProvider.class);
++        mAccessibilityPageIdFeatureProvider = mock(AccessibilityPageIdFeatureProvider.class);
+         mAdvancedVpnFeatureProvider = mock(AdvancedVpnFeatureProvider.class);
+         mWifiFeatureProvider = mock(WifiFeatureProvider.class);
+         mKeyboardSettingsFeatureProvider = mock(KeyboardSettingsFeatureProvider.class);
+@@ -294,8 +294,8 @@ public class FakeFeatureFactory extends FeatureFactory {
+     }
+ 
+     @Override
+-    public AccessibilityMetricsFeatureProvider getAccessibilityMetricsFeatureProvider() {
+-        return mAccessibilityMetricsFeatureProvider;
++    public AccessibilityPageIdFeatureProvider getAccessibilityPageIdFeatureProvider() {
++        return mAccessibilityPageIdFeatureProvider;
+     }
+ 
+     @Override
+diff --git a/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt b/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt
+index 56dd444b474..7b1bdc0ed9c 100644
+--- a/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt
++++ b/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt
+@@ -18,7 +18,7 @@ package com.android.settings.testutils
+ 
+ import android.content.Context
+ import com.android.settings.accessibility.AccessibilityFeedbackFeatureProvider
+-import com.android.settings.accessibility.AccessibilityMetricsFeatureProvider
++import com.android.settings.accessibility.AccessibilityPageIdFeatureProvider
+ import com.android.settings.accessibility.AccessibilitySearchFeatureProvider
+ import com.android.settings.accounts.AccountFeatureProvider
+ import com.android.settings.applications.ApplicationFeatureProvider
+@@ -130,7 +130,7 @@ class FakeFeatureFactory : FeatureFactory() {
+         get() = TODO("Not yet implemented")
+     override val accessibilitySearchFeatureProvider: AccessibilitySearchFeatureProvider
+         get() = TODO("Not yet implemented")
+-    override val accessibilityMetricsFeatureProvider: AccessibilityMetricsFeatureProvider
++    override val accessibilityPageIdFeatureProvider: AccessibilityPageIdFeatureProvider
+         get() = TODO("Not yet implemented")
+     override val advancedVpnFeatureProvider: AdvancedVpnFeatureProvider
+         get() = TODO("Not yet implemented")
+diff --git a/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java b/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java
+index d77d7a4ff01..eda0aeb934c 100644
+--- a/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java
++++ b/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java
+@@ -20,7 +20,7 @@ import static org.mockito.Mockito.mock;
+ import android.content.Context;
+ 
+ import com.android.settings.accessibility.AccessibilityFeedbackFeatureProvider;
+-import com.android.settings.accessibility.AccessibilityMetricsFeatureProvider;
++import com.android.settings.accessibility.AccessibilityPageIdFeatureProvider;
+ import com.android.settings.accessibility.AccessibilitySearchFeatureProvider;
+ import com.android.settings.accounts.AccountFeatureProvider;
+ import com.android.settings.applications.ApplicationFeatureProvider;
+@@ -93,7 +93,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+     public WifiTrackerLibProvider wifiTrackerLibProvider;
+     public SecuritySettingsFeatureProvider securitySettingsFeatureProvider;
+     public AccessibilitySearchFeatureProvider mAccessibilitySearchFeatureProvider;
+-    public AccessibilityMetricsFeatureProvider mAccessibilityMetricsFeatureProvider;
++    public AccessibilityPageIdFeatureProvider mAccessibilityPageIdFeatureProvider;
+     public AdvancedVpnFeatureProvider mAdvancedVpnFeatureProvider;
+     public WifiFeatureProvider mWifiFeatureProvider;
+     public KeyboardSettingsFeatureProvider mKeyboardSettingsFeatureProvider;
+@@ -146,7 +146,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+         wifiTrackerLibProvider = mock(WifiTrackerLibProvider.class);
+         securitySettingsFeatureProvider = mock(SecuritySettingsFeatureProvider.class);
+         mAccessibilitySearchFeatureProvider = mock(AccessibilitySearchFeatureProvider.class);
+-        mAccessibilityMetricsFeatureProvider = mock(AccessibilityMetricsFeatureProvider.class);
++        mAccessibilityPageIdFeatureProvider = mock(AccessibilityPageIdFeatureProvider.class);
+         mAdvancedVpnFeatureProvider = mock(AdvancedVpnFeatureProvider.class);
+         mWifiFeatureProvider = mock(WifiFeatureProvider.class);
+         mKeyboardSettingsFeatureProvider = mock(KeyboardSettingsFeatureProvider.class);
+@@ -295,8 +295,8 @@ public class FakeFeatureFactory extends FeatureFactory {
+     }
+ 
+     @Override
+-    public AccessibilityMetricsFeatureProvider getAccessibilityMetricsFeatureProvider() {
+-        return mAccessibilityMetricsFeatureProvider;
++    public AccessibilityPageIdFeatureProvider getAccessibilityPageIdFeatureProvider() {
++        return mAccessibilityPageIdFeatureProvider;
+     }
+ 
+     @Override
+-- 
+2.43.0
+

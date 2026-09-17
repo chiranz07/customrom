@@ -292,3 +292,41 @@ from shiba are only in `mist_husky.mk` / `device-husky.mk` / `husky/mist_about.p
 `out/target/product/husky/`). Both products share the prebuilt kernel repo and
 every framework/vendor patch. Nobody has booted the husky build yet — treat the
 first report from a Pixel 8 Pro owner as the real test.
+
+---
+
+## 12. Fresh server bootstrap (the original build server was destroyed on 2026-09-18)
+
+Nothing from the old machine is needed; this folder is the whole state. On a new Ubuntu box:
+
+```bash
+sudo apt install -y git git-lfs repo python3 openjdk-17-jdk lz4 libxml2-utils e2fsprogs unzip curl rsync   # or install `repo` from git-repo
+git lfs install
+# AOSP build deps (standard list): bc bison build-essential ccache curl flex g++-multilib gcc-multilib gnupg gperf
+#   imagemagick lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libsdl1.2-dev libssl-dev libxml2 libxml2-utils
+#   lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
+```
+Then follow §2 (sync), §3 (`scripts/apply_patches.sh` — if a patch fails, re-do it from `files/` + HANDOFF), §4 (stamp `boot.img`), §5 (build via `scripts/mist_build_supervisor.sh`, husky via `mist_build_supervisor_husky.sh`), §6 (verify from `payload.bin`), §7 (publish).
+Host-tool binaries used in the guide (`ota_extractor`, `unpack_bootimg`, `mkbootimg`, `aapt2`, `simg2img`) are produced by the ROM build itself under `out/host/linux-x86/bin/`.
+
+**Keys that die with the old server (regenerate, then re-register):**
+- SourceForge upload key → `ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_sourceforge`, add the public key at https://sourceforge.net/auth/shell_services, `~/.ssh/config` host entry for `frs.sourceforge.net` user `chiranz`. Remove the old key `chiranz-sourceforge-upload` there.
+- GitHub push key → same with `id_ed25519_github`, add at https://github.com/settings/ssh/new. Remove the old `chiranz-customrom-github`.
+- Git identity used for this repo: `chiranz <chiranz07@users.noreply.github.com>`.
+- The ROM is signed with AOSP test-keys, so there are no signing keys to migrate. (If release keys are ever generated, keep them OUT of this repo.)
+
+**For an AI agent starting fresh:** load `agent-memory/*.md` (the previous agent's persistent memory: project state, user preferences and corrections — e.g. never stop a running build on your own initiative, the user has a 96-core allowance), then `HANDOFF.md`, then this file. `reference/` has the exact installed-file lists and build.props of the last shipped builds for diffing against a new build.
+
+## 13. What is NOT in this repo, and where it comes from
+
+| Item | Why absent | Source |
+|---|---|---|
+| ROM source tree (~450 GB) | regenerable | `repo init -u https://github.com/Project-Mist-OS/manifest.git -b 17.0` + `local_manifests/shusky.xml` |
+| Vendor blobs, GMS, prebuilt kernel | in the synced repos | TheMuppets / ionutsandroidbuilds / Mist `vendor/gms` |
+| `device/google/shusky-kernels/boot.img` (re-stamped) | binary; regenerate with §4 | prebuilt kernel repo + `mkbootimg` |
+| Built zips / images | on SourceForge | https://sourceforge.net/projects/chiranz/files/ |
+| Pixel 8 factory image `shiba-cp2a.260605.012` (4 GB) | public download | https://dl.google.com/dl/android/aosp/shiba-cp2a.260605.012-factory-ada9841e.zip |
+| RisingOS `vendor_pixel-framework` clone (`sixteen`) | public repo; local one-line diff kept in `patches/pixel-framework/` | https://github.com/RisingOS-Revived/android_vendor_pixel-framework |
+| blu_spark kernel releases (root) | public | https://github.com/engstk/gs/releases (r271 `gs-susfs` used) |
+| Kernel source tree `~/kernel` | regenerable; local diffs in `patches/kernel/` | AOSP `kernel/manifest` `android-gs-shusky-6.1-android16` + `local_manifests/kernel_gs.xml` (bootloops — see HANDOFF) |
+| Session transcripts | private | not published |

@@ -1,0 +1,190 @@
+From 376d014abfe87b9ff7ee5df596f52944fa50ca94 Mon Sep 17 00:00:00 2001
+From: Jenny Ho <hsiufangho@google.com>
+Date: Tue, 9 Jul 2024 15:20:23 +0800
+Subject: [PATCH] BatteryService: expose capacity level API
+
+Using CAPACITY LEVEL as a key indicator of battery demand
+enables systems and applications to make informed decisions
+about power management and resource utilization.
+
+Bug: 347860143
+Change-Id: I55218ad1aadc09706ac82d4b401310467b94d9b4
+Signed-off-by: Jenny Ho <hsiufangho@google.com>
+---
+ core/api/current.txt                          |  8 +++
+ core/java/android/os/BatteryManager.java      | 71 +++++++++++++++++++
+ .../com/android/server/BatteryService.java    |  8 ++-
+ 3 files changed, 86 insertions(+), 1 deletion(-)
+
+diff --git a/core/api/current.txt b/core/api/current.txt
+index a9ee34feaa2f..2d8db84bbbde 100644
+--- a/core/api/current.txt
++++ b/core/api/current.txt
+@@ -32570,6 +32570,13 @@ package android.os {
+     method public boolean isCharging();
+     field public static final String ACTION_CHARGING = "android.os.action.CHARGING";
+     field public static final String ACTION_DISCHARGING = "android.os.action.DISCHARGING";
++    field @FlaggedApi("android.os.battery_part_status_api") public static final int BATTERY_CAPACITY_LEVEL_CRITICAL = 1; // 0x1
++    field @FlaggedApi("android.os.battery_part_status_api") public static final int BATTERY_CAPACITY_LEVEL_FULL = 5; // 0x5
++    field @FlaggedApi("android.os.battery_part_status_api") public static final int BATTERY_CAPACITY_LEVEL_HIGH = 4; // 0x4
++    field @FlaggedApi("android.os.battery_part_status_api") public static final int BATTERY_CAPACITY_LEVEL_LOW = 2; // 0x2
++    field @FlaggedApi("android.os.battery_part_status_api") public static final int BATTERY_CAPACITY_LEVEL_NORMAL = 3; // 0x3
++    field @FlaggedApi("android.os.battery_part_status_api") public static final int BATTERY_CAPACITY_LEVEL_UNKNOWN = 0; // 0x0
++    field @FlaggedApi("android.os.battery_part_status_api") public static final int BATTERY_CAPACITY_LEVEL_UNSUPPORTED = -1; // 0xffffffff
+     field public static final int BATTERY_HEALTH_COLD = 7; // 0x7
+     field public static final int BATTERY_HEALTH_DEAD = 4; // 0x4
+     field public static final int BATTERY_HEALTH_GOOD = 2; // 0x2
+@@ -32594,6 +32601,7 @@ package android.os {
+     field public static final int BATTERY_STATUS_NOT_CHARGING = 4; // 0x4
+     field public static final int BATTERY_STATUS_UNKNOWN = 1; // 0x1
+     field public static final String EXTRA_BATTERY_LOW = "battery_low";
++    field @FlaggedApi("android.os.battery_part_status_api") public static final String EXTRA_CAPACITY_LEVEL = "android.os.extra.CAPACITY_LEVEL";
+     field public static final String EXTRA_CHARGING_STATUS = "android.os.extra.CHARGING_STATUS";
+     field public static final String EXTRA_CYCLE_COUNT = "android.os.extra.CYCLE_COUNT";
+     field public static final String EXTRA_HEALTH = "health";
+diff --git a/core/java/android/os/BatteryManager.java b/core/java/android/os/BatteryManager.java
+index f3efd89d4bc3..8b267bf28c7e 100644
+--- a/core/java/android/os/BatteryManager.java
++++ b/core/java/android/os/BatteryManager.java
+@@ -141,6 +141,7 @@ public class BatteryManager {
+     /**
+      * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
+      * integer containing the charge counter present in the battery.
++     * It shows the available battery power in µAh
+      * {@hide}
+      */
+      @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.R, trackingBug = 170729553)
+@@ -165,6 +166,76 @@ public class BatteryManager {
+      */
+     public static final String EXTRA_CHARGING_STATUS = "android.os.extra.CHARGING_STATUS";
+ 
++    /**
++     * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
++     * Int value representing the battery's capacity level. These constants are key indicators of
++     * battery status and system capabilities, guiding power management decisions for both the
++     * system and apps:
++     * {@link #BATTERY_CAPACITY_LEVEL_UNSUPPORTED}: Feature not supported on this device.
++     * {@link #BATTERY_CAPACITY_LEVEL_UNKNOWN}: Battery status is unavailable or uninitialized.
++     * {@link #BATTERY_CAPACITY_LEVEL_CRITICAL}: Battery is critically low and the Android
++     * framework has been notified to schedule a shutdown by this value
++     * {@link #BATTERY_CAPACITY_LEVEL_LOW}: Android framework must limit background jobs to
++     * avoid impacting charging speed
++     * {@link #BATTERY_CAPACITY_LEVEL_NORMAL}: Battery level and charging rates are normal,
++     * battery temperature is within normal range and adapter power is enough to charge the
++     * battery at an acceptable rate. Android framework can run light background tasks without
++     * affecting charging performance severely.
++     * {@link #BATTERY_CAPACITY_LEVEL_HIGH}: Battery level is high, battery temperature is
++     * within normal range and adapter power is enough to charge the battery at an acceptable
++     * rate while running background loads. Android framework can run background tasks without
++     * affecting charging or battery performance.
++     * {@link #BATTERY_CAPACITY_LEVEL_FULL}: The battery is full, battery temperature is
++     * within normal range and adapter power is enough to sustain running background loads.
++     * Android framework can run background tasks without affecting the battery level or
++     * battery performance.
++     */
++
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final String EXTRA_CAPACITY_LEVEL = "android.os.extra.CAPACITY_LEVEL";
++
++    /**
++     * Battery capacity level is unsupported. @see EXTRA_CAPACITY_LEVEL
++     */
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final int BATTERY_CAPACITY_LEVEL_UNSUPPORTED = -1;
++
++    /**
++     * Battery capacity level is unknown. @see EXTRA_CAPACITY_LEVEL
++     */
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final int BATTERY_CAPACITY_LEVEL_UNKNOWN = 0;
++
++    /**
++     * Battery capacity level is critical. @see EXTRA_CAPACITY_LEVEL
++     */
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final int BATTERY_CAPACITY_LEVEL_CRITICAL = 1;
++
++    /**
++     * Battery capacity level is low. @see EXTRA_CAPACITY_LEVEL
++     */
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final int BATTERY_CAPACITY_LEVEL_LOW = 2;
++
++    /**
++     * Battery capacity level is normal. @see EXTRA_CAPACITY_LEVEL
++     */
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final int BATTERY_CAPACITY_LEVEL_NORMAL = 3;
++
++    /**
++     * Battery capacity level is high. @see EXTRA_CAPACITY_LEVEL
++     */
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final int BATTERY_CAPACITY_LEVEL_HIGH = 4;
++
++    /**
++     * Battery capacity level is full. @see EXTRA_CAPACITY_LEVEL
++     */
++    @FlaggedApi(FLAG_BATTERY_PART_STATUS_API)
++    public static final int BATTERY_CAPACITY_LEVEL_FULL = 5;
++
+     /**
+      * Extra for {@link android.content.Intent#ACTION_BATTERY_LEVEL_CHANGED}:
+      * Contains list of Bundles representing battery events
+diff --git a/services/core/java/com/android/server/BatteryService.java b/services/core/java/com/android/server/BatteryService.java
+index 2de44820ec05..8891d8eedfa6 100644
+--- a/services/core/java/com/android/server/BatteryService.java
++++ b/services/core/java/com/android/server/BatteryService.java
+@@ -158,6 +158,7 @@ public final class BatteryService extends SystemService {
+     private int mLastChargeCounter;
+     private int mLastBatteryCycleCount;
+     private int mLastChargingState;
++    private int mLastBatteryCapacityLevel;
+     /**
+      * The last seen charging policy. This requires the
+      * {@link android.Manifest.permission#BATTERY_STATS} permission and should therefore not be
+@@ -555,7 +556,8 @@ public final class BatteryService extends SystemService {
+                         || mHealthInfo.batteryChargeCounterUah != mLastChargeCounter
+                         || mInvalidCharger != mLastInvalidCharger
+                         || mHealthInfo.batteryCycleCount != mLastBatteryCycleCount
+-                        || mHealthInfo.chargingState != mLastChargingState)) {
++                        || mHealthInfo.chargingState != mLastChargingState
++                        || mHealthInfo.batteryCapacityLevel != mLastBatteryCapacityLevel)) {
+ 
+             if (mPlugType != mLastPlugType) {
+                 if (mLastPlugType == BATTERY_PLUGGED_NONE) {
+@@ -739,6 +741,7 @@ public final class BatteryService extends SystemService {
+             mLastInvalidCharger = mInvalidCharger;
+             mLastBatteryCycleCount = mHealthInfo.batteryCycleCount;
+             mLastChargingState = mHealthInfo.chargingState;
++            mLastBatteryCapacityLevel = mHealthInfo.batteryCapacityLevel;
+         }
+     }
+ 
+@@ -772,6 +775,7 @@ public final class BatteryService extends SystemService {
+         intent.putExtra(BatteryManager.EXTRA_CHARGE_COUNTER, mHealthInfo.batteryChargeCounterUah);
+         intent.putExtra(BatteryManager.EXTRA_CYCLE_COUNT, mHealthInfo.batteryCycleCount);
+         intent.putExtra(BatteryManager.EXTRA_CHARGING_STATUS, mHealthInfo.chargingState);
++        intent.putExtra(BatteryManager.EXTRA_CAPACITY_LEVEL, mHealthInfo.batteryCapacityLevel);
+         if (DEBUG) {
+             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
+                     + ", info:" + mHealthInfo.toString());
+@@ -817,6 +821,7 @@ public final class BatteryService extends SystemService {
+         event.putLong(BatteryManager.EXTRA_EVENT_TIMESTAMP, now);
+         event.putInt(BatteryManager.EXTRA_CYCLE_COUNT, mHealthInfo.batteryCycleCount);
+         event.putInt(BatteryManager.EXTRA_CHARGING_STATUS, mHealthInfo.chargingState);
++        event.putInt(BatteryManager.EXTRA_CAPACITY_LEVEL, mHealthInfo.batteryCapacityLevel);
+ 
+         boolean queueWasEmpty = mBatteryLevelsEventQueue.isEmpty();
+         mBatteryLevelsEventQueue.add(event);
+@@ -1254,6 +1259,7 @@ public final class BatteryService extends SystemService {
+                 pw.println("  technology: " + mHealthInfo.batteryTechnology);
+                 pw.println("  Charging state: " + mHealthInfo.chargingState);
+                 pw.println("  Charging policy: " + mHealthInfo.chargingPolicy);
++                pw.println("  Capacity level: " + mHealthInfo.batteryCapacityLevel);
+             } else {
+                 Shell shell = new Shell();
+                 shell.exec(mBinderService, null, fd, null, args, null, new ResultReceiver(null));
+-- 
+2.43.0
+

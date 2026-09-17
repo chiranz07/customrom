@@ -1,0 +1,319 @@
+From ffb6e7e21b236da501588339f6357cdb4b9bd352 Mon Sep 17 00:00:00 2001
+From: chengfeitao <chengfeitao@google.com>
+Date: Tue, 12 Dec 2023 21:30:28 +0000
+Subject: [PATCH] SettingsGoogle: Add ContextualScreenTimeout
+
+Store contextual screen timeout preference when the
+corresponding switch is toggled.
+
+Bug: 295232527
+
+Test: atest ExternalSettingsProviderTest
+Test: atest ContextualTimeoutPreferenceControllerTest
+Change-Id: I093d180f4b11ebb806c4b1949ff5428520c8f40f
+---
+ .../display/DisplayFeatureProvider.java       | 39 ++++++++++++++++
+ .../display/DisplayFeatureProviderImpl.java   | 44 +++++++++++++++++++
+ .../display/ScreenTimeoutSettings.java        | 12 +++++
+ .../settings/overlay/FeatureFactory.kt        |  6 +++
+ .../settings/overlay/FeatureFactoryImpl.kt    |  5 +++
+ .../testutils/FakeFeatureFactory.java         |  8 ++++
+ .../settings/testutils/FakeFeatureFactory.kt  |  3 ++
+ .../testutils/FakeFeatureFactory.java         |  8 ++++
+ 8 files changed, 125 insertions(+)
+ create mode 100644 src/com/android/settings/display/DisplayFeatureProvider.java
+ create mode 100644 src/com/android/settings/display/DisplayFeatureProviderImpl.java
+
+diff --git a/src/com/android/settings/display/DisplayFeatureProvider.java b/src/com/android/settings/display/DisplayFeatureProvider.java
+new file mode 100644
+index 00000000000..a7c8dbb71a1
+--- /dev/null
++++ b/src/com/android/settings/display/DisplayFeatureProvider.java
+@@ -0,0 +1,39 @@
++/*
++ * Copyright (C) 2024 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.android.settings.display;
++
++import android.content.Context;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++import androidx.preference.PreferenceScreen;
++
++import com.android.settings.core.TogglePreferenceController;
++
++/** Feature provider for display settings */
++public interface DisplayFeatureProvider {
++
++    /** Create toggle preference */
++    @Nullable
++    TogglePreferenceController createAdditionalPreference(@NonNull Context context);
++
++    /** Update toggle preference */
++    void updatePreference(@Nullable TogglePreferenceController togglePreferenceController);
++
++    /** Add toggle preference to PreferenceScreen */
++    void addToScreen(@Nullable TogglePreferenceController togglePreferenceController,
++            @NonNull PreferenceScreen screen);
++}
+diff --git a/src/com/android/settings/display/DisplayFeatureProviderImpl.java b/src/com/android/settings/display/DisplayFeatureProviderImpl.java
+new file mode 100644
+index 00000000000..c9ec791a922
+--- /dev/null
++++ b/src/com/android/settings/display/DisplayFeatureProviderImpl.java
+@@ -0,0 +1,44 @@
++/*
++ * Copyright (C) 2024 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.android.settings.display;
++
++import android.content.Context;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++import androidx.preference.PreferenceScreen;
++
++import com.android.settings.core.TogglePreferenceController;
++
++public class DisplayFeatureProviderImpl implements DisplayFeatureProvider {
++
++    @Override
++    @Nullable
++    public TogglePreferenceController createAdditionalPreference(@NonNull Context context) {
++        return null;
++    }
++
++    @Override
++    public void updatePreference(@Nullable TogglePreferenceController togglePreferenceController) {
++
++    }
++
++    @Override
++    public void addToScreen(@Nullable TogglePreferenceController togglePreferenceController,
++            @NonNull PreferenceScreen screen) {
++
++    }
++}
+diff --git a/src/com/android/settings/display/ScreenTimeoutSettings.java b/src/com/android/settings/display/ScreenTimeoutSettings.java
+index 1c99d5f70a8..2d229a3cfe7 100644
+--- a/src/com/android/settings/display/ScreenTimeoutSettings.java
++++ b/src/com/android/settings/display/ScreenTimeoutSettings.java
+@@ -34,9 +34,11 @@ import android.os.UserHandle;
+ import android.provider.Settings;
+ import android.util.Log;
+ 
++import androidx.annotation.Nullable;
+ import androidx.preference.PreferenceScreen;
+ 
+ import com.android.settings.R;
++import com.android.settings.core.TogglePreferenceController;
+ import com.android.settings.flags.Flags;
+ import com.android.settings.overlay.FeatureFactory;
+ import com.android.settings.search.BaseSearchIndexProvider;
+@@ -106,6 +108,9 @@ public class ScreenTimeoutSettings extends RadioButtonPickerFragment
+     @VisibleForTesting
+     AdaptiveSleepBatterySaverPreferenceController mAdaptiveSleepBatterySaverPreferenceController;
+ 
++    @Nullable
++    TogglePreferenceController mAdditionalTogglePreferenceController;
++
+     public ScreenTimeoutSettings() {
+         super();
+         mMetricsFeatureProvider = FeatureFactory.getFeatureFactory().getMetricsFeatureProvider();
+@@ -133,6 +138,8 @@ public class ScreenTimeoutSettings extends RadioButtonPickerFragment
+                 com.android.settingslib.widget.preference.footer.R.layout.preference_footer);
+         mPrivacyManager = SensorPrivacyManager.getInstance(context);
+         mPrivacyChangedListener = (sensor, enabled) -> mAdaptiveSleepController.updatePreference();
++        mAdditionalTogglePreferenceController = FeatureFactory.getFeatureFactory()
++                .getDisplayFeatureProvider().createAdditionalPreference(context);
+     }
+ 
+     @Override
+@@ -164,6 +171,8 @@ public class ScreenTimeoutSettings extends RadioButtonPickerFragment
+                 mReceiver, new IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED));
+         mPrivacyManager.addSensorPrivacyListener(CAMERA, mPrivacyChangedListener);
+         mIsUserAuthenticated = false;
++        FeatureFactory.getFeatureFactory().getDisplayFeatureProvider().updatePreference(
++                mAdditionalTogglePreferenceController);
+     }
+ 
+     @Override
+@@ -210,6 +219,9 @@ public class ScreenTimeoutSettings extends RadioButtonPickerFragment
+         mPrivacyPreference.setLayoutResource(
+                 com.android.settingslib.widget.preference.footer.R.layout.preference_footer);
+ 
++        FeatureFactory.getFeatureFactory().getDisplayFeatureProvider()
++                .addToScreen(mAdditionalTogglePreferenceController, screen);
++
+         if (isScreenAttentionAvailable(getContext())) {
+             mAdaptiveSleepPermissionController.addToScreen(screen);
+             mAdaptiveSleepCameraStatePreferenceController.addToScreen(screen);
+diff --git a/src/com/android/settings/overlay/FeatureFactory.kt b/src/com/android/settings/overlay/FeatureFactory.kt
+index 8a68122361b..37507a82274 100644
+--- a/src/com/android/settings/overlay/FeatureFactory.kt
++++ b/src/com/android/settings/overlay/FeatureFactory.kt
+@@ -29,6 +29,7 @@ import com.android.settings.connecteddevice.stylus.StylusFeatureProvider
+ import com.android.settings.dashboard.DashboardFeatureProvider
+ import com.android.settings.dashboard.suggestions.SuggestionFeatureProvider
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProvider
++import com.android.settings.display.DisplayFeatureProvider
+ import com.android.settings.enterprise.EnterprisePrivacyFeatureProvider
+ import com.android.settings.fuelgauge.BatterySettingsFeatureProvider
+ import com.android.settings.fuelgauge.BatteryStatusFeatureProvider
+@@ -176,6 +177,11 @@ abstract class FeatureFactory {
+      */
+     abstract val privateSpaceLoginFeatureProvider: PrivateSpaceLoginFeatureProvider
+ 
++    /**
++     * Gets implementation for Display feature.
++     */
++    abstract val displayFeatureProvider: DisplayFeatureProvider
++
+     companion object {
+         private var _factory: FeatureFactory? = null
+ 
+diff --git a/src/com/android/settings/overlay/FeatureFactoryImpl.kt b/src/com/android/settings/overlay/FeatureFactoryImpl.kt
+index 28dbb23b245..e0313b7b7f1 100644
+--- a/src/com/android/settings/overlay/FeatureFactoryImpl.kt
++++ b/src/com/android/settings/overlay/FeatureFactoryImpl.kt
+@@ -45,6 +45,8 @@ import com.android.settings.dashboard.suggestions.SuggestionFeatureProvider
+ import com.android.settings.dashboard.suggestions.SuggestionFeatureProviderImpl
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProvider
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProviderImpl
++import com.android.settings.display.DisplayFeatureProvider
++import com.android.settings.display.DisplayFeatureProviderImpl
+ import com.android.settings.enterprise.EnterprisePrivacyFeatureProviderImpl
+ import com.android.settings.fuelgauge.BatterySettingsFeatureProviderImpl
+ import com.android.settings.fuelgauge.BatteryStatusFeatureProviderImpl
+@@ -190,4 +192,7 @@ open class FeatureFactoryImpl : FeatureFactory() {
+     override val privateSpaceLoginFeatureProvider: PrivateSpaceLoginFeatureProvider by lazy {
+         PrivateSpaceLoginFeatureProviderImpl()
+     }
++    override val displayFeatureProvider: DisplayFeatureProvider by lazy {
++        DisplayFeatureProviderImpl()
++    }
+ }
+diff --git a/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java b/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java
+index 5a5008c26bf..a11b226db28 100644
+--- a/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java
++++ b/tests/robotests/testutils/com/android/settings/testutils/FakeFeatureFactory.java
+@@ -33,6 +33,7 @@ import com.android.settings.dashboard.DashboardFeatureProvider;
+ import com.android.settings.dashboard.suggestions.SuggestionFeatureProvider;
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProvider;
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProviderImpl;
++import com.android.settings.display.DisplayFeatureProvider;
+ import com.android.settings.enterprise.EnterprisePrivacyFeatureProvider;
+ import com.android.settings.fuelgauge.BatterySettingsFeatureProvider;
+ import com.android.settings.fuelgauge.BatteryStatusFeatureProvider;
+@@ -101,6 +102,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+     public OnboardingFeatureProvider mOnboardingFeatureProvider;
+     public FastPairFeatureProvider mFastPairFeatureProvider;
+     public PrivateSpaceLoginFeatureProvider mPrivateSpaceLoginFeatureProvider;
++    public DisplayFeatureProvider mDisplayFeatureProvider;
+ 
+     /**
+      * Call this in {@code @Before} method of the test class to use fake factory.
+@@ -149,6 +151,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+         mOnboardingFeatureProvider = mock(OnboardingFeatureProvider.class);
+         mFastPairFeatureProvider = mock(FastPairFeatureProvider.class);
+         mPrivateSpaceLoginFeatureProvider =  mock(PrivateSpaceLoginFeatureProvider.class);
++        mDisplayFeatureProvider = mock(DisplayFeatureProvider.class);
+     }
+ 
+     @Override
+@@ -331,5 +334,10 @@ public class FakeFeatureFactory extends FeatureFactory {
+     public PrivateSpaceLoginFeatureProvider getPrivateSpaceLoginFeatureProvider() {
+         return mPrivateSpaceLoginFeatureProvider;
+     }
++
++    @Override
++    public DisplayFeatureProvider getDisplayFeatureProvider() {
++        return mDisplayFeatureProvider;
++    }
+ }
+ 
+diff --git a/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt b/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt
+index 9b098a7e5ca..4048c24754d 100644
+--- a/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt
++++ b/tests/spa_unit/src/com/android/settings/testutils/FakeFeatureFactory.kt
+@@ -30,6 +30,7 @@ import com.android.settings.connecteddevice.stylus.StylusFeatureProvider
+ import com.android.settings.dashboard.DashboardFeatureProvider
+ import com.android.settings.dashboard.suggestions.SuggestionFeatureProvider
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProvider
++import com.android.settings.display.DisplayFeatureProvider
+ import com.android.settings.enterprise.EnterprisePrivacyFeatureProvider
+ import com.android.settings.fuelgauge.BatterySettingsFeatureProvider
+ import com.android.settings.fuelgauge.BatteryStatusFeatureProvider
+@@ -146,4 +147,6 @@ class FakeFeatureFactory : FeatureFactory() {
+         get() = TODO("Not yet implemented")
+     override val privateSpaceLoginFeatureProvider: PrivateSpaceLoginFeatureProvider
+         get() = TODO("Not yet implemented")
++    override val displayFeatureProvider: DisplayFeatureProvider
++        get() = TODO("Not yet implemented")
+ }
+diff --git a/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java b/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java
+index 6c4c5b4eae7..9e7948c7da8 100644
+--- a/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java
++++ b/tests/unit/src/com/android/settings/testutils/FakeFeatureFactory.java
+@@ -33,6 +33,7 @@ import com.android.settings.dashboard.DashboardFeatureProvider;
+ import com.android.settings.dashboard.suggestions.SuggestionFeatureProvider;
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProvider;
+ import com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFeatureProviderImpl;
++import com.android.settings.display.DisplayFeatureProvider;
+ import com.android.settings.enterprise.EnterprisePrivacyFeatureProvider;
+ import com.android.settings.fuelgauge.BatterySettingsFeatureProvider;
+ import com.android.settings.fuelgauge.BatteryStatusFeatureProvider;
+@@ -100,6 +101,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+     public OnboardingFeatureProvider mOnboardingFeatureProvider;
+     public FastPairFeatureProvider mFastPairFeatureProvider;
+     public PrivateSpaceLoginFeatureProvider mPrivateSpaceLoginFeatureProvider;
++    public DisplayFeatureProvider mDisplayFeatureProvider;
+ 
+     /** Call this in {@code @Before} method of the test class to use fake factory. */
+     public static FakeFeatureFactory setupForTest() {
+@@ -150,6 +152,7 @@ public class FakeFeatureFactory extends FeatureFactory {
+         mOnboardingFeatureProvider = mock(OnboardingFeatureProvider.class);
+         mFastPairFeatureProvider = mock(FastPairFeatureProvider.class);
+         mPrivateSpaceLoginFeatureProvider = mock(PrivateSpaceLoginFeatureProvider.class);
++        mDisplayFeatureProvider = mock(DisplayFeatureProvider.class);
+     }
+ 
+     @Override
+@@ -332,4 +335,9 @@ public class FakeFeatureFactory extends FeatureFactory {
+     public PrivateSpaceLoginFeatureProvider getPrivateSpaceLoginFeatureProvider() {
+         return mPrivateSpaceLoginFeatureProvider;
+     }
++
++    @Override
++    public DisplayFeatureProvider getDisplayFeatureProvider() {
++        return mDisplayFeatureProvider;
++    }
+ }
+-- 
+2.43.0
+

@@ -1,0 +1,322 @@
+From 5c264266cc3f024c5889e55e0c5a79ebcda9bdf3 Mon Sep 17 00:00:00 2001
+From: Jack Wu <wjack@google.com>
+Date: Wed, 14 Dec 2022 22:14:22 +0800
+Subject: [PATCH] BatteryManager: Add new battery intent and property
+
+These are going to be public:
+- Battery state of health
+- Battery cycle count
+- Charging status
+
+These are going to be system API
+- BATTERY_PROPERTY_MANUFACTURING_DATE
+- BATTERY_PROPERTY_FIRST_USAGE_DATE
+- BATTERY_PROPERTY_CHARGING_POLICY
+
+Bug: 251427118
+Test: m
+Change-Id: If74b96d7657611934d293df8376296e373ec9b35
+Signed-off-by: AleX Pelosi <apelosi@google.com>
+Signed-off-by: Jack Wu <wjack@google.com>
+---
+ core/api/current.txt                          |   3 +
+ core/api/system-current.txt                   |   7 ++
+ core/java/android/os/BatteryManager.java      | 105 +++++++++++++++++-
+ .../com/android/server/BatteryService.java    |  29 ++++-
+ .../health/HealthServiceWrapperAidl.java      |  13 +++
+ 5 files changed, 153 insertions(+), 4 deletions(-)
+
+diff --git a/core/api/current.txt b/core/api/current.txt
+index 7f35d4a47adf..3508e235dd55 100644
+--- a/core/api/current.txt
++++ b/core/api/current.txt
+@@ -30910,12 +30910,15 @@ package android.os {
+     field public static final int BATTERY_STATUS_NOT_CHARGING = 4; // 0x4
+     field public static final int BATTERY_STATUS_UNKNOWN = 1; // 0x1
+     field public static final String EXTRA_BATTERY_LOW = "battery_low";
++    field public static final String EXTRA_CHARGING_STATUS = "android.os.extra.CHARGING_STATUS";
++    field public static final String EXTRA_CYCLE_COUNT = "android.os.extra.CYCLE_COUNT";
+     field public static final String EXTRA_HEALTH = "health";
+     field public static final String EXTRA_ICON_SMALL = "icon-small";
+     field public static final String EXTRA_LEVEL = "level";
+     field public static final String EXTRA_PLUGGED = "plugged";
+     field public static final String EXTRA_PRESENT = "present";
+     field public static final String EXTRA_SCALE = "scale";
++    field public static final String EXTRA_STATE_OF_HEALTH = "android.os.extra.STATE_OF_HEALTH";
+     field public static final String EXTRA_STATUS = "status";
+     field public static final String EXTRA_TECHNOLOGY = "technology";
+     field public static final String EXTRA_TEMPERATURE = "temperature";
+diff --git a/core/api/system-current.txt b/core/api/system-current.txt
+index 1d3993106a8f..98a4e86530c0 100644
+--- a/core/api/system-current.txt
++++ b/core/api/system-current.txt
+@@ -9152,6 +9152,13 @@ package android.os {
+ 
+   public class BatteryManager {
+     method @RequiresPermission(android.Manifest.permission.POWER_SAVER) public boolean setChargingStateUpdateDelayMillis(int);
++    field @RequiresPermission(android.Manifest.permission.BATTERY_STATS) public static final int BATTERY_PROPERTY_CHARGING_POLICY = 9; // 0x9
++    field @RequiresPermission(android.Manifest.permission.BATTERY_STATS) public static final int BATTERY_PROPERTY_FIRST_USAGE_DATE = 8; // 0x8
++    field @RequiresPermission(android.Manifest.permission.BATTERY_STATS) public static final int BATTERY_PROPERTY_MANUFACTURING_DATE = 7; // 0x7
++    field public static final int CHARGING_POLICY_ADAPTIVE_AC = 3; // 0x3
++    field public static final int CHARGING_POLICY_ADAPTIVE_AON = 2; // 0x2
++    field public static final int CHARGING_POLICY_ADAPTIVE_LONGLIFE = 4; // 0x4
++    field public static final int CHARGING_POLICY_DEFAULT = 1; // 0x1
+     field public static final String EXTRA_EVENTS = "android.os.extra.EVENTS";
+     field public static final String EXTRA_EVENT_TIMESTAMP = "android.os.extra.EVENT_TIMESTAMP";
+   }
+diff --git a/core/java/android/os/BatteryManager.java b/core/java/android/os/BatteryManager.java
+index 76f857bd91b7..bd569b2f4f2f 100644
+--- a/core/java/android/os/BatteryManager.java
++++ b/core/java/android/os/BatteryManager.java
+@@ -146,6 +146,25 @@ public class BatteryManager {
+      */
+     public static final String EXTRA_SEQUENCE = "seq";
+ 
++    /**
++     * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
++     * Int value representing the battery charging cycle count.
++     */
++    public static final String EXTRA_CYCLE_COUNT = "android.os.extra.CYCLE_COUNT";
++
++    /**
++     * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
++     * Int value representing the measured battery state of health (remaining
++     * estimate full charge capacity relative to the rated capacity in %).
++     */
++    public static final String EXTRA_STATE_OF_HEALTH = "android.os.extra.STATE_OF_HEALTH";
++
++    /**
++     * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
++     * Int value representing the battery charging status.
++     */
++    public static final String EXTRA_CHARGING_STATUS = "android.os.extra.CHARGING_STATUS";
++
+     /**
+      * Extra for {@link android.content.Intent#ACTION_BATTERY_LEVEL_CHANGED}:
+      * Contains list of Bundles representing battery events
+@@ -190,6 +209,35 @@ public class BatteryManager {
+     /** Power source is dock. */
+     public static final int BATTERY_PLUGGED_DOCK = OsProtoEnums.BATTERY_PLUGGED_DOCK; // = 8
+ 
++    // values for "charge policy" property
++    /**
++     * Default policy (e.g. normal).
++     * @hide
++     */
++    @SystemApi
++    public static final int CHARGING_POLICY_DEFAULT = OsProtoEnums.CHARGING_POLICY_DEFAULT; // = 1
++    /**
++     * Optimized for battery health using static thresholds (e.g stop at 80%).
++     * @hide
++     */
++    @SystemApi
++    public static final int CHARGING_POLICY_ADAPTIVE_AON =
++                                            OsProtoEnums.CHARGING_POLICY_ADAPTIVE_AON; // = 2
++    /**
++     * Optimized for battery health using adaptive thresholds.
++     * @hide
++     */
++    @SystemApi
++    public static final int CHARGING_POLICY_ADAPTIVE_AC =
++                                            OsProtoEnums.CHARGING_POLICY_ADAPTIVE_AC; // = 3
++    /**
++     * Optimized for battery health, devices always connected to power.
++     * @hide
++     */
++    @SystemApi
++    public static final int CHARGING_POLICY_ADAPTIVE_LONGLIFE =
++                                            OsProtoEnums.CHARGING_POLICY_ADAPTIVE_LONGLIFE; // = 4
++
+     /** @hide */
+     public static final int BATTERY_PLUGGED_ANY =
+             BATTERY_PLUGGED_AC | BATTERY_PLUGGED_USB | BATTERY_PLUGGED_WIRELESS
+@@ -254,6 +302,62 @@ public class BatteryManager {
+      */
+     public static final int BATTERY_PROPERTY_STATUS = 6;
+ 
++    /**
++     * Battery manufacturing date is reported in epoch. The 0 timepoint
++     * begins at midnight Coordinated Universal Time (UTC) on January 1, 1970.
++     * It is a long integer in seconds.
++     *
++     * <p class="note">
++     * The sender must hold the {@link android.Manifest.permission#BATTERY_STATS} permission.
++     *
++     * Example: <code>
++     *  // The value returned from the API can be used to create a Date, used
++     *  // to set the time on a calendar and coverted to a string.
++     *  import java.util.Date;
++     *
++     *  mBatteryManager = mContext.getSystemService(BatteryManager.class);
++     *  final long manufacturingDate =
++     *      mBatteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_MANUFACTURING_DATE);
++     *  Date date = new Date(manufacturingDate);
++     *  Calendar calendar = Calendar.getInstance();
++     *  calendar.setTime(date);
++     * // Convert to yyyy-MM-dd HH:mm:ss format string
++     *  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
++     *  String dateString = sdf.format(date);
++     * </code>
++     * @hide
++     */
++    @RequiresPermission(permission.BATTERY_STATS)
++    @SystemApi
++    public static final int BATTERY_PROPERTY_MANUFACTURING_DATE = 7;
++
++    /**
++     * The date of first usage is reported in epoch. The 0 timepoint
++     * begins at midnight Coordinated Universal Time (UTC) on January 1, 1970.
++     * It is a long integer in seconds.
++     *
++     * <p class="note">
++     * The sender must hold the {@link android.Manifest.permission#BATTERY_STATS} permission.
++     *
++     * {@link BATTERY_PROPERTY_MANUFACTURING_DATE for sample code}
++     * @hide
++     */
++    @RequiresPermission(permission.BATTERY_STATS)
++    @SystemApi
++    public static final int BATTERY_PROPERTY_FIRST_USAGE_DATE = 8;
++
++    /**
++     * Battery charging policy from a CHARGING_POLICY_* value..
++     *
++     * <p class="note">
++     * The sender must hold the {@link android.Manifest.permission#BATTERY_STATS} permission.
++     *
++     * @hide
++     */
++    @RequiresPermission(permission.BATTERY_STATS)
++    @SystemApi
++    public static final int BATTERY_PROPERTY_CHARGING_POLICY = 9;
++
+     private final Context mContext;
+     private final IBatteryStats mBatteryStats;
+     private final IBatteryPropertiesRegistrar mBatteryPropertiesRegistrar;
+@@ -307,7 +411,6 @@ public class BatteryManager {
+ 
+         try {
+             BatteryProperty prop = new BatteryProperty();
+-
+             if (mBatteryPropertiesRegistrar.getProperty(id, prop) == 0)
+                 ret = prop.getLong();
+             else
+diff --git a/services/core/java/com/android/server/BatteryService.java b/services/core/java/com/android/server/BatteryService.java
+index 379fe2ae713b..e71dcaea7c8d 100644
+--- a/services/core/java/com/android/server/BatteryService.java
++++ b/services/core/java/com/android/server/BatteryService.java
+@@ -149,6 +149,9 @@ public final class BatteryService extends SystemService {
+     private int mLastMaxChargingCurrent;
+     private int mLastMaxChargingVoltage;
+     private int mLastChargeCounter;
++    private int mLastBatteryCycleCount;
++    private int mLastBatteryStateOfHealth;
++    private int mLastCharingState;
+ 
+     private int mSequence = 1;
+ 
+@@ -503,7 +506,10 @@ public final class BatteryService extends SystemService {
+                         || mHealthInfo.maxChargingCurrentMicroamps != mLastMaxChargingCurrent
+                         || mHealthInfo.maxChargingVoltageMicrovolts != mLastMaxChargingVoltage
+                         || mHealthInfo.batteryChargeCounterUah != mLastChargeCounter
+-                        || mInvalidCharger != mLastInvalidCharger)) {
++                        || mInvalidCharger != mLastInvalidCharger
++                        || mHealthInfo.batteryCycleCount != mLastBatteryCycleCount
++                        || mHealthInfo.batteryStateOfHealth != mLastBatteryStateOfHealth
++                        || mHealthInfo.chargingState != mLastCharingState)) {
+ 
+             if (mPlugType != mLastPlugType) {
+                 if (mLastPlugType == BATTERY_PLUGGED_NONE) {
+@@ -677,6 +683,9 @@ public final class BatteryService extends SystemService {
+             mLastChargeCounter = mHealthInfo.batteryChargeCounterUah;
+             mLastBatteryLevelCritical = mBatteryLevelCritical;
+             mLastInvalidCharger = mInvalidCharger;
++            mLastBatteryCycleCount = mHealthInfo.batteryCycleCount;
++            mLastBatteryStateOfHealth = mHealthInfo.batteryStateOfHealth;
++            mLastCharingState = mHealthInfo.chargingState;
+         }
+     }
+ 
+@@ -708,6 +717,9 @@ public final class BatteryService extends SystemService {
+                 BatteryManager.EXTRA_MAX_CHARGING_VOLTAGE,
+                 mHealthInfo.maxChargingVoltageMicrovolts);
+         intent.putExtra(BatteryManager.EXTRA_CHARGE_COUNTER, mHealthInfo.batteryChargeCounterUah);
++        intent.putExtra(BatteryManager.EXTRA_CYCLE_COUNT, mHealthInfo.batteryCycleCount);
++        intent.putExtra(BatteryManager.EXTRA_STATE_OF_HEALTH, mHealthInfo.batteryStateOfHealth);
++        intent.putExtra(BatteryManager.EXTRA_CHARGING_STATUS, mHealthInfo.chargingState);
+         if (DEBUG) {
+             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
+                     + ", info:" + mHealthInfo.toString());
+@@ -731,6 +743,9 @@ public final class BatteryService extends SystemService {
+         event.putInt(BatteryManager.EXTRA_TEMPERATURE, mHealthInfo.batteryTemperatureTenthsCelsius);
+         event.putInt(BatteryManager.EXTRA_CHARGE_COUNTER, mHealthInfo.batteryChargeCounterUah);
+         event.putLong(BatteryManager.EXTRA_EVENT_TIMESTAMP, now);
++        event.putInt(BatteryManager.EXTRA_CYCLE_COUNT, mHealthInfo.batteryCycleCount);
++        event.putInt(BatteryManager.EXTRA_STATE_OF_HEALTH, mHealthInfo.batteryStateOfHealth);
++        event.putInt(BatteryManager.EXTRA_CHARGING_STATUS, mHealthInfo.chargingState);
+ 
+         boolean queueWasEmpty = mBatteryLevelsEventQueue.isEmpty();
+         mBatteryLevelsEventQueue.add(event);
+@@ -1241,11 +1256,19 @@ public final class BatteryService extends SystemService {
+         }
+     }
+ 
+-    // Reduced IBatteryPropertiesRegistrar that only implements getProperty for usage
+-    // in BatteryManager.
++    // Reduced IBatteryPropertiesRegistrar that implements getProperty for usage
++    // in BatteryManager and enforce permissions.
+     private final class BatteryPropertiesRegistrar extends IBatteryPropertiesRegistrar.Stub {
+         @Override
+         public int getProperty(int id, final BatteryProperty prop) throws RemoteException {
++            switch (id) {
++                case BatteryManager.BATTERY_PROPERTY_MANUFACTURING_DATE:
++                case BatteryManager.BATTERY_PROPERTY_FIRST_USAGE_DATE:
++                case BatteryManager.BATTERY_PROPERTY_CHARGING_POLICY:
++                    mContext.enforceCallingPermission(
++                            android.Manifest.permission.BATTERY_STATS, null);
++                    break;
++            }
+             return mHealthServiceWrapper.getProperty(id, prop);
+         }
+         @Override
+diff --git a/services/core/java/com/android/server/health/HealthServiceWrapperAidl.java b/services/core/java/com/android/server/health/HealthServiceWrapperAidl.java
+index c4113198ae1d..c7ca6acc8680 100644
+--- a/services/core/java/com/android/server/health/HealthServiceWrapperAidl.java
++++ b/services/core/java/com/android/server/health/HealthServiceWrapperAidl.java
+@@ -18,6 +18,7 @@ package com.android.server.health;
+ 
+ import android.annotation.NonNull;
+ import android.annotation.Nullable;
++import android.hardware.health.BatteryHealthData;
+ import android.hardware.health.HealthInfo;
+ import android.hardware.health.IHealth;
+ import android.os.BatteryManager;
+@@ -113,6 +114,7 @@ class HealthServiceWrapperAidl extends HealthServiceWrapper {
+     private int getPropertyInternal(int id, BatteryProperty prop) throws RemoteException {
+         IHealth service = mLastService.get();
+         if (service == null) throw new RemoteException("no health service");
++        BatteryHealthData healthData;
+         try {
+             switch (id) {
+                 case BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER:
+@@ -133,6 +135,17 @@ class HealthServiceWrapperAidl extends HealthServiceWrapper {
+                 case BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER:
+                     prop.setLong(service.getEnergyCounterNwh());
+                     break;
++                case BatteryManager.BATTERY_PROPERTY_MANUFACTURING_DATE:
++                    healthData = service.getBatteryHealthData();
++                    prop.setLong(healthData.batteryManufacturingDateSeconds);
++                    break;
++                case BatteryManager.BATTERY_PROPERTY_FIRST_USAGE_DATE:
++                    healthData = service.getBatteryHealthData();
++                    prop.setLong(healthData.batteryFirstUsageSeconds);
++                    break;
++                case BatteryManager.BATTERY_PROPERTY_CHARGING_POLICY:
++                    prop.setLong(service.getChargingPolicy());
++                    break;
+             }
+         } catch (UnsupportedOperationException e) {
+             // Leave prop untouched.
+-- 
+2.43.0
+

@@ -1,0 +1,15 @@
+     3617688  /ramdisk/init
+     3443089  /debug_ramdisk/userdebug_plat_sepolicy.cil
+     1355440  /ramdisk/system/bin/snapuserd_ramdisk
+      834112  /ramdisk/system/bin/toolbox_ramdisk
+        1138  /ramdisk/system/etc/ramdisk/build.prop
+         537  /ramdisk/system/etc/init/snapuserd.rc
+         418  /debug_ramdisk/adb_debug.prop
+          17  /ramdisk/system/bin/snapuserd
+          15  /ramdisk/system/bin/stop
+          15  /ramdisk/system/bin/start
+          15  /ramdisk/system/bin/setprop
+          15  /ramdisk/system/bin/modprobe
+          15  /ramdisk/system/bin/getprop
+          15  /ramdisk/system/bin/getevent
+           0  /debug_ramdisk/force_debuggable

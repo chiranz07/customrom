@@ -1,0 +1,348 @@
+From e63eec85839c67591217dce66ac01b95e88b257e Mon Sep 17 00:00:00 2001
+From: minaripenguin <minaripenguin@users.noreply.github.com>
+Date: Sun, 17 Dec 2023 20:39:23 +0900
+Subject: [PATCH] Integrate Pixel framework hooks and wrappers
+
+[someone5678]
+* Add collapseShade, animateCollapseShade, and animateExpandNotificationsPanel
+  for Quick Tap gesture
+
+Change-Id: I6f4203391d544205ea77107303fe2a5b1468e3c7
+Signed-off-by: minaripenguin <minaripenguin@users.noreply.github.com>
+Signed-off-by: someone5678 <someone5678@users.noreply.github.com>
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+Signed-off-by: Alvin Francis <nivlafx@gmail.com>
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+---
+ packages/SystemUI/AndroidManifest.xml         |  2 +-
+ .../SystemUI/res/values-television/config.xml | 27 +++++++
+ packages/SystemUI/res/values/flags.xml        |  2 +
+ .../systemui/SystemUIAppComponentFactory.java | 37 ++++++++++
+ .../systemui/SystemUIInitializerFactory.kt    | 73 +++++++++++++++++++
+ .../NotificationPanelViewController.java      |  5 ++
+ .../systemui/shade/ShadeViewController.kt     |  2 +
+ .../shade/ShadeViewControllerEmptyImpl.kt     |  1 +
+ ...tificationStackScrollLayoutController.java |  4 +
+ .../statusbar/phone/CentralSurfaces.java      |  6 ++
+ .../statusbar/phone/CentralSurfacesImpl.java  | 42 ++++++++++-
+ 11 files changed, 198 insertions(+), 3 deletions(-)
+ create mode 100644 packages/SystemUI/res/values-television/config.xml
+ create mode 100644 packages/SystemUI/src/com/android/systemui/SystemUIAppComponentFactory.java
+ create mode 100644 packages/SystemUI/src/com/android/systemui/SystemUIInitializerFactory.kt
+
+diff --git a/packages/SystemUI/AndroidManifest.xml b/packages/SystemUI/AndroidManifest.xml
+index 925daa5ebe58..232fdc8d3170 100644
+--- a/packages/SystemUI/AndroidManifest.xml
++++ b/packages/SystemUI/AndroidManifest.xml
+@@ -1159,7 +1159,7 @@
+                 <action android:name="com.android.systemui.action.DISMISS_MEDIA_OUTPUT_DIALOG" />
+             </intent-filter>
+         </receiver>
+-        <uses-library android:name="com.qti.extphone.extphonelib"/>
++        <uses-library android:name="com.qti.extphone.extphonelib" android:required="false"/>
+ 
+         <receiver android:name=".volume.VolumePanelDialogReceiver"
+                   android:exported="true">
+diff --git a/packages/SystemUI/res/values-television/config.xml b/packages/SystemUI/res/values-television/config.xml
+new file mode 100644
+index 000000000000..630af91775ed
+--- /dev/null
++++ b/packages/SystemUI/res/values-television/config.xml
+@@ -0,0 +1,27 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++/*
++** Copyright 2019, The Android Open Source Project
++**
++** Licensed under the Apache License, Version 2.0 (the "License");
++** you may not use this file except in compliance with the License.
++** You may obtain a copy of the License at
++**
++**     http://www.apache.org/licenses/LICENSE-2.0
++**
++** Unless required by applicable law or agreed to in writing, software
++** distributed under the License is distributed on an "AS IS" BASIS,
++** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++** See the License for the specific language governing permissions and
++** limitations under the License.
++*/
++-->
++
++<!-- These resources are around just to allow their values to be customized
++     for different hardware and product builds. -->
++<resources>
++    <!-- SystemUIFactory component -->
++    <string name="config_systemUIFactoryComponent" translatable="false">
++        com.android.systemui.tv.TvSystemUIInitializer
++    </string>
++</resources>
+diff --git a/packages/SystemUI/res/values/flags.xml b/packages/SystemUI/res/values/flags.xml
+index 29ff23dfa200..32fb92f2d611 100644
+--- a/packages/SystemUI/res/values/flags.xml
++++ b/packages/SystemUI/res/values/flags.xml
+@@ -30,6 +30,8 @@
+ 
+     <bool name="flag_charging_ripple">true</bool>
+ 
++    <bool name="flag_smartspace">true</bool>
++
+     <!--  Whether the user switcher chip shows in the status bar. When true, the multi user
+       avatar will no longer show on the lockscreen -->
+     <bool name="flag_user_switcher_chip">false</bool>
+diff --git a/packages/SystemUI/src/com/android/systemui/SystemUIAppComponentFactory.java b/packages/SystemUI/src/com/android/systemui/SystemUIAppComponentFactory.java
+new file mode 100644
+index 000000000000..527ce127820e
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/SystemUIAppComponentFactory.java
+@@ -0,0 +1,37 @@
++/*
++ * Copyright (C) 2019 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui;
++
++import android.content.Context;
++
++/**
++ * Starts up SystemUI using the AOSP {@link SystemUIInitializerImpl}.
++ *
++ * This initializer relies on reflection to start everything up and should be considered deprecated.
++ * Instead, create your own {@link SystemUIAppComponentFactoryBase}, specify it in your
++ * AndroidManifest.xml and construct your own {@link SystemUIInitializer} directly.
++ *
++ * @deprecated Define your own SystemUIAppComponentFactoryBase implementation and use that. This
++ *             implementation may be changed or removed in future releases.
++ */
++@Deprecated
++public class SystemUIAppComponentFactory extends SystemUIAppComponentFactoryBase {
++    @Override
++    protected SystemUIInitializer createSystemUIInitializer(Context context) {
++        return SystemUIInitializerFactory.createWithContext(context);
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/SystemUIInitializerFactory.kt b/packages/SystemUI/src/com/android/systemui/SystemUIInitializerFactory.kt
+new file mode 100644
+index 000000000000..9da34987bd2b
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/SystemUIInitializerFactory.kt
+@@ -0,0 +1,73 @@
++/*
++ * Copyright (C) 2022 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.android.systemui
++
++import android.annotation.SuppressLint
++import android.content.Context
++import android.util.Log
++import com.android.internal.annotations.VisibleForTesting
++import com.android.systemui.res.R
++import com.android.systemui.util.Assert
++
++/**
++ * Factory to reflectively lookup a [SystemUIInitializer] to start SystemUI with.
++ */
++@Deprecated("Provide your own {@link SystemUIAppComponentFactoryBase} that doesn't need this.")
++object SystemUIInitializerFactory {
++    private const val TAG = "SysUIInitializerFactory"
++    @SuppressLint("StaticFieldLeak")
++    private var initializer: SystemUIInitializer? = null
++
++    /**
++     * Instantiate a [SystemUIInitializer] reflectively.
++     */
++    @JvmStatic
++    fun createWithContext(context: Context): SystemUIInitializer {
++        return createFromConfig(context)
++    }
++
++    /**
++     * Instantiate a [SystemUIInitializer] reflectively.
++     */
++    @JvmStatic
++    private fun createFromConfig(context: Context): SystemUIInitializer {
++        Assert.isMainThread()
++
++        return createFromConfigNoAssert(context)
++    }
++
++    @JvmStatic
++    @VisibleForTesting
++    fun createFromConfigNoAssert(context: Context): SystemUIInitializer {
++
++        return initializer ?: run {
++            val className = context.getString(R.string.config_systemUIFactoryComponent)
++            if (className.isEmpty()) {
++                throw RuntimeException("No SystemUIFactory component configured")
++            }
++            try {
++                val cls = context.classLoader.loadClass(className)
++                val constructor = cls.getConstructor(Context::class.java)
++                (constructor.newInstance(context) as SystemUIInitializer).apply {
++                    initializer = this
++                }
++            } catch (t: Throwable) {
++                Log.w(TAG, "Error creating SystemUIInitializer component: $className", t)
++                throw t
++            }
++        }
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java b/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java
+index 8c234bcfd9ec..7c96c9f18fe2 100644
+--- a/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java
++++ b/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java
+@@ -4616,6 +4616,11 @@ public final class NotificationPanelViewController implements
+         }
+     }
+ 
++    @Override
++    public NotificationStackScrollLayoutController getScrollerLayoutController() {
++        return mNotificationStackScrollLayoutController;
++    }
++
+     @Override
+     public void showIsland(boolean show) {
+         // if landNotify is showing, it must disappear for a while      -- alphi-wang-cn
+diff --git a/packages/SystemUI/src/com/android/systemui/shade/ShadeViewController.kt b/packages/SystemUI/src/com/android/systemui/shade/ShadeViewController.kt
+index c570e5f82405..51ee95fd20b5 100644
+--- a/packages/SystemUI/src/com/android/systemui/shade/ShadeViewController.kt
++++ b/packages/SystemUI/src/com/android/systemui/shade/ShadeViewController.kt
+@@ -106,6 +106,8 @@ interface ShadeViewController {
+     @Deprecated("This interface is deprecated in Scene Container")
+     val shadeFoldAnimator: ShadeFoldAnimator
+ 
++    fun getScrollerLayoutController(): com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayoutController?
++
+     companion object {
+         /**
+          * Returns a multiplicative factor to use when determining the falsing threshold for touches
+diff --git a/packages/SystemUI/src/com/android/systemui/shade/ShadeViewControllerEmptyImpl.kt b/packages/SystemUI/src/com/android/systemui/shade/ShadeViewControllerEmptyImpl.kt
+index 6e8a1192b85b..505d327ae3d0 100644
+--- a/packages/SystemUI/src/com/android/systemui/shade/ShadeViewControllerEmptyImpl.kt
++++ b/packages/SystemUI/src/com/android/systemui/shade/ShadeViewControllerEmptyImpl.kt
+@@ -117,6 +117,7 @@ open class ShadeViewControllerEmptyImpl @Inject constructor() :
+     override val legacyPanelExpansion = flowOf(0f)
+     override val udfpsTransitionToFullShadeProgress = MutableStateFlow(0f)
+ 
++    override fun getScrollerLayoutController(): com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayoutController? = null
+     override fun showIsland(show: Boolean) {}
+ }
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/stack/NotificationStackScrollLayoutController.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/stack/NotificationStackScrollLayoutController.java
+index 92213057a918..3b63f0c737bb 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/stack/NotificationStackScrollLayoutController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/stack/NotificationStackScrollLayoutController.java
+@@ -951,6 +951,10 @@ public class NotificationStackScrollLayoutController implements Dumpable {
+         return row.getVisibility() == View.VISIBLE;
+     }
+ 
++    public View getNotificationStackScrollLayoutView() {
++        return mView;
++    }
++
+     public void addOnExpandedHeightChangedListener(BiConsumer<Float, Float> listener) {
+         mView.addOnExpandedHeightChangedListener(listener);
+     }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfaces.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfaces.java
+index 119051213904..3c91bdb5f607 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfaces.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfaces.java
+@@ -363,4 +363,10 @@ public interface CentralSurfaces extends Dumpable, LifecycleOwner, CoreStartable
+     void onBrightnessChanged(boolean upOrCancel);
+ 
+     GameSpaceManager getGameSpaceManager();
++
++    void startActivity(android.content.Intent intent, boolean dismiss);
++    void startPendingIntentDismissingKeyguard(android.app.PendingIntent intent);
++    com.android.systemui.shade.ShadeViewController getNotificationPanelViewController();
++    void wakeUpDeviceifDozing();
++    com.android.systemui.shade.NotificationShadeWindowView getNotificationShadeWindowView();
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java
+index 964c9aa94d2e..845e17a2576d 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/CentralSurfacesImpl.java
+@@ -1693,11 +1693,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
+         getNotificationShadeWindowViewController().setupCommunalHubLayout();
+     }
+ 
+-    protected NotificationShadeWindowViewController getNotificationShadeWindowViewController() {
++    public NotificationShadeWindowViewController getNotificationShadeWindowViewController() {
+         return mNotificationShadeWindowViewControllerLazy.get();
+     }
+ 
+-    protected NotificationShadeWindowView getNotificationShadeWindowView() {
++    public NotificationShadeWindowView getNotificationShadeWindowView() {
+         return getNotificationShadeWindowViewController().getView();
+     }
+ 
+@@ -3591,4 +3591,42 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
+             ExpandableNotificationRow associatedView) {
+         return mNotificationAnimationProvider.getAnimatorController(associatedView);
+     }
++
++    public void collapseShade() {
++        if (mShadeController != null) {
++            mShadeController.collapseShade();
++        }
++    }
++
++    public void postAnimateCollapsePanels() {
++        if (mShadeController != null) {
++            mShadeController.animateCollapseShade();
++        }
++    }
++
++    public void animateExpandNotificationsPanel() {
++        if (mCommandQueueCallbacks != null) {
++            mCommandQueueCallbacks.animateExpandNotificationsPanel();
++        }
++    }
++
++    @Override
++    public void startActivity(Intent intent, boolean dismissShade) {
++        mActivityStarter.startActivityDismissingKeyguard(intent, false /* onlyProvisioned */, dismissShade, null);
++    }
++
++    @Override
++    public void startPendingIntentDismissingKeyguard(PendingIntent intent) {
++        mActivityStarter.startPendingIntentDismissingKeyguard(intent);
++    }
++
++    @Override
++    public ShadeViewController getNotificationPanelViewController() {
++        return mShadeSurface;
++    }
++
++    @Override
++    public void wakeUpDeviceifDozing() {
++        mPowerInteractor.wakeUpIfDozing("AMBIENT MUSIC", PowerManager.WAKE_REASON_GESTURE);
++    }
+ }
+-- 
+2.43.0
+

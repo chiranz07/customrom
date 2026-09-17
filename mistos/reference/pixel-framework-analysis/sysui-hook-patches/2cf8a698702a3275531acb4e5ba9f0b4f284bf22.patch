@@ -1,0 +1,31 @@
+From 2cf8a698702a3275531acb4e5ba9f0b4f284bf22 Mon Sep 17 00:00:00 2001
+From: Pranav Vashi <neobuddy89@gmail.com>
+Date: Sat, 25 Nov 2023 01:47:11 +0530
+Subject: [PATCH] Add required priv-app permissions for SystemUIGoogle
+
+Fixes:
+
+11-25 01:42:00.604  2784  2784 E System  : ************ Failure starting system services
+11-25 01:42:00.604  2784  2784 E System  : java.lang.IllegalStateException: Signature|privileged permissions not in privapp-permissions allowlist: {com.android.systemui (/system_ext/priv-app/SystemUIGoogle): android.permission.ACCESS_CONTEXT_HUB, com.android.systemui (/system_ext/priv-app/SystemUIGoogle): android.permission.REGISTER_STATS_PULL_ATOM, com.android.systemui (/system_ext/priv-app/SystemUIGoogle): android.permission.SET_WALLPAPER_COMPONENT}
+
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+---
+ data/etc/com.android.systemui.xml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/data/etc/com.android.systemui.xml b/data/etc/com.android.systemui.xml
+index 62acae22f53d..77c97bf7270f 100644
+--- a/data/etc/com.android.systemui.xml
++++ b/data/etc/com.android.systemui.xml
+@@ -97,5 +97,8 @@
+         <permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE" />
+         <permission name="android.permission.SET_UNRESTRICTED_GESTURE_EXCLUSION" />
+         <permission name="android.permission.WRITE_APN_SETTINGS" />
++        <permission name="android.permission.ACCESS_CONTEXT_HUB" />
++        <permission name="android.permission.REGISTER_STATS_PULL_ATOM" />
++        <permission name="android.permission.SET_WALLPAPER_COMPONENT" />
+     </privapp-permissions>
+ </permissions>
+-- 
+2.43.0
+

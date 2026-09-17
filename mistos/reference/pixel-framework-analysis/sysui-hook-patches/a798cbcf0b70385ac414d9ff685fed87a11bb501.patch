@@ -1,0 +1,52 @@
+From a798cbcf0b70385ac414d9ff685fed87a11bb501 Mon Sep 17 00:00:00 2001
+From: minaripenguin <minaripenguin@users.noreply.github.com>
+Date: Sat, 4 Jan 2025 11:17:43 +0800
+Subject: [PATCH] SystemUI: Do not crash SystemUI if smartspace cannot be built
+
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: java.lang.RuntimeException: Cannot build weather view when not decoupled
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: 	at com.android.systemui.statusbar.lockscreen.LockscreenSmartspaceController.buildAndConnectWeatherView(LockscreenSmartspaceController.kt:363)
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: 	at com.android.systemui.keyguard.ui.view.layout.sections.SmartspaceSection.addViews(SmartspaceSection.kt:74)
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: 	at com.android.systemui.keyguard.shared.model.KeyguardBlueprint.replaceViews(KeyguardBlueprint.kt:48)
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: 	at com.android.systemui.keyguard.shared.model.KeyguardBlueprint.replaceViews$default(KeyguardBlueprint.kt:37)
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: 	at com.android.systemui.keyguard.ui.binder.KeyguardBlueprintViewBinder$bind$1$1$1$1$1.invoke(KeyguardBlueprintViewBinder.kt:80)
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: 	at com.android.systemui.keyguard.ui.binder.KeyguardBlueprintViewBinder$bind$1$1$1$1$1.invoke(KeyguardBlueprintViewBinder.kt:78)
+01-04 11:16:16.486  4645  4645 E AndroidRuntime: 	at com.android.systemui.keyguard.ui.viewmodel.KeyguardBlueprintViewModel$runTransition$2.run(KeyguardBlueprintViewModel.kt:125)
+---
+ .../lockscreen/LockscreenSmartspaceController.kt   | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/lockscreen/LockscreenSmartspaceController.kt b/packages/SystemUI/src/com/android/systemui/statusbar/lockscreen/LockscreenSmartspaceController.kt
+index e00d0257fa82..f2f3fc2e4111 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/lockscreen/LockscreenSmartspaceController.kt
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/lockscreen/LockscreenSmartspaceController.kt
+@@ -334,11 +334,8 @@ constructor(
+     fun buildAndConnectDateView(parent: ViewGroup, isLargeClock: Boolean): View? {
+         execution.assertIsMainThread()
+ 
+-        if (!isEnabled) {
+-            throw RuntimeException("Cannot build view when not enabled")
+-        }
+-        if (!isDateWeatherDecoupled) {
+-            throw RuntimeException("Cannot build date view when not decoupled")
++        if (!isEnabled || !isDateWeatherDecoupled) {
++            return null
+         }
+ 
+         val view =
+@@ -357,11 +354,8 @@ constructor(
+     fun buildAndConnectWeatherView(parent: ViewGroup, isLargeClock: Boolean): View? {
+         execution.assertIsMainThread()
+ 
+-        if (!isEnabled) {
+-            throw RuntimeException("Cannot build view when not enabled")
+-        }
+-        if (!isDateWeatherDecoupled) {
+-            throw RuntimeException("Cannot build weather view when not decoupled")
++        if (!isEnabled || !isDateWeatherDecoupled) {
++            return null
+         }
+ 
+         val view =
+-- 
+2.43.0
+

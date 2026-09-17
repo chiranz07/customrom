@@ -1,0 +1,488 @@
+From a9913cb74ca18bed6aada92f169a679e1a944aee Mon Sep 17 00:00:00 2001
+From: Wu Ahan <ahanwu@google.com>
+Date: Mon, 25 Dec 2023 17:22:16 +0000
+Subject: [PATCH] Add SfpsRestToUnlockFeature to FingerprintFeatureProvider
+
+Bug: 296179618
+Test: manually
+Test: SettingsUnitTests
+Change-Id: I452610e2c2b36f56dc4ade1cea1a15fdc088211f
+---
+ res/layout/sfps_enroll_finish_base.xml        |  2 +
+ res/values/strings.xml                        |  2 +
+ res/xml/security_settings_fingerprint.xml     |  2 +-
+ .../fingerprint/FingerprintEnrollFinish.java  | 29 ++++++--
+ .../FingerprintFeatureProvider.java           |  8 +++
+ .../FingerprintFeatureProviderImpl.java       | 16 +++++
+ .../fingerprint/FingerprintSettings.java      | 14 ++++
+ .../feature/SfpsRestToUnlockFeature.kt        | 49 ++++++++++++++
+ .../feature/SfpsRestToUnlockFeatureImpl.kt    | 28 ++++++++
+ .../FingerprintFeatureProviderImplTest.kt     | 55 +++++++++++++++
+ .../SfpsRestToUnlockFeatureImplTest.kt        | 67 +++++++++++++++++++
+ 11 files changed, 266 insertions(+), 6 deletions(-)
+ create mode 100644 src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeature.kt
+ create mode 100644 src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImpl.kt
+ create mode 100644 tests/unit/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImplTest.kt
+ create mode 100644 tests/unit/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImplTest.kt
+
+diff --git a/res/layout/sfps_enroll_finish_base.xml b/res/layout/sfps_enroll_finish_base.xml
+index f442e9013da..9e65c833f03 100644
+--- a/res/layout/sfps_enroll_finish_base.xml
++++ b/res/layout/sfps_enroll_finish_base.xml
+@@ -24,6 +24,7 @@
+ 
+     <LinearLayout
+         style="@style/SudContentFrame"
++        android:id="@+id/sfps_enrollment_finish_content_frame"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical"
+@@ -31,6 +32,7 @@
+         android:clipChildren="false">
+ 
+             <com.google.android.setupdesign.view.FillContentLayout
++                android:id="@+id/sfps_enrollment_finish_content_layout"
+                 android:layout_width="@dimen/sfps_enrollment_finished_icon_max_size"
+                 android:layout_height="@dimen/sfps_enrollment_finished_icon_max_size"
+                 android:layout_marginTop="24dp"
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 8185828f2b7..52466189e4f 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -1114,6 +1114,8 @@
+     <string name="security_settings_udfps_enroll_progress_a11y_message">Enrolling fingerprint <xliff:g id="percentage" example="10">%d</xliff:g> percent</string>
+     <!-- Title shown in fingerprint enrollment dialog once enrollment is completed [CHAR LIMIT=29] -->
+     <string name="security_settings_fingerprint_enroll_finish_title">Fingerprint added</string>
++    <!-- Key for require screen on to auth toggle shown in fingerprint enrollment dialog once enrollment is completed. [CHAR LIMIT=NONE] -->
++    <string name="security_settings_require_screen_on_to_auth_key" translatable="false">security_settings_require_screen_on_to_auth</string>
+     <!-- Title for require screen on to auth toggle shown in fingerprint enrollment dialog once enrollment is completed. [CHAR LIMIT=NONE] -->
+     <string name="security_settings_require_screen_on_to_auth_title">Touch to unlock anytime</string>
+     <!-- Description for require screen on to auth toggle shown in fingerprint enrollment dialog once enrollment is completed. [CHAR LIMIT=NONE] -->
+diff --git a/res/xml/security_settings_fingerprint.xml b/res/xml/security_settings_fingerprint.xml
+index 0156ef97ac6..9c8b0a3f9ea 100644
+--- a/res/xml/security_settings_fingerprint.xml
++++ b/res/xml/security_settings_fingerprint.xml
+@@ -36,7 +36,7 @@
+         settings:isPreferenceVisible="false">
+ 
+         <com.android.settingslib.RestrictedSwitchPreference
+-            android:key="security_settings_require_screen_on_to_auth"
++            android:key="@string/security_settings_require_screen_on_to_auth_key"
+             android:title="@string/security_settings_require_screen_on_to_auth_title"
+             android:summary="@string/security_settings_require_screen_on_to_auth_description"
+             settings:keywords="@string/security_settings_require_screen_on_to_auth_keywords"
+diff --git a/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollFinish.java b/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollFinish.java
+index 722f213ce10..9c89f24ef87 100644
+--- a/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollFinish.java
++++ b/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollFinish.java
+@@ -23,8 +23,10 @@ import android.content.pm.PackageManager;
+ import android.hardware.fingerprint.FingerprintManager;
+ import android.hardware.fingerprint.FingerprintSensorPropertiesInternal;
+ import android.os.Bundle;
++import android.text.TextUtils;
+ import android.util.Log;
+ import android.view.View;
++import android.view.ViewGroup;
+ 
+ import androidx.annotation.VisibleForTesting;
+ 
+@@ -32,6 +34,8 @@ import com.android.settings.R;
+ import com.android.settings.Utils;
+ import com.android.settings.biometrics.BiometricEnrollBase;
+ import com.android.settings.biometrics.BiometricUtils;
++import com.android.settings.biometrics.fingerprint.feature.SfpsRestToUnlockFeature;
++import com.android.settings.overlay.FeatureFactory;
+ 
+ import com.google.android.setupcompat.template.FooterBarMixin;
+ import com.google.android.setupcompat.template.FooterButton;
+@@ -56,6 +60,8 @@ public class FingerprintEnrollFinish extends BiometricEnrollBase {
+ 
+     private boolean mIsAddAnotherOrFinish;
+ 
++    private SfpsRestToUnlockFeature mSfpsRestToUnlockFeature;
++
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+@@ -64,14 +70,20 @@ public class FingerprintEnrollFinish extends BiometricEnrollBase {
+                 mFingerprintManager.getSensorPropertiesInternal();
+         mCanAssumeSfps = props != null && props.size() == 1 && props.get(0).isAnySidefpsType();
+         if (mCanAssumeSfps) {
++            mSfpsRestToUnlockFeature = FeatureFactory.getFeatureFactory()
++                    .getFingerprintFeatureProvider().getSfpsRestToUnlockFeature(this);
+             setContentView(R.layout.sfps_enroll_finish);
++            setUpRestToUnlockLayout();
+         } else {
+             setContentView(R.layout.fingerprint_enroll_finish);
+         }
+         setHeaderText(R.string.security_settings_fingerprint_enroll_finish_title);
+         setDescriptionText(R.string.security_settings_fingerprint_enroll_finish_v2_message);
+-        if (mCanAssumeSfps) {
+-            setDescriptionForSfps();
++        final String sfpsDescription = mSfpsRestToUnlockFeature != null
++                ? mSfpsRestToUnlockFeature.getDescriptionForSfps(this)
++                : null;
++        if (mCanAssumeSfps && !TextUtils.isEmpty(sfpsDescription)) {
++            setDescriptionForSfps(sfpsDescription);
+         }
+ 
+         mFooterBarMixin = getLayout().getMixin(FooterBarMixin.class);
+@@ -93,7 +105,7 @@ public class FingerprintEnrollFinish extends BiometricEnrollBase {
+         );
+     }
+ 
+-    private void setDescriptionForSfps() {
++    private void setDescriptionForSfps(String sfpsDescription) {
+         final FingerprintManager fpm = Utils.getFingerprintManagerOrNull(this);
+         if (fpm != null) {
+             final List<FingerprintSensorPropertiesInternal> props =
+@@ -101,12 +113,19 @@ public class FingerprintEnrollFinish extends BiometricEnrollBase {
+             final int maxEnrollments = props.get(0).maxEnrollmentsPerUser;
+             final int enrolled = fpm.getEnrolledFingerprints(mUserId).size();
+             if (enrolled < maxEnrollments) {
+-                setDescriptionText(R.string
+-                        .security_settings_fingerprint_enroll_finish_v2_add_fingerprint_message);
++                setDescriptionText(sfpsDescription);
+             }
+         }
+     }
+ 
++    private void setUpRestToUnlockLayout() {
++        final ViewGroup contentFrame = findViewById(R.id.sfps_enrollment_finish_content_frame);
++        final View restToUnlockLayout = mSfpsRestToUnlockFeature.getRestToUnlockLayout(this);
++        if (restToUnlockLayout == null) return;
++        contentFrame.removeAllViews();
++        contentFrame.addView(restToUnlockLayout);
++    }
++
+     @Override
+     public void onBackPressed() {
+         updateFingerprintSuggestionEnableState();
+diff --git a/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProvider.java b/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProvider.java
+index e7702207ad1..c1e34a579a8 100644
+--- a/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProvider.java
++++ b/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProvider.java
+@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ 
+ import com.android.settings.biometrics.fingerprint.feature.SfpsEnrollmentFeature;
++import com.android.settings.biometrics.fingerprint.feature.SfpsRestToUnlockFeature;
+ 
+ public interface FingerprintFeatureProvider {
+     /**
+@@ -44,4 +45,11 @@ public interface FingerprintFeatureProvider {
+             @Nullable Bundle activitySavedInstanceState, @Nullable Intent activityIntent) {
+         return null;
+     }
++
++    /**
++     * Gets the feature implementation of SFPS rest to unlock.
++     * @param context context
++     * @return the feature implementation
++     */
++    SfpsRestToUnlockFeature getSfpsRestToUnlockFeature(@NonNull Context context);
+ }
+diff --git a/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImpl.java b/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImpl.java
+index 9745ca3fd7e..8a8df984e52 100644
+--- a/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImpl.java
++++ b/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImpl.java
+@@ -16,16 +16,24 @@
+ 
+ package com.android.settings.biometrics.fingerprint;
+ 
++import android.content.Context;
++
++import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ 
+ import com.android.settings.biometrics.fingerprint.feature.SfpsEnrollmentFeature;
+ import com.android.settings.biometrics.fingerprint.feature.SfpsEnrollmentFeatureImpl;
++import com.android.settings.biometrics.fingerprint.feature.SfpsRestToUnlockFeature;
++import com.android.settings.biometrics.fingerprint.feature.SfpsRestToUnlockFeatureImpl;
+ 
+ public class FingerprintFeatureProviderImpl implements FingerprintFeatureProvider {
+ 
+     @Nullable
+     private SfpsEnrollmentFeature mSfpsEnrollmentFeatureImpl = null;
+ 
++    @Nullable
++    private SfpsRestToUnlockFeature mSfpsRestToUnlockFeature = null;
++
+     @Override
+     public SfpsEnrollmentFeature getSfpsEnrollmentFeature() {
+         if (mSfpsEnrollmentFeatureImpl == null) {
+@@ -33,4 +41,12 @@ public class FingerprintFeatureProviderImpl implements FingerprintFeatureProvide
+         }
+         return mSfpsEnrollmentFeatureImpl;
+     }
++
++    @Override
++    public SfpsRestToUnlockFeature getSfpsRestToUnlockFeature(@NonNull Context context) {
++        if (mSfpsRestToUnlockFeature == null) {
++            mSfpsRestToUnlockFeature = new SfpsRestToUnlockFeatureImpl();
++        }
++        return mSfpsRestToUnlockFeature;
++    }
+ }
+diff --git a/src/com/android/settings/biometrics/fingerprint/FingerprintSettings.java b/src/com/android/settings/biometrics/fingerprint/FingerprintSettings.java
+index 69043422d0f..4d1d499d771 100644
+--- a/src/com/android/settings/biometrics/fingerprint/FingerprintSettings.java
++++ b/src/com/android/settings/biometrics/fingerprint/FingerprintSettings.java
+@@ -75,6 +75,7 @@ import com.android.settings.biometrics2.ui.view.FingerprintEnrollmentActivity;
+ import com.android.settings.core.SettingsBaseActivity;
+ import com.android.settings.core.instrumentation.InstrumentedDialogFragment;
+ import com.android.settings.dashboard.DashboardFragment;
++import com.android.settings.overlay.FeatureFactory;
+ import com.android.settings.password.ChooseLockGeneric;
+ import com.android.settings.password.ChooseLockSettingsHelper;
+ import com.android.settings.search.BaseSearchIndexProvider;
+@@ -635,6 +636,19 @@ public class FingerprintSettings extends SubSettings {
+         private void addFingerprintUnlockCategory() {
+             mFingerprintUnlockCategory = findPreference(KEY_FINGERPRINT_UNLOCK_CATEGORY);
+             setupFingerprintUnlockCategoryPreferences();
++            final Preference restToUnlockPreference = FeatureFactory.getFeatureFactory()
++                    .getFingerprintFeatureProvider()
++                    .getSfpsRestToUnlockFeature(getContext())
++                    .getRestToUnlockPreference(getContext());
++            if (restToUnlockPreference != null) {
++                // Use custom featured preference if any.
++                mRequireScreenOnToAuthPreference.setTitle(restToUnlockPreference.getTitle());
++                mRequireScreenOnToAuthPreference.setSummary(restToUnlockPreference.getSummary());
++                mRequireScreenOnToAuthPreference.setChecked(
++                        ((TwoStatePreference) restToUnlockPreference).isChecked());
++                mRequireScreenOnToAuthPreference.setOnPreferenceChangeListener(
++                        restToUnlockPreference.getOnPreferenceChangeListener());
++            }
+             updateFingerprintUnlockCategoryVisibility();
+         }
+ 
+diff --git a/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeature.kt b/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeature.kt
+new file mode 100644
+index 00000000000..840926c013a
+--- /dev/null
++++ b/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeature.kt
+@@ -0,0 +1,49 @@
++/*
++ * Copyright (C) 2024 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.biometrics.fingerprint.feature
++
++import android.content.Context
++import android.view.View
++import androidx.preference.Preference
++
++/**
++ * Defines the feature provided by rest to unlock.
++ */
++interface SfpsRestToUnlockFeature {
++    /**
++     * Gets the content view hierarchy for SFPS rest to unlock feature which is used by
++     * [com.android.settings.biometrics.fingerprint.FingerprintEnrollFinish].
++     * @param context the context of
++     * [com.android.settings.biometrics.fingerprint.FingerprintEnrollFinish].
++     */
++    fun getRestToUnlockLayout(context: Context) : View? = null
++
++    /**
++     * Gets the SFPS rest to unlock preference which is used in
++     * [com.android.settings.biometrics.fingerprint.FingerprintSettings].
++     * @param context the context of
++     * [com.android.settings.biometrics.fingerprint.FingerprintSettings].
++     */
++    fun getRestToUnlockPreference(context: Context) : Preference? = null
++
++    /**
++     * Gets the specific description used in
++     * [com.android.settings.biometrics.fingerprint.FingerprintEnrollFinish] for SFPS devices.
++     * @return the description text for SFPS devices.
++     */
++    fun getDescriptionForSfps(context: Context) : String
++}
+\ No newline at end of file
+diff --git a/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImpl.kt b/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImpl.kt
+new file mode 100644
+index 00000000000..de78a2a32fa
+--- /dev/null
++++ b/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImpl.kt
+@@ -0,0 +1,28 @@
++/*
++ * Copyright (C) 2024 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.biometrics.fingerprint.feature
++
++import android.content.Context
++
++class SfpsRestToUnlockFeatureImpl : SfpsRestToUnlockFeature {
++    override fun getDescriptionForSfps(context: Context) : String {
++        return context.getString(
++            com.android.settings.R
++                .string.security_settings_fingerprint_enroll_finish_v2_add_fingerprint_message
++        )
++    }
++}
+\ No newline at end of file
+diff --git a/tests/unit/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImplTest.kt b/tests/unit/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImplTest.kt
+new file mode 100644
+index 00000000000..788c907b042
+--- /dev/null
++++ b/tests/unit/src/com/android/settings/biometrics/fingerprint/FingerprintFeatureProviderImplTest.kt
+@@ -0,0 +1,55 @@
++/*
++ * Copyright (C) 2024 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.biometrics.fingerprint
++
++import android.content.Context
++import androidx.test.ext.junit.runners.AndroidJUnit4
++import com.android.settings.biometrics.fingerprint.feature.SfpsEnrollmentFeatureImpl
++import com.android.settings.biometrics.fingerprint.feature.SfpsRestToUnlockFeatureImpl
++import com.google.common.truth.Truth.assertThat
++import org.junit.Before
++import org.junit.Test
++import org.junit.runner.RunWith
++import org.mockito.Mock
++import org.mockito.MockitoAnnotations
++
++@RunWith(AndroidJUnit4::class)
++class FingerprintFeatureProviderImplTest {
++
++    @Mock
++    private lateinit var mContext: Context
++
++    private lateinit var mFingerprintFeatureProviderImpl: FingerprintFeatureProviderImpl
++
++    @Before
++    fun setUp() {
++        MockitoAnnotations.initMocks(this)
++        mFingerprintFeatureProviderImpl = FingerprintFeatureProviderImpl()
++    }
++
++    @Test
++    fun getSfpsEnrollmentFeature_returnDefaultImpl() {
++        assertThat(mFingerprintFeatureProviderImpl.sfpsEnrollmentFeature)
++            .isInstanceOf(SfpsEnrollmentFeatureImpl::class.java)
++    }
++
++    @Test
++    fun getSfpsRestToUnlockFeature_returnDefaultImpl() {
++        assertThat(mFingerprintFeatureProviderImpl.getSfpsRestToUnlockFeature(mContext))
++            .isInstanceOf(SfpsRestToUnlockFeatureImpl::class.java)
++    }
++}
+\ No newline at end of file
+diff --git a/tests/unit/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImplTest.kt b/tests/unit/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImplTest.kt
+new file mode 100644
+index 00000000000..1f390d41616
+--- /dev/null
++++ b/tests/unit/src/com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeatureImplTest.kt
+@@ -0,0 +1,67 @@
++/*
++ * Copyright (C) 2024 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.biometrics.fingerprint.feature
++
++import android.content.Context
++import androidx.test.core.app.ApplicationProvider
++import androidx.test.ext.junit.runners.AndroidJUnit4
++import com.android.settingslib.RestrictedSwitchPreference
++import com.google.common.truth.Truth.assertThat
++import org.junit.Before
++import org.junit.Test
++
++import org.junit.runner.RunWith
++import org.mockito.Mockito
++
++@RunWith(AndroidJUnit4::class)
++class SfpsRestToUnlockFeatureImplTest {
++
++    private lateinit var mContext: Context
++
++    private lateinit var mSfpsRestToUnlockFeatureImpl: SfpsRestToUnlockFeatureImpl
++
++    private lateinit var mRestrictedSwitchPreferenceSpy: RestrictedSwitchPreference
++
++    @Before
++    fun setUp() {
++        mContext = ApplicationProvider.getApplicationContext()
++        mSfpsRestToUnlockFeatureImpl = SfpsRestToUnlockFeatureImpl()
++        mRestrictedSwitchPreferenceSpy = Mockito.spy(RestrictedSwitchPreference(mContext))
++    }
++
++    @Test
++    fun getDescriptionForSfps_isNotNull() {
++        assertThat(mSfpsRestToUnlockFeatureImpl)
++            .isInstanceOf(SfpsRestToUnlockFeatureImpl::class.java)
++        assertThat(mSfpsRestToUnlockFeatureImpl.getDescriptionForSfps(mContext))
++            .isNotNull()
++    }
++
++    @Test
++    fun getRestToUnlockLayout_isNull() {
++        assertThat(mSfpsRestToUnlockFeatureImpl)
++            .isInstanceOf(SfpsRestToUnlockFeatureImpl::class.java)
++        assertThat(mSfpsRestToUnlockFeatureImpl.getRestToUnlockLayout(mContext))
++            .isNull()
++    }
++
++    @Test
++    fun fingerprint_settings_setupFingerprintUnlockCategoryPreferences() {
++        assertThat(mSfpsRestToUnlockFeatureImpl.getRestToUnlockPreference(mContext))
++            .isNull()
++    }
++}
+\ No newline at end of file
+-- 
+2.43.0
+

@@ -1,0 +1,49 @@
+From ec6dcb59d8c2e4531d661682998797026e06f4b9 Mon Sep 17 00:00:00 2001
+From: Danny Lin <danny@kdrag0n.dev>
+Date: Fri, 28 Jul 2023 13:34:10 +0800
+Subject: [PATCH] SettingsGoogle: Expose face-based auto-rotate settings
+
+Smart auto-rotate (face detection) settings are present in AOSP, but not
+exposed by default. This shouldn't cause any issues when no rotation
+resolver service is available.
+
+[ralph950412: Align with SettingsGoogle]
+
+Co-authored-by: ralph950412 <ralph950412@gmail.com>
+Signed-off-by: ralph950412 <ralph950412@gmail.com>
+Change-Id: Ib83400d97d8c0a00e9ff29bb8d220f85d478d3c1
+---
+ res/xml/display_settings.xml | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/res/xml/display_settings.xml b/res/xml/display_settings.xml
+index 0c07bca7d14..43910b6b2d7 100644
+--- a/res/xml/display_settings.xml
++++ b/res/xml/display_settings.xml
+@@ -161,11 +161,12 @@
+             Standard auto-rotation preference that will be shown when device state based
+             auto-rotation settings are NOT available.
+           -->
+-        <SwitchPreferenceCompat
++        <com.android.settingslib.PrimarySwitchPreference
+             android:key="auto_rotate"
+             android:title="@string/accelerometer_title"
++            android:fragment="com.android.settings.display.SmartAutoRotatePreferenceFragment"
+             settings:keywords="@string/keywords_auto_rotate"
+-            settings:controller="com.android.settings.display.AutoRotatePreferenceController"/>
++            settings:controller="com.android.settings.display.SmartAutoRotatePreferenceController"/>
+ 
+         <!--
+             Auto-rotation preference that will be shown when device state based auto-rotation
+@@ -174,7 +175,7 @@
+         <Preference
+             android:key="device_state_auto_rotate"
+             android:title="@string/accelerometer_title"
+-            android:fragment="com.android.settings.display.DeviceStateAutoRotateDetailsFragment"
++            android:fragment="com.android.settings.display.SmartAutoRotatePreferenceFragment"
+             settings:keywords="@string/keywords_auto_rotate"
+             settings:controller="com.android.settings.display.DeviceStateAutoRotateOverviewController"/>
+ 
+-- 
+2.43.0
+

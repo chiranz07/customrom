@@ -1,0 +1,30 @@
+From e61ef88fc4cdf56ec964cec5d3bc51876e0ce5e7 Mon Sep 17 00:00:00 2001
+From: cjh1249131356 <cjh1249131356@gmail.com>
+Date: Wed, 20 Apr 2022 16:50:34 +0800
+Subject: [PATCH] SystemUI: Grant INTERACT_ACROSS_USERS_FULL permission for
+ smartspace
+
+* W BcSmartspaceView: java.lang.SecurityException: No access to content://settings/secure/doze_always_on: Neither user 10293 nor current process has android.permission.INTERACT_ACROSS_USERS_FULL.
+
+Change-Id: Ibc117a9c18502529e836cb5956a80c9002d247e0
+Signed-off-by: cjh1249131356 <cjh1249131356@gmail.com>
+Signed-off-by: Dmitrii <bankersenator@gmail.com>
+---
+ data/etc/com.android.systemui.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/data/etc/com.android.systemui.xml b/data/etc/com.android.systemui.xml
+index 77c97bf7270f..2e08a7c23cf1 100644
+--- a/data/etc/com.android.systemui.xml
++++ b/data/etc/com.android.systemui.xml
+@@ -31,6 +31,7 @@
+         <permission name="android.permission.DUMP"/>
+         <permission name="android.permission.GET_APP_OPS_STATS"/>
+         <permission name="android.permission.INTERACT_ACROSS_USERS"/>
++        <permission name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+         <permission name="android.permission.LOCATION_HARDWARE"/>
+         <permission name="android.permission.MANAGE_DEBUGGING"/>
+         <permission name="android.permission.MANAGE_GAME_MODE" />
+-- 
+2.43.0
+

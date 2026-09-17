@@ -1,0 +1,9 @@
+com/android/settings/accessibility/AccessibilityMetricsFeatureProvider
+com/android/settings/biometrics/fingerprint/feature/SfpsRestToUnlockFeature
+com/android/settings/fuelgauge/batteryusage/BatteryEventType
+com/android/settings/fuelgauge/batteryusage/BatteryReattribute
+com/android/settings/fuelgauge/batteryusage/BatteryUsageDiff
+com/android/settings/fuelgauge/batteryusage/BatteryUsageSlot
+com/android/settings/fuelgauge/batteryusage/DetectRequestSourceType
+com/android/settings/fuelgauge/batteryusage/PowerAnomalyEventList
+com/android/settings/intelligence/ContextualCardProto

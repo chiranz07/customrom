@@ -1468,7 +1468,7 @@ Settings → Network & internet → SIMs. If it ever disappears, the gate is
 (`showEuiccSettings()` logs its reason under tag `EuiccRepository`:
 EuiccManager not enabled / cid ignored / dev-settings / country support).
 
-## High brightness mode — FINAL DESIGN (framework route; the sysfs route below is DEAD)
+## High brightness mode — FINAL DESIGN (framework route; the sysfs route below is DEAD) — **CONFIRMED WORKING by the user on build `...-1804`**
 
 Build `...-1723` shipped the sysfs implementation described in the next
 section and it **did not work**: the device agent proved the write to

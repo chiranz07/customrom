@@ -1,0 +1,2198 @@
+From c64f7f7211f47aec719f8dbe50775b0d4820005c Mon Sep 17 00:00:00 2001
+From: ralph950412 <ralph950412@gmail.com>
+Date: Sun, 28 Jun 2026 15:27:32 +0800
+Subject: [PATCH] Settings: Implement localepicker from SettingsGoogle
+
+* required for google setupwizard
+
+Change-Id: Iafd9d7121e36168cd36668a243b50db191cf37b7
+---
+ AndroidManifest.xml                           |  38 +
+ res/drawable/arrow_back_24.xml                |   5 +
+ res/drawable/ic_suw_language_picker.xml       |   5 +
+ res/drawable/ic_suw_region_picker.xml         |   5 +
+ .../quantum_gm_ic_close_vd_theme_24.xml       |   5 +
+ res/layout/divider_item.xml                   |   5 +
+ res/layout/locale_item.xml                    |  11 +
+ res/layout/search_bar_expressive_item.xml     |  10 +
+ res/layout/search_bar_item.xml                |  10 +
+ res/layout/search_bar_layout.xml              |  11 +
+ res/layout/setup_language_picker.xml          |   3 +
+ ...tup_region_and_numbering_system_picker.xml |   3 +
+ res/layout/setup_search_region.xml            |   3 +
+ res/raw/ic_animated_language.json             |   1 +
+ res/raw/ic_animated_region.json               |   1 +
+ res/xml/basic_locale_items.xml                |   6 +
+ res/xml/language_locale_items.xml             |   9 +
+ res/xml/region_and_numbering_system_items.xml |   9 +
+ .../localepicker/AccessibilityStateUtils.java |  36 +
+ .../settings/localepicker/DividerItem.java    |  86 +++
+ .../settings/localepicker/LocaleItem.java     |  72 ++
+ ...LocalePickerSetupWizardEventsReceiver.java |  62 ++
+ .../localepicker/LocaleSelectedListener.java  |   7 +
+ .../settings/localepicker/SearchBarItem.java  |  95 +++
+ .../SetupLocalePickerListController.java      | 693 ++++++++++++++++++
+ ...SetupRegionAndNumberingSystemActivity.java | 161 ++++
+ .../SetupRegionSearchActivity.java            | 415 +++++++++++
+ .../SetupSystemLocalePickerActivity.java      | 187 +++++
+ 28 files changed, 1954 insertions(+)
+ create mode 100644 res/drawable/arrow_back_24.xml
+ create mode 100644 res/drawable/ic_suw_language_picker.xml
+ create mode 100644 res/drawable/ic_suw_region_picker.xml
+ create mode 100644 res/drawable/quantum_gm_ic_close_vd_theme_24.xml
+ create mode 100644 res/layout/divider_item.xml
+ create mode 100644 res/layout/locale_item.xml
+ create mode 100644 res/layout/search_bar_expressive_item.xml
+ create mode 100644 res/layout/search_bar_item.xml
+ create mode 100644 res/layout/search_bar_layout.xml
+ create mode 100644 res/layout/setup_language_picker.xml
+ create mode 100644 res/layout/setup_region_and_numbering_system_picker.xml
+ create mode 100644 res/layout/setup_search_region.xml
+ create mode 100644 res/raw/ic_animated_language.json
+ create mode 100644 res/raw/ic_animated_region.json
+ create mode 100644 res/xml/basic_locale_items.xml
+ create mode 100644 res/xml/language_locale_items.xml
+ create mode 100644 res/xml/region_and_numbering_system_items.xml
+ create mode 100644 src/com/google/android/settings/localepicker/AccessibilityStateUtils.java
+ create mode 100644 src/com/google/android/settings/localepicker/DividerItem.java
+ create mode 100644 src/com/google/android/settings/localepicker/LocaleItem.java
+ create mode 100644 src/com/google/android/settings/localepicker/LocalePickerSetupWizardEventsReceiver.java
+ create mode 100644 src/com/google/android/settings/localepicker/LocaleSelectedListener.java
+ create mode 100644 src/com/google/android/settings/localepicker/SearchBarItem.java
+ create mode 100644 src/com/google/android/settings/localepicker/SetupLocalePickerListController.java
+ create mode 100644 src/com/google/android/settings/localepicker/SetupRegionAndNumberingSystemActivity.java
+ create mode 100644 src/com/google/android/settings/localepicker/SetupRegionSearchActivity.java
+ create mode 100644 src/com/google/android/settings/localepicker/SetupSystemLocalePickerActivity.java
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index fb2798ca620..d57895edbf3 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -6385,6 +6385,44 @@
+             </intent-filter>
+         </activity>
+ 
++        <!-- Locale Picker -->
++        <activity
++            android:name="com.google.android.settings.localepicker.SetupSystemLocalePickerActivity"
++            android:exported="true"
++            android:excludeFromRecents="true"
++            android:launchMode="singleTask">
++            <intent-filter android:priority="1">
++                <action android:name="com.google.android.settings.localepicker.LOCALE_REGION_PICKER"/>
++                <category android:name="android.intent.category.DEFAULT"/>
++            </intent-filter>
++        </activity>
++
++        <activity
++            android:name="com.google.android.settings.localepicker.SetupRegionAndNumberingSystemActivity"
++            android:exported="false">
++            <intent-filter>
++                <action android:name="com.google.android.settings.localepicker.REGIONAND_PICKER"/>
++                <category android:name="android.intent.category.DEFAULT"/>
++            </intent-filter>
++        </activity>
++
++        <activity
++            android:name="com.google.android.settings.localepicker.SetupRegionSearchActivity"
++            android:exported="false">
++            <intent-filter>
++                <action android:name="com.google.android.settings.localepicker.SETUP_REGION_SEARCH"/>
++                <category android:name="android.intent.category.DEFAULT"/>
++            </intent-filter>
++        </activity>
++
++        <receiver
++            android:name="com.google.android.settings.localepicker.LocalePickerSetupWizardEventsReceiver"
++            android:exported="true">
++            <intent-filter>
++                <action android:name="com.google.android.setupwizard.SETUP_WIZARD_FINISHED"/>
++            </intent-filter>
++        </receiver>
++
+         <!-- This is the longest AndroidManifest.xml ever. -->
+ 
+     </application>
+diff --git a/res/drawable/arrow_back_24.xml b/res/drawable/arrow_back_24.xml
+new file mode 100644
+index 00000000000..ae27dc5fc9e
+--- /dev/null
++++ b/res/drawable/arrow_back_24.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?colorControlNormal" android:height="24.0dip" android:width="24.0dip" android:autoMirrored="true" android:viewportWidth="960.0" android:viewportHeight="960.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M313,520L537,744L480,800L160,480L480,160L537,216L313,440L800,440L800,520L313,520Z" />
++</vector>
+diff --git a/res/drawable/ic_suw_language_picker.xml b/res/drawable/ic_suw_language_picker.xml
+new file mode 100644
+index 00000000000..cb50e10bc16
+--- /dev/null
++++ b/res/drawable/ic_suw_language_picker.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="960.0" android:viewportHeight="960.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="?android:colorPrimary" android:pathData="M480,880Q398,880 325,848.5Q252,817 197.5,762.5Q143,708 111.5,635Q80,562 80,480Q80,397 111.5,324.5Q143,252 197.5,197.5Q252,143 325,111.5Q398,80 480,80Q563,80 635.5,111.5Q708,143 762.5,197.5Q817,252 848.5,324.5Q880,397 880,480Q880,562 848.5,635Q817,708 762.5,762.5Q708,817 635.5,848.5Q563,880 480,880ZM480,798Q506,762 525,723Q544,684 556,640L404,640Q416,684 435,723Q454,762 480,798ZM376,782Q358,749 344.5,713.5Q331,678 322,640L204,640Q233,690 276.5,727Q320,764 376,782ZM584,782Q640,764 683.5,727Q727,690 756,640L638,640Q629,678 615.5,713.5Q602,749 584,782ZM170,560L306,560Q303,540 301.5,520.5Q300,501 300,480Q300,459 301.5,439.5Q303,420 306,400L170,400Q165,420 162.5,439.5Q160,459 160,480Q160,501 162.5,520.5Q165,540 170,560ZM386,560L574,560Q577,540 578.5,520.5Q580,501 580,480Q580,459 578.5,439.5Q577,420 574,400L386,400Q383,420 381.5,439.5Q380,459 380,480Q380,501 381.5,520.5Q383,540 386,560ZM654,560L790,560Q795,540 797.5,520.5Q800,501 800,480Q800,459 797.5,439.5Q795,420 790,400L654,400Q657,420 658.5,439.5Q660,459 660,480Q660,501 658.5,520.5Q657,540 654,560ZM638,320L756,320Q727,270 683.5,233Q640,196 584,178Q602,211 615.5,246.5Q629,282 638,320ZM404,320L556,320Q544,276 525,237Q506,198 480,162Q454,198 435,237Q416,276 404,320ZM204,320L322,320Q331,282 344.5,246.5Q358,211 376,178Q320,196 276.5,233Q233,270 204,320Z" />
++</vector>
+diff --git a/res/drawable/ic_suw_region_picker.xml b/res/drawable/ic_suw_region_picker.xml
+new file mode 100644
+index 00000000000..5b9def55353
+--- /dev/null
++++ b/res/drawable/ic_suw_region_picker.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:height="24.0dip" android:width="24.0dip" android:viewportWidth="960.0" android:viewportHeight="960.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="?android:colorPrimary" android:pathData="M480,880Q397,880 324,848.5Q251,817 197,763Q143,709 111.5,636Q80,563 80,480Q80,397 111.5,324Q143,251 197,197Q251,143 324,111.5Q397,80 480,80Q563,80 636,111.5Q709,143 763,197Q817,251 848.5,324Q880,397 880,480Q880,563 848.5,636Q817,709 763,763Q709,817 636,848.5Q563,880 480,880ZM480,800Q614,800 707,707Q800,614 800,480Q800,473 799.5,465.5Q799,458 799,453Q794,482 772,501Q750,520 720,520L640,520Q607,520 583.5,496.5Q560,473 560,440L560,400L400,400L400,320Q400,287 423.5,263.5Q447,240 480,240L520,240L520,240Q520,217 532.5,199.5Q545,182 563,171Q543,166 522.5,163Q502,160 480,160Q346,160 253,253Q160,346 160,480Q160,480 160,480Q160,480 160,480L360,480Q426,480 473,527Q520,574 520,640L520,680L400,680L400,790Q420,795 439.5,797.5Q459,800 480,800Z" />
++</vector>
+diff --git a/res/drawable/quantum_gm_ic_close_vd_theme_24.xml b/res/drawable/quantum_gm_ic_close_vd_theme_24.xml
+new file mode 100644
+index 00000000000..ff61eedb69b
+--- /dev/null
++++ b/res/drawable/quantum_gm_ic_close_vd_theme_24.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?colorControlNormal" android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12 19,6.41z" />
++</vector>
+diff --git a/res/layout/divider_item.xml b/res/layout/divider_item.xml
+new file mode 100644
+index 00000000000..5e2548b316a
+--- /dev/null
++++ b/res/layout/divider_item.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:paddingStart="?android:listPreferredItemPaddingStart" android:paddingEnd="?android:listPreferredItemPaddingEnd"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <View android:id="@+id/divider_view" android:background="?android:listDivider" android:layout_width="fill_parent" android:layout_height="1.0dip" />
++</LinearLayout>
+diff --git a/res/layout/locale_item.xml b/res/layout/locale_item.xml
+new file mode 100644
+index 00000000000..fd828044902
+--- /dev/null
++++ b/res/layout/locale_item.xml
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:importantForAccessibility="yes" style="?sudItemContainerStyle"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <FrameLayout android:gravity="start" android:layout_gravity="center_vertical" android:id="@+id/sud_items_icon_container" android:layout_height="wrap_content" android:importantForAccessibility="noHideDescendants" style="?sudItemIconContainerStyle">
++        <ImageView android:id="@+id/sud_items_icon" android:layout_height="wrap_content" style="?sudItemIconStyle" />
++    </FrameLayout>
++    <LinearLayout android:gravity="center_vertical" android:layout_gravity="center_vertical" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:importantForAccessibility="noHideDescendants">
++        <com.google.android.setupdesign.view.RichTextView android:gravity="start" android:id="@+id/sud_items_title" android:layout_width="fill_parent" android:layout_height="wrap_content" android:textAlignment="viewStart" style="?sudItemTitleStyle" />
++        <com.google.android.setupdesign.view.RichTextView android:gravity="start" android:id="@+id/sud_items_summary" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:textAlignment="viewStart" style="?sudItemSummaryStyle" />
++    </LinearLayout>
++</LinearLayout>
+diff --git a/res/layout/search_bar_expressive_item.xml b/res/layout/search_bar_expressive_item.xml
+new file mode 100644
+index 00000000000..577b7e79d72
+--- /dev/null
++++ b/res/layout/search_bar_expressive_item.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginStart="?android:listPreferredItemPaddingStart" android:layout_marginEnd="?android:listPreferredItemPaddingEnd"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <com.google.android.material.card.MaterialCardView android:layout_width="fill_parent" android:layout_height="wrap_content" style="@style/SearchBarStyle_v2">
++        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@+id/search_action_bar" android:background="@drawable/search_bar_selected_background" android:layout_width="fill_parent" android:layout_height="wrap_content" android:minHeight="72.0dip" android:paddingStart="24.0dip" android:paddingEnd="24.0dip" android:focusedByDefault="true">
++            <ImageView android:id="@+id/imageView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/ic_homepage_search" android:importantForAccessibility="no" />
++            <TextView android:id="@+id/search_bar_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/search_region" android:paddingEnd="8.0dip" android:layout_marginStart="8.0dip" style="@style/TextAppearance.SearchBar" />
++        </LinearLayout>
++    </com.google.android.material.card.MaterialCardView>
++</LinearLayout>
+diff --git a/res/layout/search_bar_item.xml b/res/layout/search_bar_item.xml
+new file mode 100644
+index 00000000000..55e2ac52ba2
+--- /dev/null
++++ b/res/layout/search_bar_item.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:paddingStart="?android:listPreferredItemPaddingStart" android:paddingEnd="?android:listPreferredItemPaddingEnd"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <com.google.android.material.card.MaterialCardView android:layout_width="fill_parent" android:layout_height="wrap_content" style="@style/SearchBarStyle_v2">
++        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@+id/search_action_bar" android:background="@drawable/search_bar_selected_background" android:layout_width="fill_parent" android:layout_height="wrap_content" android:minHeight="72.0dip" android:paddingStart="24.0dip" android:paddingEnd="24.0dip" android:focusedByDefault="true">
++            <ImageView android:id="@+id/imageView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/ic_homepage_search" android:importantForAccessibility="no" />
++            <TextView android:id="@+id/search_bar_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/search_region" android:paddingEnd="8.0dip" android:layout_marginStart="8.0dip" style="@style/TextAppearance.SearchBar" />
++        </LinearLayout>
++    </com.google.android.material.card.MaterialCardView>
++</LinearLayout>
+diff --git a/res/layout/search_bar_layout.xml b/res/layout/search_bar_layout.xml
+new file mode 100644
+index 00000000000..6236a9e8790
+--- /dev/null
++++ b/res/layout/search_bar_layout.xml
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:settings="http://schemas.android.com/apk/res-auto">
++    <com.google.android.material.card.MaterialCardView android:layout_gravity="center_vertical" android:id="@+id/suw_locale_picker_search_bar" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="16.0dip" settings:cardCornerRadius="28.0dip" settings:cardElevation="0.0dip" settings:strokeWidth="0.0dip" style="@style/SearchBarStyle">
++        <RelativeLayout android:id="@+id/search_add_language" android:layout_width="fill_parent" android:layout_height="60.0dip" android:layout_marginStart="10.0dip" android:layout_marginEnd="32.0dip" android:paddingVertical="4.0dip">
++            <androidx.appcompat.widget.AppCompatImageView android:id="@+id/back_icon" android:focusable="true" android:focusableInTouchMode="false" android:layout_width="24.0dip" android:layout_height="24.0dip" android:src="@drawable/arrow_back_24" android:layout_centerVertical="true" android:contentDescription="@string/sud_back_button_label" android:nextFocusForward="@+id/search_action_bar_text" android:layout_marginStart="12.0dip" android:layout_alignParentStart="true" />
++            <androidx.appcompat.widget.AppCompatEditText android:textSize="20.0sp" android:textColor="?android:textColorSecondary" android:ellipsize="end" android:id="@+id/search_action_bar_text" android:background="@null" android:focusable="true" android:focusableInTouchMode="true" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="@string/search_region" android:singleLine="true" android:layout_centerVertical="true" android:inputType="text" android:nextFocusForward="@+id/clear_search_query" android:layout_marginStart="12.0dip" android:layout_marginEnd="12.0dip" android:layout_toStartOf="@+id/clear_search_query" android:layout_toEndOf="@+id/back_icon" />
++            <androidx.appcompat.widget.AppCompatImageView android:id="@+id/clear_search_query" android:focusable="true" android:focusableInTouchMode="false" android:visibility="gone" android:layout_width="24.0dip" android:layout_height="24.0dip" android:src="@drawable/quantum_gm_ic_close_vd_theme_24" android:layout_centerVertical="true" android:contentDescription="@string/clear_search_query_description" android:layout_alignParentEnd="true" />
++        </RelativeLayout>
++    </com.google.android.material.card.MaterialCardView>
++</LinearLayout>
+diff --git a/res/layout/setup_language_picker.xml b/res/layout/setup_language_picker.xml
+new file mode 100644
+index 00000000000..ad80a1c6eea
+--- /dev/null
++++ b/res/layout/setup_language_picker.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<com.google.android.setupdesign.GlifRecyclerLayout android:icon="@drawable/ic_suw_language_picker" android:entries="@xml/language_locale_items" android:id="@+id/setup_wizard_language_picker_layout" android:layout_width="fill_parent" android:layout_height="fill_parent" app:sudAnimationIcon="@raw/ic_animated_language"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" />
+diff --git a/res/layout/setup_region_and_numbering_system_picker.xml b/res/layout/setup_region_and_numbering_system_picker.xml
+new file mode 100644
+index 00000000000..dac62e68251
+--- /dev/null
++++ b/res/layout/setup_region_and_numbering_system_picker.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<com.google.android.setupdesign.GlifRecyclerLayout android:icon="@drawable/ic_suw_region_picker" android:entries="@xml/region_and_numbering_system_items" android:id="@+id/setup_wizard_region_and_numbering_system_picker_layout" android:layout_width="fill_parent" android:layout_height="fill_parent" app:sudAnimationIcon="@raw/ic_animated_region"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" />
+diff --git a/res/layout/setup_search_region.xml b/res/layout/setup_search_region.xml
+new file mode 100644
+index 00000000000..6c5f7f53506
+--- /dev/null
++++ b/res/layout/setup_search_region.xml
+@@ -0,0 +1,3 @@
++<?xml version="1.0" encoding="utf-8"?>
++<com.google.android.setupdesign.GlifRecyclerLayout android:entries="@xml/basic_locale_items" android:id="@+id/setup_wizard_region_search_layout" android:layout_width="fill_parent" android:layout_height="fill_parent"
++  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" />
+diff --git a/res/raw/ic_animated_language.json b/res/raw/ic_animated_language.json
+new file mode 100644
+index 00000000000..da230a2d2ef
+--- /dev/null
++++ b/res/raw/ic_animated_language.json
+@@ -0,0 +1 @@
++{"v":"5.12.1","fr":60,"ip":0,"op":200,"w":48,"h":48,"nm":"icon_language","ddd":0,"assets":[{"id":"comp_0","nm":"Vertical lines","fr":60,"layers":[{"ddd":0,"ind":1,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":160,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":180,"s":[{"i":[[-3.353,0],[0,9.941],[3.314,0]],"o":[[3.314,0],[0,-9.941],[-3.353,0]],"v":[[9,18],[15,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":160,"s":[1]},{"t":170,"s":[3.8]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":160,"op":181,"st":160,"ct":1,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":140,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":180,"s":[{"i":[[3.294,0],[0,9.941],[-3.314,0]],"o":[[-3.314,0],[0,-9.941],[3.294,0]],"v":[[9,18],[3,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":140,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":150,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":190,"s":[3.8]},{"t":200,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":140,"op":181,"st":140,"ct":1,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":120,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":180,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":120,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":130,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":170,"s":[3.8]},{"t":180,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":120,"op":181,"st":120,"ct":1,"bm":0},{"ddd":0,"ind":4,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":100,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":160,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":100,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":110,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":150,"s":[3.8]},{"t":160,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":100,"op":160,"st":100,"ct":1,"bm":0},{"ddd":0,"ind":5,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":80,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":140,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":80,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":90,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":130,"s":[3.8]},{"t":140,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":80,"op":140,"st":80,"ct":1,"bm":0},{"ddd":0,"ind":6,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":60,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":120,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":60,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":70,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":110,"s":[3.8]},{"t":120,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":60,"op":120,"st":60,"ct":1,"bm":0},{"ddd":0,"ind":7,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":40,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":100,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":40,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":50,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":90,"s":[3.8]},{"t":100,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":40,"op":100,"st":40,"ct":1,"bm":0},{"ddd":0,"ind":8,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":20,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":80,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":20,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":30,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":70,"s":[3.8]},{"t":80,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":20,"op":80,"st":20,"ct":1,"bm":0},{"ddd":0,"ind":9,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":0,"s":[{"i":[[-10,0],[0,9.941],[9.941,0]],"o":[[9.941,0],[0,-9.941],[-10,0]],"v":[[9,18],[27,0],[9,-18]],"c":false}]},{"t":60,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":10,"s":[3.8]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":50,"s":[3.8]},{"t":60,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":60,"st":0,"ct":1,"bm":0},{"ddd":0,"ind":10,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":0,"s":[{"i":[[-3.353,0],[0,9.941],[3.314,0]],"o":[[3.314,0],[0,-9.941],[-3.353,0]],"v":[[9,18],[15,0],[9,-18]],"c":false}]},{"t":40,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":30,"s":[3.8]},{"t":40,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":40,"st":-20,"ct":1,"bm":0},{"ddd":0,"ind":11,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[27,36,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":0,"s":[{"i":[[3.294,0],[0,9.941],[-3.314,0]],"o":[[-3.314,0],[0,-9.941],[3.294,0]],"v":[[9,18],[3,0],[9,-18]],"c":false}]},{"t":20,"s":[{"i":[[9.941,0],[0,9.941],[-9.941,0]],"o":[[-9.941,0],[0,-9.941],[9.941,0]],"v":[[9,18],[-9,0],[9,-18]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":10,"s":[3.8]},{"t":20,"s":[1]}],"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":20,"st":-40,"ct":1,"bm":0}]}],"layers":[{"ddd":0,"ind":1,"ty":0,"nm":".primary","cl":"primary","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[24,24,0],"ix":2,"l":2},"a":{"a":0,"k":[36,36,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"tm":{"a":1,"k":[{"i":{"x":[0.5],"y":[1]},"o":{"x":[0.5],"y":[0]},"t":30,"s":[0]},{"t":180,"s":[3]}],"ix":2},"w":72,"h":72,"ip":0,"op":200,"st":0,"ct":1,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[-12,-12,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0]],"o":[[0,0],[0,0]],"v":[[-17,0],[17,0]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":3.8,"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[36,42],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Path 1","np":1,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0]],"o":[[0,0],[0,0]],"v":[[-17,0],[17,0]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":3.8,"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[36,30],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Path","np":1,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[36,36],"ix":2},"a":{"a":0,"k":[36,36],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Path 1 :M","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[36,36],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":3.8,"ix":5},"lc":1,"lj":1,"ml":10,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[36,36],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Globe","np":1,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":200,"st":0,"ct":1,"bm":0}],"markers":[],"props":{}}
+\ No newline at end of file
+diff --git a/res/raw/ic_animated_region.json b/res/raw/ic_animated_region.json
+new file mode 100644
+index 00000000000..510833370d0
+--- /dev/null
++++ b/res/raw/ic_animated_region.json
+@@ -0,0 +1 @@
++{"v":"5.12.1","fr":60,"ip":0,"op":200,"w":48,"h":48,"nm":"icon_globe","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"MATTE","td":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[24,24,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[37,37],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"fl","c":{"a":0,"k":[0,0,0,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Ellipse 1","np":3,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":200,"st":0,"ct":1,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":".primary","cl":"primary","tt":1,"tp":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":1,"k":[{"i":{"x":0.25,"y":1},"o":{"x":0.75,"y":0},"t":30,"s":[67,27.254,0],"to":[0,0,0],"ti":[0,0,0]},{"t":170,"s":[-14,27.254,0]}],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[1.557,0],[0,0],[0,-1.905],[0,0],[0,0],[0,0],[-1.97,0],[0,0],[0,1.333],[0,0],[0,0],[0,1.282],[0,0]],"o":[[0,0],[-1.905,0],[0,0],[0,0],[0,0],[0,1.97],[0,0],[1.333,0],[0,0],[0,0],[1.282,0],[0,0],[0,-1.557]],"v":[[4.01,-8.879],[-3.379,-8.879],[-6.829,-5.43],[-6.829,0.581],[-2.869,0.581],[-2.869,5.312],[0.698,8.879],[1.631,8.879],[4.044,6.466],[4.044,3.23],[4.507,3.23],[6.829,0.908],[6.829,-6.06]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[60.366,10.375],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[1.257,0],[0,0],[0,-1.135],[0,0],[0,0],[0,0],[-0.865,0],[0,0],[0,1.011],[0,0]],"o":[[0,0],[-1.135,0],[0,0],[0,0],[0,0],[0,0.865],[0,0],[1.011,0],[0,0],[0,-1.258]],"v":[[1.405,-3.47],[-1.626,-3.47],[-3.682,-1.414],[-3.682,1.05],[0.003,1.05],[0.003,1.904],[1.569,3.47],[1.85,3.47],[3.682,1.639],[3.682,-1.193]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[74.01,9.104],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,2.514],[0,0],[0,0],[0,-1.034],[0,0],[0,-2.102],[-2.102,0],[0,0],[0,0],[-2.089,0],[0,0],[0,2.089],[0,0],[0,0]],"o":[[0,0],[0,0],[-1.034,0],[0,0],[-2.102,0],[0,2.102],[0,0],[0,0],[0,2.089],[0,0],[2.089,0],[0,0],[0,0],[2.514,0]],"v":[[10.753,-3.402],[10.753,-9.961],[1.873,-9.961],[0,-8.089],[-6.947,-8.089],[-10.753,-4.282],[-6.947,-0.477],[-4.592,-0.477],[-4.592,6.178],[-0.809,9.961],[-0.809,9.961],[2.974,6.178],[2.974,1.15],[6.201,1.15]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[12.753,-8.883],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":3,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[2.2,0],[0,0],[0,-1.015],[0,0],[-2.488,0],[0,0],[0,1.585],[0,0],[0,0],[0,1.892],[0,0],[0,0],[0,0],[1.567,1.567]],"o":[[0,0],[-1.015,0],[0,0],[0,2.488],[0,0],[1.585,0],[0,0],[0,0],[1.892,0],[0,0],[0,0],[0,0],[0,-2.2],[-1.567,-1.567]],"v":[[1.962,-10.927],[-8.124,-10.927],[-9.962,-9.089],[-9.962,6.422],[-5.457,10.927],[-4.699,10.927],[-1.829,8.057],[-1.829,4.549],[0.535,4.549],[3.962,1.122],[3.962,-0.927],[9.962,-0.927],[9.962,-2.927],[7.612,-8.577]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[29.901,7.522],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":4,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[2.024,0],[0,0],[1.2,0],[0,0],[0,-1.473],[0,0],[0,0],[0.8,-0.8],[0,-1.1],[0,0],[0,0],[0,0],[-0.767,-0.8],[-1.1,0],[0,0],[-0.733,0.633],[-0.175,0.939],[0.034,0.26],[0,0],[0,0],[-1.6,0],[0,0],[0,1.6],[0,0],[0,0],[0,2.024],[0,0]],"o":[[0,0],[0,-1.2],[0,0],[-1.473,0],[0,0],[0,0],[-1.1,0],[-0.767,0.767],[0,0],[0,0],[0,0],[0,1.1],[0.8,0.767],[0,0],[1,0],[0.718,-0.62],[-0.021,-0.264],[0,0],[0,0],[0,1.6],[0,0],[1.6,0],[0,0],[0,0],[2.024,0],[0,0],[0,-2.024]],"v":[[18.903,-7.518],[12.817,-7.518],[10.645,-9.69],[-13.902,-9.69],[-16.569,-7.023],[-16.569,-5.84],[-18.569,-5.84],[-21.419,-4.64],[-22.569,-1.84],[-22.569,2.16],[-14.569,2.16],[-14.569,4.16],[-13.419,7.01],[-10.569,8.16],[-6.569,8.16],[-3.969,7.21],[-2.634,4.87],[-2.728,4.088],[7.867,4.088],[7.867,6.792],[10.765,9.69],[11.405,9.69],[14.303,6.792],[14.303,5.133],[18.903,5.133],[22.569,1.468],[22.569,-3.852]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[56.431,-9.565],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":5,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[1.557,0],[0,0],[0,-1.905],[0,0],[0,0],[0,0],[-1.97,0],[0,0],[0,1.333],[0,0],[0,0],[0,1.282],[0,0]],"o":[[0,0],[-1.905,0],[0,0],[0,0],[0,0],[0,1.97],[0,0],[1.333,0],[0,0],[0,0],[1.282,0],[0,0],[0,-1.557]],"v":[[4.01,-8.879],[-3.379,-8.879],[-6.829,-5.43],[-6.829,0.581],[-2.869,0.581],[-2.869,5.312],[0.698,8.879],[1.631,8.879],[4.044,6.466],[4.044,3.23],[4.507,3.23],[6.829,0.908],[6.829,-6.06]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[-20.634,10.375],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":6,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[1.257,0],[0,0],[0,-1.135],[0,0],[0,0],[0,0],[-0.865,0],[0,0],[0,1.011],[0,0]],"o":[[0,0],[-1.135,0],[0,0],[0,0],[0,0],[0,0.865],[0,0],[1.011,0],[0,0],[0,-1.258]],"v":[[1.405,-3.47],[-1.626,-3.47],[-3.682,-1.414],[-3.682,1.05],[0.003,1.05],[0.003,1.904],[1.569,3.47],[1.85,3.47],[3.682,1.639],[3.682,-1.193]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[-6.99,9.104],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":7,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,2.514],[0,0],[0,0],[0,-1.034],[0,0],[0,-2.102],[-2.102,0],[0,0],[0,0],[-2.089,0],[0,0],[0,2.089],[0,0],[0,0]],"o":[[0,0],[0,0],[-1.034,0],[0,0],[-2.102,0],[0,2.102],[0,0],[0,0],[0,2.089],[0,0],[2.089,0],[0,0],[0,0],[2.514,0]],"v":[[10.753,-3.402],[10.753,-9.961],[1.873,-9.961],[0,-8.089],[-6.947,-8.089],[-10.753,-4.282],[-6.947,-0.477],[-4.592,-0.477],[-4.592,6.178],[-0.809,9.961],[-0.809,9.961],[2.974,6.178],[2.974,1.15],[6.201,1.15]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[-68.247,-8.883],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":8,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[2.2,0],[0,0],[0,-1.015],[0,0],[-2.488,0],[0,0],[0,1.585],[0,0],[0,0],[0,1.892],[0,0],[0,0],[0,0],[1.567,1.567]],"o":[[0,0],[-1.015,0],[0,0],[0,2.488],[0,0],[1.585,0],[0,0],[0,0],[1.892,0],[0,0],[0,0],[0,0],[0,-2.2],[-1.567,-1.567]],"v":[[1.962,-10.927],[-8.124,-10.927],[-9.962,-9.089],[-9.962,6.422],[-5.457,10.927],[-4.699,10.927],[-1.829,8.057],[-1.829,4.549],[0.535,4.549],[3.962,1.122],[3.962,-0.927],[9.962,-0.927],[9.962,-2.927],[7.612,-8.577]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[-51.099,7.522],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":9,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[2.024,0],[0,0],[1.2,0],[0,0],[0,-1.473],[0,0],[0,0],[0.8,-0.8],[0,-1.1],[0,0],[0,0],[0,0],[-0.767,-0.8],[-1.1,0],[0,0],[-0.733,0.633],[-0.175,0.939],[0.034,0.26],[0,0],[0,0],[-1.6,0],[0,0],[0,1.6],[0,0],[0,0],[0,2.024],[0,0]],"o":[[0,0],[0,-1.2],[0,0],[-1.473,0],[0,0],[0,0],[-1.1,0],[-0.767,0.767],[0,0],[0,0],[0,0],[0,1.1],[0.8,0.767],[0,0],[1,0],[0.718,-0.62],[-0.021,-0.264],[0,0],[0,0],[0,1.6],[0,0],[1.6,0],[0,0],[0,0],[2.024,0],[0,0],[0,-2.024]],"v":[[18.903,-7.518],[12.817,-7.518],[10.645,-9.69],[-13.902,-9.69],[-16.569,-7.023],[-16.569,-5.84],[-18.569,-5.84],[-21.419,-4.64],[-22.569,-1.84],[-22.569,2.16],[-14.569,2.16],[-14.569,4.16],[-13.419,7.01],[-10.569,8.16],[-6.569,8.16],[-3.969,7.21],[-2.634,4.87],[-2.728,4.088],[7.867,4.088],[7.867,6.792],[10.765,9.69],[11.405,9.69],[14.303,6.792],[14.303,5.133],[18.903,5.133],[22.569,1.468],[22.569,-3.852]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[1,1,1,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[-24.569,-9.565],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Outline icons","np":2,"cix":2,"bm":0,"ix":10,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":200,"st":0,"ct":1,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":".primary","cl":"primary","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[24,24,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[36,36],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":4,"ix":5},"lc":1,"lj":1,"ml":4,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Ellipse 1","np":3,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":200,"st":0,"ct":1,"bm":0}],"markers":[],"props":{}}
+\ No newline at end of file
+diff --git a/res/xml/basic_locale_items.xml b/res/xml/basic_locale_items.xml
+new file mode 100644
+index 00000000000..c74d08c169f
+--- /dev/null
++++ b/res/xml/basic_locale_items.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ItemGroup
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <SectionItem android:id="@+id/suggested_list" />
++    <SectionItem android:id="@+id/all_list" />
++</ItemGroup>
+diff --git a/res/xml/language_locale_items.xml b/res/xml/language_locale_items.xml
+new file mode 100644
+index 00000000000..0d25ebb2242
+--- /dev/null
++++ b/res/xml/language_locale_items.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ItemGroup
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <SectionItem android:id="@+id/suggested_list" />
++    <SectionItem android:id="@+id/setup_divider_section">
++        <com.google.android.settings.localepicker.DividerItem android:id="@+id/setup_divider_item" />
++    </SectionItem>
++    <SectionItem android:id="@+id/all_list" />
++</ItemGroup>
+diff --git a/res/xml/region_and_numbering_system_items.xml b/res/xml/region_and_numbering_system_items.xml
+new file mode 100644
+index 00000000000..a3b41eeb279
+--- /dev/null
++++ b/res/xml/region_and_numbering_system_items.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ItemGroup
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <SectionItem android:id="@+id/setup_search_bar_section">
++        <com.google.android.settings.localepicker.SearchBarItem android:id="@+id/setup_search_bar_item" />
++    </SectionItem>
++    <SectionItem android:id="@+id/suggested_list" />
++    <SectionItem android:id="@+id/all_list" />
++</ItemGroup>
+diff --git a/src/com/google/android/settings/localepicker/AccessibilityStateUtils.java b/src/com/google/android/settings/localepicker/AccessibilityStateUtils.java
+new file mode 100644
+index 00000000000..f3c097ff85b
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/AccessibilityStateUtils.java
+@@ -0,0 +1,36 @@
++package com.google.android.settings.localepicker;
++
++import android.content.ContentResolver;
++import android.provider.Settings;
++import android.text.TextUtils;
++
++import com.google.common.base.Splitter;
++
++import java.util.HashSet;
++import java.util.Set;
++
++public abstract class AccessibilityStateUtils {
++    private static void setEnabledAccessibilityServices(ContentResolver contentResolver, Set set) {
++        String string =
++                Settings.Secure.getString(contentResolver, "enabled_accessibility_services");
++        if (TextUtils.isEmpty(string)) {
++            return;
++        }
++        for (String str : Splitter.on(':').split(string)) {
++            if (str.startsWith("com.google.") || str.startsWith("com.googlecode.")) {
++                if (str.endsWith("TalkBackService")) {
++                    set.add("TalkBackService");
++                }
++                if (str.endsWith("SelectToSpeakService")) {
++                    set.add("SelectToSpeakService");
++                }
++            }
++        }
++    }
++
++    public static boolean isTtsEnabled(ContentResolver contentResolver) {
++        HashSet hashSet = new HashSet();
++        setEnabledAccessibilityServices(contentResolver, hashSet);
++        return hashSet.contains("TalkBackService") || hashSet.contains("SelectToSpeakService");
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/DividerItem.java b/src/com/google/android/settings/localepicker/DividerItem.java
+new file mode 100644
+index 00000000000..83b5d5f276b
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/DividerItem.java
+@@ -0,0 +1,86 @@
++package com.google.android.settings.localepicker;
++
++import android.content.Context;
++import android.content.res.TypedArray;
++import android.util.AttributeSet;
++import android.view.View;
++
++import com.google.android.setupdesign.R;
++import com.google.android.setupdesign.items.AbstractItem;
++import com.google.android.setupdesign.util.LayoutStyler;
++import com.google.android.setupdesign.util.ThemeHelper;
++
++public class DividerItem extends AbstractItem {
++    private boolean mEnabled;
++    private int mLayoutRes;
++    private boolean mShouldApplyGlifExpressiveStyle;
++    private boolean mVisible;
++
++    @Override
++    public boolean isGroupDivider() {
++        return true;
++    }
++
++    public DividerItem() {
++        mEnabled = true;
++        mVisible = true;
++        mLayoutRes = getDefaultLayoutResource();
++    }
++
++    public DividerItem(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        mEnabled = true;
++        mVisible = true;
++        mShouldApplyGlifExpressiveStyle = ThemeHelper.shouldApplyGlifExpressiveStyle(context);
++        TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.SudItem);
++        mEnabled = styledAttrs.getBoolean(R.styleable.SudItem_android_enabled, true);
++        mLayoutRes =
++                styledAttrs.getResourceId(
++                        R.styleable.SudItem_android_layout, getDefaultLayoutResource());
++        mVisible = styledAttrs.getBoolean(R.styleable.SudItem_android_visible, true);
++        styledAttrs.recycle();
++    }
++
++    protected int getDefaultLayoutResource() {
++        return com.android.settings.R.layout.divider_item;
++    }
++
++    @Override
++    public int getCount() {
++        return isVisible() ? 1 : 0;
++    }
++
++    @Override
++    public boolean isEnabled() {
++        return mEnabled;
++    }
++
++    @Override
++    public int getLayoutResource() {
++        return mLayoutRes;
++    }
++
++    public void setVisible(boolean z) {
++        if (mVisible == z) {
++            return;
++        }
++        mVisible = z;
++        if (!z) {
++            notifyItemRangeRemoved(0, 1);
++        } else {
++            notifyItemRangeInserted(0, 1);
++        }
++    }
++
++    public boolean isVisible() {
++        return mVisible;
++    }
++
++    @Override
++    public void onBindView(View view) {
++        if (mShouldApplyGlifExpressiveStyle) {
++            return;
++        }
++        LayoutStyler.applyPartnerCustomizationLayoutPaddingStyle(view);
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/LocaleItem.java b/src/com/google/android/settings/localepicker/LocaleItem.java
+new file mode 100644
+index 00000000000..b1a2ab5eb81
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/LocaleItem.java
+@@ -0,0 +1,72 @@
++package com.google.android.settings.localepicker;
++
++import android.content.Context;
++import android.util.AttributeSet;
++import android.view.View;
++
++import com.android.internal.app.LocaleHelper;
++import com.android.internal.app.LocaleStore;
++
++import com.google.android.setupdesign.items.Item;
++import com.android.settings.R;
++
++import java.util.Locale;
++
++public class LocaleItem extends Item {
++    private boolean mIsCountryMode;
++    private boolean mIsSuggested;
++    private LocaleStore.LocaleInfo mLocaleInfo;
++
++    public LocaleItem() {
++        mIsSuggested = false;
++        mIsCountryMode = false;
++        setLayoutResource(R.layout.locale_item);
++    }
++
++    public LocaleItem(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        mIsSuggested = false;
++        mIsCountryMode = false;
++        setLayoutResource(R.layout.locale_item);
++    }
++
++    public void setLocaleInfo(LocaleStore.LocaleInfo localeInfo) {
++        mLocaleInfo = localeInfo;
++    }
++
++    public LocaleStore.LocaleInfo getLocaleInfo() {
++        return mLocaleInfo;
++    }
++
++    public void setSuggestedState(boolean isSuggested) {
++        mIsSuggested = isSuggested;
++    }
++
++    public boolean isSuggested() {
++        return mIsSuggested;
++    }
++
++    public void setCountryMode(boolean isCountryMode) {
++        mIsCountryMode = isCountryMode;
++    }
++
++    @Override
++    public void onBindView(View view) {
++        super.onBindView(view);
++        if (mLocaleInfo != null) {
++            applyTalkBackPronunciationFix(view);
++        }
++    }
++
++    private void applyTalkBackPronunciationFix(View view) {
++        view.setContentDescription(getTranslatedLocaleName());
++    }
++
++    private String getTranslatedLocaleName() {
++        Locale locale = mLocaleInfo.getLocale();
++        if (mIsCountryMode) {
++            return LocaleHelper.getDisplayCountry(locale);
++        }
++        return LocaleHelper.getDisplayName(locale.stripExtensions(), true);
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/LocalePickerSetupWizardEventsReceiver.java b/src/com/google/android/settings/localepicker/LocalePickerSetupWizardEventsReceiver.java
+new file mode 100644
+index 00000000000..19e94bcaed4
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/LocalePickerSetupWizardEventsReceiver.java
+@@ -0,0 +1,62 @@
++package com.google.android.settings.localepicker;
++
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.Intent;
++import android.os.LocaleList;
++import android.util.Log;
++
++import com.android.internal.app.LocalePicker;
++import com.android.internal.app.LocaleStore;
++
++import java.util.HashSet;
++import java.util.Locale;
++import java.util.Objects;
++
++public class LocalePickerSetupWizardEventsReceiver extends BroadcastReceiver {
++    @Override
++    public void onReceive(Context context, Intent intent) {
++        if (Objects.equals(
++                intent.getAction(), "com.google.android.setupwizard.SETUP_WIZARD_FINISHED")) {
++            Locale locale = LocaleList.getDefault().get(0);
++            if (locale.getCountry().isEmpty()) {
++                for (LocaleStore.LocaleInfo localeInfo :
++                        LocaleStore.getLevelLocales(
++                                context,
++                                new HashSet<String>(),
++                                (LocaleStore.LocaleInfo) null,
++                                true)) {
++                    if (sameLanguageAndScript(localeInfo.getLocale(), locale)) {
++                        LocalePicker.updateLocales(
++                                new LocaleList(
++                                        ((LocaleStore.LocaleInfo)
++                                                        LocaleStore.getLevelLocales(
++                                                                        context,
++                                                                        new HashSet<String>(),
++                                                                        localeInfo,
++                                                                        true)
++                                                                .iterator()
++                                                                .next())
++                                                .getLocale()));
++                        Log.d("SetupWizardEventsReceiver", "Update region");
++                        return;
++                    }
++                }
++            }
++        }
++    }
++
++    private static boolean sameLanguageAndScript(Locale locale, Locale locale2) {
++        String language = locale.getLanguage();
++        String language2 = locale2.getLanguage();
++        String script = locale.getScript();
++        String script2 = locale2.getScript();
++        if (!language.equals(language2)) {
++            return false;
++        }
++        if (script.isEmpty() || script2.isEmpty()) {
++            return true;
++        }
++        return script.equals(script2);
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/LocaleSelectedListener.java b/src/com/google/android/settings/localepicker/LocaleSelectedListener.java
+new file mode 100644
+index 00000000000..e98f61cf818
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/LocaleSelectedListener.java
+@@ -0,0 +1,7 @@
++package com.google.android.settings.localepicker;
++
++import com.android.internal.app.LocaleStore;
++
++public interface LocaleSelectedListener {
++    void onLocaleSelected(LocaleStore.LocaleInfo localeInfo);
++}
+diff --git a/src/com/google/android/settings/localepicker/SearchBarItem.java b/src/com/google/android/settings/localepicker/SearchBarItem.java
+new file mode 100644
+index 00000000000..ad759aba366
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/SearchBarItem.java
+@@ -0,0 +1,95 @@
++package com.google.android.settings.localepicker;
++
++import android.content.Context;
++import android.content.res.TypedArray;
++import android.provider.Settings;
++import android.util.AttributeSet;
++import android.view.View;
++
++import com.google.android.setupdesign.R;
++import com.google.android.setupdesign.items.AbstractItem;
++import com.google.android.setupdesign.util.ItemStyler;
++import com.google.android.setupdesign.util.LayoutStyler;
++import com.google.android.setupdesign.util.ThemeHelper;
++
++public class SearchBarItem extends AbstractItem {
++    private boolean mEnabled;
++    private int mLayoutRes;
++    private boolean mShouldApplyGlifExpressiveStyle;
++    private boolean mVisible;
++
++    @Override
++    public boolean isGroupDivider() {
++        return true;
++    }
++
++    public SearchBarItem() {
++        mEnabled = true;
++        mVisible = true;
++        mLayoutRes = getDefaultLayoutResource();
++    }
++
++    public SearchBarItem(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        mEnabled = true;
++        mVisible = true;
++        mShouldApplyGlifExpressiveStyle = ThemeHelper.shouldApplyGlifExpressiveStyle(context);
++        TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.SudItem);
++        mEnabled = styledAttrs.getBoolean(R.styleable.SudItem_android_enabled, true);
++        mLayoutRes =
++                styledAttrs.getResourceId(
++                        R.styleable.SudItem_android_layout, getDefaultLayoutResource());
++        mVisible = styledAttrs.getBoolean(R.styleable.SudItem_android_visible, true);
++        styledAttrs.recycle();
++    }
++
++    protected int getDefaultLayoutResource() {
++        if (mShouldApplyGlifExpressiveStyle) {
++            return com.android.settings.R.layout.search_bar_expressive_item;
++        }
++        return com.android.settings.R.layout.search_bar_item;
++    }
++
++    @Override
++    public int getCount() {
++        return isVisible() ? 1 : 0;
++    }
++
++    @Override
++    public boolean isEnabled() {
++        return mEnabled;
++    }
++
++    @Override
++    public int getLayoutResource() {
++        return mLayoutRes;
++    }
++
++    public void setVisible(boolean visible) {
++        if (mVisible == visible) {
++            return;
++        }
++        mVisible = visible;
++        if (!visible) {
++            notifyItemRangeRemoved(0, 1);
++        } else {
++            notifyItemRangeInserted(0, 1);
++        }
++    }
++
++    public boolean isVisible() {
++        return mVisible;
++    }
++
++    @Override
++    public void onBindView(View view) {
++        if (!mShouldApplyGlifExpressiveStyle) {
++            LayoutStyler.applyPartnerCustomizationLayoutPaddingStyle(view);
++        }
++        Context context = view.getContext();
++        if (Settings.Secure.getInt(context.getContentResolver(), "user_setup_complete", 0) != 1) {
++            ItemStyler.applyFocusRingDrawable(
++                    context, view, ItemStyler.FocusIndicatorShape.RECTANGLE, null);
++        }
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/SetupLocalePickerListController.java b/src/com/google/android/settings/localepicker/SetupLocalePickerListController.java
+new file mode 100644
+index 00000000000..54b9696fd45
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/SetupLocalePickerListController.java
+@@ -0,0 +1,693 @@
++package com.google.android.settings.localepicker;
++
++import android.app.Activity;
++import android.app.settings.SettingsEnums;
++import android.content.Context;
++import android.content.Intent;
++import android.os.Bundle;
++import android.os.LocaleList;
++import android.provider.Settings;
++import android.util.Log;
++import android.util.Pair;
++import android.view.View;
++import android.view.ViewGroup;
++import android.view.accessibility.AccessibilityEvent;
++
++import androidx.core.view.AccessibilityDelegateCompat;
++import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
++import androidx.recyclerview.widget.RecyclerView;
++import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
++
++import com.android.internal.app.LocaleCollectorBase;
++import com.android.internal.app.LocaleHelper;
++import com.android.internal.app.LocalePicker;
++import com.android.internal.app.LocaleStore;
++import com.android.internal.app.SystemLocaleCollector;
++import com.android.settings.overlay.FeatureFactory;
++
++import com.google.android.setupdesign.items.IItem;
++import com.google.android.setupdesign.items.ItemViewHolder;
++import com.google.android.setupdesign.items.RecyclerItemAdapter;
++import com.google.android.setupdesign.items.SectionItem;
++import com.google.android.setupdesign.util.ThemeHelper;
++import com.google.common.collect.ImmutableList;
++import com.google.common.collect.ImmutableMap;
++import com.android.settings.R;
++
++import java.util.ArrayList;
++import java.util.Collection;
++import java.util.Collections;
++import java.util.Comparator;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.List;
++import java.util.Locale;
++import java.util.Map;
++import java.util.Set;
++import java.util.stream.Collectors;
++
++public class SetupLocalePickerListController implements RecyclerItemAdapter.OnItemSelectedListener {
++    private Activity mActivity;
++    private RecyclerItemAdapter mAdapter;
++    private SectionItem mAllListGroup;
++    private Context mContext;
++    private SectionItem mDividerItem;
++    private boolean mIsCountryMode;
++    private boolean mIsNumberingSystemMode;
++    private LocaleSelectedListener mListener;
++    private Set<LocaleStore.LocaleInfo> mLocaleList;
++    private List<LocaleStore.LocaleInfo> mLocaleOptions;
++    private LocaleStore.LocaleInfo mParentLocale;
++    private String mPskuString;
++    private SectionItem mSearchBarItem;
++    private SectionItem mSuggestedListGroup;
++    private static final Map sPskuMap =
++            new ImmutableMap.Builder()
++                    .put("UVZ", 2)
++                    .put("UAT", 2)
++                    .put("UTM", 2)
++                    .put("UGS", 2)
++                    .put("AJP", 1)
++                    .build();
++    private static final ImmutableList REGION_SEARCH_SUPPORTED_LANGUAGES =
++            ImmutableList.builder()
++                    .add((Object) "ar")
++                    .add((Object) "en")
++                    .add((Object) "es")
++                    .add((Object) "fr")
++                    .build();
++    private boolean mIsFromSearch = false;
++    private List<LocaleStore.LocaleInfo> mSuggestedLocaleOptions = new ArrayList<>();
++
++    public SetupLocalePickerListController(
++            Context context,
++            Activity activity,
++            LocaleStore.LocaleInfo localeInfo,
++            boolean isNumberingSystemMode) {
++        mPskuString = "";
++        mParentLocale = localeInfo;
++        mIsNumberingSystemMode = isNumberingSystemMode;
++        mLocaleList =
++                LocaleStore.getLevelLocales(
++                        context, new HashSet(), (LocaleStore.LocaleInfo) null, true);
++        mContext = context;
++        mActivity = activity;
++        mLocaleOptions = new ArrayList<>(mLocaleList.size());
++    }
++
++    void setLocaleSelectedListener(LocaleSelectedListener listener) {
++        mListener = listener;
++    }
++
++    void setPsku(String psku) {
++        mPskuString = psku;
++    }
++
++    protected void displayScreen(RecyclerItemAdapter adapter) {
++        mAdapter = adapter;
++        mSuggestedListGroup = (SectionItem) adapter.findItemById(R.id.suggested_list);
++        mAllListGroup = (SectionItem) mAdapter.findItemById(R.id.all_list);
++        mSearchBarItem = (SectionItem) mAdapter.findItemById(R.id.setup_search_bar_section);
++        mDividerItem = (SectionItem) mAdapter.findItemById(R.id.setup_divider_section);
++        RecyclerView recyclerView =
++                (RecyclerView)
++                        mActivity.findViewById(
++                                com.google.android.setupdesign.R.id.sud_recycler_view);
++        if (recyclerView != null) {
++            recyclerView.setAccessibilityDelegateCompat(
++                    new LocalePickerAccessibilityDelegate(recyclerView));
++        }
++        if (mSearchBarItem != null && (mIsNumberingSystemMode || !isRegionSearchSupported())) {
++            ((SearchBarItem) mSearchBarItem.getItemAt(0)).setVisible(false);
++        }
++        if (mDividerItem != null
++                && (ThemeHelper.shouldApplyGlifExpressiveStyle(mActivity)
++                        || AccessibilityStateUtils.isTtsEnabled(mContext.getContentResolver()))) {
++            ((DividerItem) mDividerItem.getItemAt(0)).setVisible(false);
++        }
++        updateScreen();
++        mAdapter.setOnItemSelectedListener(this);
++    }
++
++    private void updateScreen() {
++        mIsFromSearch = false;
++        updateHeaders();
++        updateGroupItems();
++    }
++
++    private void updateHeaders() {
++        if (mParentLocale != null) {
++            mSuggestedListGroup.setHeaderTitle(
++                    mContext.getString(com.android.settings.R.string.suggested_locales_title));
++            String title;
++            if (mIsNumberingSystemMode) {
++                title =
++                        mContext.getString(
++                                com.android.settings.R.string.all_supported_numbering_system_title);
++            } else {
++                title =
++                        mContext.getString(
++                                com.android.settings.R.string.all_supported_locales_regions_title);
++            }
++            mAllListGroup.setHeaderTitle(title);
++            if (ThemeHelper.shouldApplyGlifExpressiveStyle(mActivity)) {
++                return;
++            }
++            mSuggestedListGroup
++                    .getHeader()
++                    .setTitleColor(mContext.getColor(com.android.internal.R.color.profile_badge_2));
++            mAllListGroup
++                    .getHeader()
++                    .setTitleColor(mContext.getColor(com.android.internal.R.color.profile_badge_2));
++            return;
++        }
++        boolean shouldApplyGlifExpressiveStyle =
++                ThemeHelper.shouldApplyGlifExpressiveStyle(mActivity);
++        if (shouldApplyGlifExpressiveStyle) {
++            mSuggestedListGroup.setHeaderTitle("");
++            mAllListGroup.setHeaderTitle("");
++        } else {
++            mSuggestedListGroup.removeChild(mSuggestedListGroup.getHeader());
++            mAllListGroup.removeChild(mAllListGroup.getHeader());
++        }
++    }
++
++    protected void updateGroupItems() {
++        List<LocaleStore.LocaleInfo> suggestedLocaleListByPsku;
++        List<LocaleStore.LocaleInfo> sortedLocaleList;
++        if (mParentLocale != null) {
++            mIsCountryMode = true;
++            mLocaleList =
++                    getLocaleCollectorController(mContext)
++                            .getSupportedLocaleList(mParentLocale, false, mIsCountryMode);
++            mLocaleOptions = new ArrayList<>(mLocaleList.size());
++            suggestedLocaleListByPsku = getSortedLocaleList(getSuggestedLocaleList());
++            sortedLocaleList = getSortedLocaleList(getSupportedLocaleList());
++        } else if (AccessibilityStateUtils.isTtsEnabled(mContext.getContentResolver())) {
++            suggestedLocaleListByPsku = getTtsLocaleList();
++            sortedLocaleList = new ArrayList<>();
++        } else {
++            LocaleStore.updateSimCountries(mContext);
++            mLocaleList = LocaleStore.getLevelLocales(mContext, new HashSet(), null, true);
++            if (LocaleStore.isSimOrNwCountryAvailable()) {
++                suggestedLocaleListByPsku = getSortedLocaleList(getLanguageSuggestedLocaleList());
++                sortedLocaleList = getSortedLocaleList(getSupportedLocaleList());
++            } else {
++                suggestedLocaleListByPsku = getSuggestedLocaleListByPsku();
++                sortedLocaleList = getSortedLocaleList(getSupportedLocaleListByPsku());
++            }
++        }
++        setupItem(suggestedLocaleListByPsku, sortedLocaleList);
++    }
++
++    protected void onSearchListChanged(
++            List<LocaleStore.LocaleInfo> localeInfoList, CharSequence prefix) {
++        mSuggestedListGroup.clear();
++        mAllListGroup.clear();
++        List<LocaleStore.LocaleInfo> allSupportedLocaleList = getAllSupportedLocaleList();
++        if (prefix == null || prefix.toString().isEmpty()) {
++            updateScreen();
++            return;
++        }
++        List<LocaleStore.LocaleInfo> sortedSuggestedRegionFromSearchList =
++                getSortedSuggestedRegionFromSearchList(
++                        prefix, localeInfoList, allSupportedLocaleList);
++        Collections.sort(
++                sortedSuggestedRegionFromSearchList,
++                Comparator.comparing(localeInfo -> localeInfo.getLocale().getDisplayName()));
++        setupItemWithSearchResult(sortedSuggestedRegionFromSearchList);
++    }
++
++    private void setupItemWithSearchResult(List<LocaleStore.LocaleInfo> localeInfoList) {
++        if (mSuggestedListGroup.getHeader() != null) {
++            mSuggestedListGroup.removeChild(mSuggestedListGroup.getHeader());
++        }
++        if (mAllListGroup.getHeader() != null) {
++            mAllListGroup.removeChild(mAllListGroup.getHeader());
++        }
++        mIsFromSearch = true;
++        localeInfoList.stream()
++                .forEach(
++                        locale -> {
++                            addLocaleItem(locale, true, mSuggestedListGroup);
++                        });
++    }
++
++    private void addLocaleItem(
++            LocaleStore.LocaleInfo localeInfo, boolean isSuggested, SectionItem sectionItem) {
++        LocaleItem localeItem = new LocaleItem();
++        localeItem.setCountryMode(mIsCountryMode);
++        localeItem.setSuggestedState(isSuggested);
++        localeItem.setTitle(
++                mIsCountryMode
++                        ? localeInfo.getFullCountryNameNative()
++                        : localeInfo.getFullNameNative());
++        localeItem.setLocaleInfo(localeInfo);
++        sectionItem.addChild(localeItem);
++    }
++
++    protected void setupItem(
++            List<LocaleStore.LocaleInfo> list, List<LocaleStore.LocaleInfo> list2) {
++        Log.d(
++                "SetupLocalePickerListController",
++                "setupItem: isNumberingMode = " + mIsNumberingSystemMode);
++        list.stream()
++                .forEach(
++                        locale -> {
++                            addLocaleItem(locale, true, mSuggestedListGroup);
++                        });
++        list2.stream()
++                .forEach(
++                        locale -> {
++                            addLocaleItem(locale, false, mAllListGroup);
++                        });
++        if (mSuggestedListGroup.getCount() == 0) {
++            mSuggestedListGroup.clear();
++        }
++        if (mAllListGroup.getCount() == 0) {
++            mAllListGroup.clear();
++        }
++    }
++
++    @Override
++    public void onItemSelected(IItem iItem) {
++        if (iItem instanceof SearchBarItem) {
++            Bundle extras = mActivity.getIntent().getExtras();
++            extras.putSerializable("extra_target_locale", mParentLocale);
++            extras.putBoolean("extra_is_numbering_system", mParentLocale.hasNumberingSystems());
++            Intent intent =
++                    new Intent("com.google.android.settings.localepicker.SETUP_REGION_SEARCH");
++            intent.putExtras(extras);
++            mActivity.startActivityForResult(intent, 0);
++            return;
++        }
++        LocaleItem localeItem = (LocaleItem) iItem;
++        if (mParentLocale == null) {
++            FeatureFactory.getFeatureFactory()
++                    .getMetricsFeatureProvider()
++                    .action(
++                            mContext,
++                            localeItem.isSuggested()
++                                    ? SettingsEnums
++                                            .ACTION_CHOOSE_PREFERRED_LANGUAGE_FROM_SUGGESTED_LIST_IN_SUW
++                                    : SettingsEnums
++                                            .ACTION_CHOOSE_PREFERRED_LANGUAGE_FROM_ALL_LIST_IN_SUW,
++                            new Pair[0]);
++            Settings.Global.putInt(
++                    mContext.getContentResolver(),
++                    "is_suggested_locale",
++                    localeItem.isSuggested() ? 1 : 0);
++        } else if (!mIsNumberingSystemMode) {
++            if (mIsFromSearch) {
++                FeatureFactory.getFeatureFactory()
++                        .getMetricsFeatureProvider()
++                        .action(
++                                mContext,
++                                SettingsEnums.ACTION_CHOOSE_REGION_AFTER_SEARCH_REGION_IN_SUW,
++                                new Pair[0]);
++            } else {
++                FeatureFactory.getFeatureFactory()
++                        .getMetricsFeatureProvider()
++                        .action(
++                                mContext,
++                                localeItem.isSuggested()
++                                        ? SettingsEnums
++                                                .ACTION_CHOOSE_PREFERRED_REGION_FROM_SUGGESTED_LIST_IN_SUW
++                                        : SettingsEnums
++                                                .ACTION_CHOOSE_PREFERRED_REGION_FROM_ALL_LIST_IN_SUW,
++                                new Pair[0]);
++            }
++        }
++        LocaleStore.LocaleInfo localeInfo = localeItem.getLocaleInfo();
++        if (isFinalSelectedLocale(localeInfo)) {
++            if (localeInfo.getLocale().getCountry().isEmpty()) {
++                localeInfo =
++                        (LocaleStore.LocaleInfo)
++                                LocaleStore.getLevelLocales(
++                                                mContext, new HashSet(), localeInfo, true)
++                                        .iterator()
++                                        .next();
++            }
++            mListener.onLocaleSelected(localeInfo);
++            LocalePicker.updateLocales(new LocaleList(localeInfo.getLocale()));
++            Settings.Global.putInt(mContext.getContentResolver(), "is_locale_set", 1);
++            return;
++        }
++        if (localeInfo.getParent() == null) {
++            LocalePicker.updateLocales(new LocaleList(localeInfo.getLocale()));
++        }
++        Bundle extras2 = mActivity.getIntent().getExtras();
++        extras2.putSerializable("extra_target_locale", localeInfo);
++        extras2.putBoolean("extra_is_numbering_system", localeInfo.hasNumberingSystems());
++        Intent intent2 = new Intent("com.google.android.settings.localepicker.REGIONAND_PICKER");
++        intent2.putExtras(extras2);
++        mActivity.startActivityForResult(intent2, 0);
++    }
++
++    protected void initSuggestedListSectionItem(SectionItem suggestedListGroup) {
++        mSuggestedListGroup = suggestedListGroup;
++    }
++
++    protected void initAllListSectionItem(SectionItem allListGroup) {
++        mAllListGroup = allListGroup;
++    }
++
++    protected void initLocaleList(Set localeList) {
++        mLocaleList = localeList;
++    }
++
++    protected SectionItem getSuggestedListSectionItem() {
++        return mSuggestedListGroup;
++    }
++
++    protected SectionItem getAllListSectionItem() {
++        return mAllListGroup;
++    }
++
++    protected List<LocaleStore.LocaleInfo> getTtsLocaleList() {
++        for (String str : getTtsLocalesFromStringArray()) {
++            mSuggestedLocaleOptions.add(LocaleStore.getLocaleInfo(Locale.forLanguageTag(str)));
++        }
++        return mSuggestedLocaleOptions;
++    }
++
++    private String[] getTtsLocalesFromStringArray() {
++        return mContext.getResources().getStringArray(R.array.tts_locales);
++    }
++
++    private List<LocaleStore.LocaleInfo> getAllSupportedLocaleList() {
++        if (mLocaleList != null && !mLocaleList.isEmpty()) {
++            mLocaleOptions.addAll(mLocaleList);
++        } else {
++            Log.d(
++                    "SetupLocalePickerListController",
++                    "Can not get locales because the locale list is null or empty.");
++        }
++        return mLocaleOptions;
++    }
++
++    protected List<LocaleStore.LocaleInfo> getSuggestedLocaleListByPsku() {
++        for (String str : getSuggestedLocalesFromStringArray()) {
++            mSuggestedLocaleOptions.add(LocaleStore.getLocaleInfo(Locale.forLanguageTag(str)));
++        }
++        return mSuggestedLocaleOptions;
++    }
++
++    protected List<LocaleStore.LocaleInfo> getSupportedLocaleListByPsku() {
++        ArrayList<LocaleStore.LocaleInfo> arrayList = new ArrayList<>();
++        if (mLocaleList != null && !mLocaleList.isEmpty()) {
++            HashMap<Locale, LocaleStore.LocaleInfo> hashMap = new HashMap(mLocaleList.size());
++            for (LocaleStore.LocaleInfo localeInfo : mLocaleList) {
++                if (!isPskuSuggestedLocale(localeInfo)) {
++                    if (localeInfo.getLocale().getCountry().isEmpty()) {
++                        if (localeInfo.isTranslated()) {
++                            hashMap.put(localeInfo.getLocale(), localeInfo);
++                        }
++                    } else if (localeInfo.isTranslated()) {
++                        hashMap.put(
++                                localeInfo.getParent(),
++                                LocaleStore.getLocaleInfo(localeInfo.getParent()));
++                    }
++                }
++            }
++            arrayList.addAll(hashMap.values());
++            return arrayList;
++        }
++        Log.d(
++                "SetupLocalePickerListController",
++                "Can not get supported locales because the locale list is null or empty.");
++        return arrayList;
++    }
++
++    private boolean isPskuSuggestedLocale(LocaleStore.LocaleInfo localeInfo) {
++        for (LocaleStore.LocaleInfo localeInfo2 : mSuggestedLocaleOptions) {
++            if (localeInfo2.getLocale().equals(localeInfo.getLocale())) {
++                return true;
++            }
++            if (localeInfo2.getLocale().getCountry().isEmpty()
++                    && !localeInfo.getLocale().getCountry().isEmpty()
++                    && localeInfo2.getLocale().equals(localeInfo.getParent())) {
++                return true;
++            }
++        }
++        return false;
++    }
++
++    private String[] getSuggestedLocalesFromStringArray() {
++        int intValue = ((Integer) sPskuMap.getOrDefault(mPskuString, 0)).intValue();
++        if (intValue == 1) {
++            return mContext.getResources().getStringArray(R.array.japan_locales);
++        }
++        if (intValue == 2) {
++            return mContext.getResources().getStringArray(R.array.united_states_locales);
++        }
++        return mContext.getResources().getStringArray(R.array.global_locales);
++    }
++
++    protected List<LocaleStore.LocaleInfo> getLanguageSuggestedLocaleList() {
++        ArrayList<LocaleStore.LocaleInfo> arrayList = new ArrayList<>();
++        if (mLocaleList != null && !mLocaleList.isEmpty()) {
++            HashMap<Locale, LocaleStore.LocaleInfo> hashMap = new HashMap(mLocaleList.size());
++            for (LocaleStore.LocaleInfo localeInfo : mLocaleList) {
++                if (localeInfo.isSuggested()) {
++                    Locale build =
++                            new Locale.Builder()
++                                    .setLocale(localeInfo.getLocale().stripExtensions())
++                                    .build();
++                    hashMap.put(build, LocaleStore.getLocaleInfo(build));
++                }
++            }
++            arrayList.addAll(hashMap.values());
++            return arrayList;
++        }
++        Log.d(
++                "SetupLocalePickerListController",
++                "Can not get suggested locales because the locale list is null or empty.");
++        return arrayList;
++    }
++
++    protected List<LocaleStore.LocaleInfo> getSuggestedLocaleList() {
++        List<LocaleStore.LocaleInfo> arrayList = new ArrayList<>();
++        if (mLocaleList != null && !mLocaleList.isEmpty()) {
++            arrayList.addAll(
++                    (Collection)
++                            mLocaleList.stream()
++                                    .filter(localeInfo -> localeInfo.isSuggested())
++                                    .collect(Collectors.toList()));
++            return arrayList;
++        }
++        Log.d(
++                "SetupLocalePickerListController",
++                "Can not get suggested locales because the locale list is null or empty.");
++        return arrayList;
++    }
++
++    protected List<LocaleStore.LocaleInfo> getSupportedLocaleList() {
++        List<LocaleStore.LocaleInfo> arrayList = new ArrayList<>();
++        if (mLocaleList != null && !mLocaleList.isEmpty()) {
++            arrayList.addAll(
++                    (Collection)
++                            mLocaleList.stream()
++                                    .filter(localeInfo -> !localeInfo.isSuggested())
++                                    .collect(Collectors.toList()));
++            return arrayList;
++        }
++        Log.d(
++                "SetupLocalePickerListController",
++                "Can not get supported locales because the locale list is null or empty.");
++        return arrayList;
++    }
++
++    private List<LocaleStore.LocaleInfo> getSortedSuggestedRegionFromSearchList(
++            CharSequence charSequence,
++            List<LocaleStore.LocaleInfo> list,
++            List<LocaleStore.LocaleInfo> list2) {
++        ArrayList<LocaleStore.LocaleInfo> arrayList = new ArrayList<>();
++        if (charSequence == null || charSequence.toString().isEmpty()) {
++            return getSortedLocaleList(list2);
++        }
++        for (LocaleStore.LocaleInfo localeInfo : list) {
++            if (list2.contains(localeInfo)) {
++                arrayList.add(localeInfo);
++            }
++        }
++        return getSortedLocaleList(arrayList);
++    }
++
++    protected List<LocaleStore.LocaleInfo> getSortedLocaleList(List<LocaleStore.LocaleInfo> list) {
++        Collections.sort(
++                list, new LocaleHelper.LocaleInfoComparator(Locale.getDefault(), mIsCountryMode));
++        return list;
++    }
++
++    private LocaleCollectorBase getLocaleCollectorController(Context context) {
++        return new SystemLocaleCollector(context, (LocaleList) null);
++    }
++
++    private boolean isRegionSearchSupported() {
++        if (!mContext.getResources()
++                .getBoolean(R.bool.config_show_setuplocalepicker_region_searchbox)) {
++            return false;
++        }
++        String languageTag = mParentLocale.getLocale().toLanguageTag();
++        if (REGION_SEARCH_SUPPORTED_LANGUAGES.contains(languageTag)) {
++            return true;
++        }
++        Log.d(
++                "SetupLocalePickerListController",
++                "Region search is not supported for " + languageTag);
++        return false;
++    }
++
++    private boolean isFinalSelectedLocale(LocaleStore.LocaleInfo localeInfo) {
++        boolean isSystemLocale = localeInfo.isSystemLocale();
++        boolean z = localeInfo.getParent() != null;
++        boolean hasNumberingSystems = localeInfo.hasNumberingSystems();
++        mLocaleList = LocaleStore.getLevelLocales(mContext, new HashSet(), localeInfo, true);
++        Log.d(
++                "SetupLocalePickerListController",
++                "isFinalSelectedLocale: isSystemLocale = "
++                        + isSystemLocale
++                        + ", isRegionLocale = "
++                        + z
++                        + ", mayHaveDifferentNumberingSystem = "
++                        + hasNumberingSystems
++                        + ", isSuggested = "
++                        + localeInfo.isSuggested()
++                        + ", isNumberingMode = "
++                        + mIsNumberingSystemMode);
++        return mLocaleList.size() == 1
++                || isSystemLocale
++                || localeInfo.isSuggested()
++                || (z && !hasNumberingSystems)
++                || mIsNumberingSystemMode;
++    }
++
++    class LocalePickerAccessibilityDelegate extends RecyclerViewAccessibilityDelegate {
++        private final RecyclerViewAccessibilityDelegate.ItemDelegate mItemDelegate;
++
++        LocalePickerAccessibilityDelegate(final RecyclerView recyclerView) {
++            super(recyclerView);
++            mItemDelegate =
++                    new RecyclerViewAccessibilityDelegate.ItemDelegate(this) {
++                        @Override
++                        public void onInitializeAccessibilityNodeInfo(
++                                View host, AccessibilityNodeInfoCompat info) {
++                            super.onInitializeAccessibilityNodeInfo(host, info);
++                            RecyclerView.ViewHolder childViewHolder =
++                                    recyclerView.getChildViewHolder(host);
++                            if (childViewHolder instanceof ItemViewHolder) {
++                                IItem item = ((ItemViewHolder) childViewHolder).getItem();
++                                if (item instanceof LocaleItem) {
++                                    LocaleItem localeItem = (LocaleItem) item;
++                                    SectionItem sectionForItem = getSectionForItem(localeItem);
++                                    if (sectionForItem != null) {
++                                        info.setCollectionItemInfo(
++                                                AccessibilityNodeInfoCompat.CollectionItemInfoCompat
++                                                        .obtain(
++                                                                getIndexInSection(
++                                                                        sectionForItem, localeItem),
++                                                                1,
++                                                                0,
++                                                                1,
++                                                                false));
++                                        return;
++                                    }
++                                    return;
++                                }
++                                info.setCollectionItemInfo(null);
++                            }
++                        }
++                    };
++        }
++
++        @Override
++        public AccessibilityDelegateCompat getItemDelegate() {
++            return mItemDelegate;
++        }
++
++        @Override
++        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
++            super.onInitializeAccessibilityNodeInfo(host, info);
++            View findAccessibilityFocusedChild = findAccessibilityFocusedChild(host);
++            if (findAccessibilityFocusedChild != null) {
++                RecyclerView.ViewHolder childViewHolder =
++                        ((RecyclerView) host).getChildViewHolder(findAccessibilityFocusedChild);
++                if (childViewHolder instanceof ItemViewHolder) {
++                    SectionItem sectionForItem =
++                            getSectionForItem(((ItemViewHolder) childViewHolder).getItem());
++                    if (sectionForItem != null) {
++                        info.setCollectionInfo(
++                                AccessibilityNodeInfoCompat.CollectionInfoCompat.obtain(
++                                        getTotalLocaleItemsInSection(sectionForItem), 1, false));
++                        return;
++                    }
++                }
++            }
++            info.setCollectionInfo(null);
++        }
++
++        @Override
++        public boolean onRequestSendAccessibilityEvent(
++                ViewGroup host, View child, AccessibilityEvent event) {
++            if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED) {
++                host.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
++            }
++            return super.onRequestSendAccessibilityEvent(host, child, event);
++        }
++
++        private View findAccessibilityFocusedChild(View view) {
++            if (!(view instanceof ViewGroup)) {
++                return null;
++            }
++            ViewGroup viewGroup = (ViewGroup) view;
++            for (int i = 0; i < viewGroup.getChildCount(); i++) {
++                View childAt = viewGroup.getChildAt(i);
++                if (childAt.isAccessibilityFocused()
++                        || ((childAt instanceof ViewGroup)
++                                && findAccessibilityFocusedChild(childAt) != null)) {
++                    return childAt;
++                }
++            }
++            return null;
++        }
++    }
++
++    public SectionItem getSectionForItem(IItem iItem) {
++        if (mSuggestedListGroup != null && isChildOf(mSuggestedListGroup, iItem)) {
++            return mSuggestedListGroup;
++        }
++        if (mAllListGroup != null && isChildOf(mAllListGroup, iItem)) {
++            return mAllListGroup;
++        }
++        return null;
++    }
++
++    private boolean isChildOf(SectionItem sectionItem, IItem iItem) {
++        return getIndexInSection(sectionItem, iItem) >= 0;
++    }
++
++    public int getIndexInSection(SectionItem sectionItem, IItem iItem) {
++        int i = 0;
++        for (int i2 = 0; i2 < sectionItem.getCount(); i2++) {
++            IItem itemAt = sectionItem.getItemAt(i2);
++            if (itemAt == iItem) {
++                return i;
++            }
++            if (itemAt instanceof LocaleItem) {
++                i++;
++            }
++        }
++        return -1;
++    }
++
++    public int getTotalLocaleItemsInSection(SectionItem sectionItem) {
++        int i = 0;
++        for (int i2 = 0; i2 < sectionItem.getCount(); i2++) {
++            if (sectionItem.getItemAt(i2) instanceof LocaleItem) {
++                i++;
++            }
++        }
++        return i;
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/SetupRegionAndNumberingSystemActivity.java b/src/com/google/android/settings/localepicker/SetupRegionAndNumberingSystemActivity.java
+new file mode 100644
+index 00000000000..10b80186c43
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/SetupRegionAndNumberingSystemActivity.java
+@@ -0,0 +1,161 @@
++package com.google.android.settings.localepicker;
++
++import android.app.Activity;
++import android.content.Intent;
++import android.os.Bundle;
++import android.view.View;
++import android.view.ViewTreeObserver;
++
++import androidx.recyclerview.widget.LinearLayoutManager;
++import androidx.recyclerview.widget.RecyclerView;
++
++import com.android.internal.app.LocaleStore;
++
++import com.google.android.setupdesign.GlifRecyclerLayout;
++import com.google.android.setupdesign.items.RecyclerItemAdapter;
++import com.google.android.setupdesign.util.ThemeHelper;
++import com.android.settings.R;
++
++import java.io.Serializable;
++
++public class SetupRegionAndNumberingSystemActivity extends Activity {
++    private static final int REQUEST_LOCALE_PICKER = 0;
++
++    private RecyclerItemAdapter mAdapter;
++    private ViewTreeObserver.OnGlobalFocusChangeListener mFocusChangeListener = null;
++    private boolean mIsNumberingMode;
++    private LocaleStore.LocaleInfo mLocaleInfo;
++    private RecyclerView mRecyclerView;
++
++    @Override
++    protected void onCreate(Bundle bundle) {
++        applySuwTheme();
++        super.onCreate(bundle);
++        setupLayout();
++    }
++
++    @Override
++    protected void onResume() {
++        super.onResume();
++        if (mRecyclerView != null) {
++            mRecyclerView
++                    .getViewTreeObserver()
++                    .addOnGlobalFocusChangeListener(mFocusChangeListener);
++        }
++    }
++
++    @Override
++    protected void onPause() {
++        super.onPause();
++        if (mRecyclerView != null) {
++            mRecyclerView
++                    .getViewTreeObserver()
++                    .removeOnGlobalFocusChangeListener(mFocusChangeListener);
++        }
++    }
++
++    private void applySuwTheme() {
++        setTheme(R.style.Theme_Settings_LocalePicker);
++        if (ThemeHelper.shouldApplyGlifExpressiveStyle(getApplicationContext())) {
++            if (ThemeHelper.trySetSuwTheme(this)) {
++                return;
++            }
++            setTheme(ThemeHelper.getSuwDefaultTheme(getApplicationContext()));
++            ThemeHelper.trySetDynamicColor(this);
++            return;
++        }
++        ThemeHelper.applyTheme(this);
++        ThemeHelper.trySetDynamicColor(this);
++    }
++
++    private void setupLayout() {
++        setContentView(R.layout.setup_region_and_numbering_system_picker);
++        setupContent();
++    }
++
++    private void setupContent() {
++        String headerText;
++        Bundle extras = getIntent().getExtras();
++        mLocaleInfo = (LocaleStore.LocaleInfo) extras.getSerializable("extra_target_locale");
++        mIsNumberingMode = extras.getBoolean("extra_is_numbering_system");
++        GlifRecyclerLayout layout =
++                findViewById(R.id.setup_wizard_region_and_numbering_system_picker_layout);
++        if (mIsNumberingMode) {
++            headerText = mLocaleInfo.getFullNameNative();
++        } else {
++            headerText =
++                    getApplicationContext()
++                            .getString(com.android.settings.R.string.region_picker_title);
++        }
++        String descriptionText =
++                getApplicationContext()
++                        .getString(com.android.settings.R.string.region_picker_sub_title);
++        if (mIsNumberingMode) {
++            descriptionText = "";
++        }
++        layout.setHeaderText(headerText);
++        layout.setDescriptionText(descriptionText);
++        mRecyclerView = layout.getRecyclerView();
++        mAdapter = (RecyclerItemAdapter) layout.getAdapter();
++        LocaleSelectedListener listener =
++                new LocaleSelectedListener() {
++                    @Override
++                    public void onLocaleSelected(LocaleStore.LocaleInfo localeInfo) {
++                        Intent intent = new Intent();
++                        intent.putExtra("localeInfo", (Serializable) localeInfo);
++                        setResult(RESULT_OK, intent);
++                        finish();
++                    }
++                };
++        mFocusChangeListener =
++                new ViewTreeObserver.OnGlobalFocusChangeListener() {
++                    @Override
++                    public void onGlobalFocusChanged(View oldFocus, View newFocus) {
++                        if (mRecyclerView == null
++                                || mAdapter == null
++                                || newFocus == null
++                                || newFocus.getParent() != mRecyclerView) {
++                            return;
++                        }
++                        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
++                        if (layoutManager instanceof LinearLayoutManager) {
++                            LinearLayoutManager linearLayoutManager =
++                                    (LinearLayoutManager) layoutManager;
++                            int childAdapterPosition =
++                                    mRecyclerView.getChildAdapterPosition(newFocus);
++                            int itemCount = mAdapter.getItemCount();
++                            if (childAdapterPosition == -1 || childAdapterPosition >= itemCount) {
++                                return;
++                            }
++                            int findLastVisibleItemPosition =
++                                    linearLayoutManager.findLastVisibleItemPosition();
++                            int i = findLastVisibleItemPosition + 1;
++                            if (childAdapterPosition != findLastVisibleItemPosition
++                                    || i >= itemCount) {
++                                return;
++                            }
++                            mRecyclerView.smoothScrollToPosition(i);
++                        }
++                    }
++                };
++        SetupLocalePickerListController controller =
++                new SetupLocalePickerListController(
++                        getApplicationContext(), this, mLocaleInfo, mIsNumberingMode);
++        controller.setLocaleSelectedListener(listener);
++        controller.displayScreen(mAdapter);
++    }
++
++    @Override
++    public void onActivityResult(int requestCode, int resultCode, Intent data) {
++        if (requestCode == REQUEST_LOCALE_PICKER && resultCode == RESULT_OK) {
++            if (data != null) {
++                LocaleStore.LocaleInfo serializableExtra =
++                        (LocaleStore.LocaleInfo) data.getSerializableExtra("localeInfo");
++                Intent intent = new Intent();
++                intent.putExtra("localeInfo", (Serializable) serializableExtra);
++                setResult(RESULT_OK, intent);
++            }
++            finish();
++        }
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/SetupRegionSearchActivity.java b/src/com/google/android/settings/localepicker/SetupRegionSearchActivity.java
+new file mode 100644
+index 00000000000..2c743299beb
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/SetupRegionSearchActivity.java
+@@ -0,0 +1,415 @@
++package com.google.android.settings.localepicker;
++
++import android.app.Activity;
++import android.app.settings.SettingsEnums;
++import android.content.Intent;
++import android.os.Bundle;
++import android.text.Editable;
++import android.text.TextUtils;
++import android.text.TextWatcher;
++import android.util.Log;
++import android.util.Pair;
++import android.view.View;
++import android.view.ViewGroup;
++import android.view.ViewTreeObserver;
++import android.widget.Filter;
++import android.widget.FrameLayout;
++import android.widget.LinearLayout;
++import android.widget.ScrollView;
++
++import androidx.appcompat.widget.AppCompatEditText;
++import androidx.appcompat.widget.AppCompatImageView;
++import androidx.recyclerview.widget.LinearLayoutManager;
++import androidx.recyclerview.widget.RecyclerView;
++
++import com.android.internal.app.LocaleHelper;
++import com.android.internal.app.LocaleStore;
++import com.android.settings.overlay.FeatureFactory;
++
++import com.google.android.setupcompat.partnerconfig.PartnerConfig;
++import com.google.android.setupcompat.partnerconfig.PartnerConfigHelper;
++import com.google.android.setupdesign.GlifRecyclerLayout;
++import com.google.android.setupdesign.items.RecyclerItemAdapter;
++import com.google.android.setupdesign.template.FloatingBackButtonMixin;
++import com.google.android.setupdesign.template.HeaderMixin;
++import com.google.android.setupdesign.util.ThemeHelper;
++import com.android.settings.R;
++
++import java.io.Serializable;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.Locale;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
++
++public class SetupRegionSearchActivity extends Activity implements TextWatcher {
++    private static final int REQUEST_LOCALE_PICKER = 0;
++
++    private RecyclerItemAdapter mAdapter;
++    private AppCompatImageView mBackIcon;
++    private AppCompatImageView mClearSearchQueryButton;
++    private boolean mIsNumberingMode;
++    private LocaleStore.LocaleInfo mLocaleInfo;
++    private List mLocaleOptions;
++    private List mOriginalLocaleInfos;
++    private CharSequence mPrefix;
++    private RecyclerView mRecyclerView;
++    private AppCompatEditText mSearchActionBarText;
++    private SetupLocalePickerListController mSetupLocalePickerListController;
++    private SearchFilter mSearchFilter = null;
++    private ViewTreeObserver.OnGlobalFocusChangeListener mFocusChangeListener = null;
++
++    @Override
++    public void afterTextChanged(Editable s) {}
++
++    @Override
++    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
++
++    @Override
++    protected void onCreate(Bundle bundle) {
++        applySuwTheme();
++        super.onCreate(bundle);
++        setupLayout();
++    }
++
++    @Override
++    protected void onResume() {
++        super.onResume();
++        if (mRecyclerView != null) {
++            mRecyclerView
++                    .getViewTreeObserver()
++                    .addOnGlobalFocusChangeListener(mFocusChangeListener);
++        }
++    }
++
++    @Override
++    protected void onPause() {
++        super.onPause();
++        if (mRecyclerView != null) {
++            mRecyclerView
++                    .getViewTreeObserver()
++                    .removeOnGlobalFocusChangeListener(mFocusChangeListener);
++        }
++    }
++
++    private void applySuwTheme() {
++        setTheme(R.style.Theme_Settings_LocalePicker);
++        if (ThemeHelper.shouldApplyGlifExpressiveStyle(getApplicationContext())) {
++            if (ThemeHelper.trySetSuwTheme(this)) {
++                return;
++            }
++            setTheme(ThemeHelper.getSuwDefaultTheme(getApplicationContext()));
++            ThemeHelper.trySetDynamicColor(this);
++            return;
++        }
++        ThemeHelper.applyTheme(this);
++        ThemeHelper.trySetDynamicColor(this);
++    }
++
++    private void setupLayout() {
++        setContentView(R.layout.setup_search_region);
++        setupContent();
++    }
++
++    private void setupContent() {
++        View findManagedViewById;
++        Bundle extras = getIntent().getExtras();
++        mLocaleInfo = (LocaleStore.LocaleInfo) extras.getSerializable("extra_target_locale");
++        mIsNumberingMode = extras.getBoolean("extra_is_numbering_system");
++        boolean isSuwUseModalDialogEnabled =
++                PartnerConfigHelper.isSuwUseModalDialogEnabled(getApplicationContext());
++        GlifRecyclerLayout layout = findViewById(R.id.setup_wizard_region_search_layout);
++        ((HeaderMixin) layout.getMixin(HeaderMixin.class)).getTextView().setVisibility(View.GONE);
++        if (layout.getMixin(FloatingBackButtonMixin.class) != null) {
++            ((FloatingBackButtonMixin) layout.getMixin(FloatingBackButtonMixin.class))
++                    .setVisibility(View.GONE);
++        }
++        LinearLayout linearLayout =
++                (LinearLayout)
++                        layout.findManagedViewById(
++                                com.google.android.setupdesign.R.id.sud_layout_header);
++        if (linearLayout != null) {
++            linearLayout.setVisibility(View.GONE);
++        }
++        ViewGroup viewGroup = findViewById(com.google.android.setupdesign.R.id.suc_layout_status);
++        if (isSuwUseModalDialogEnabled) {
++            viewGroup = findViewById(com.google.android.setupdesign.R.id.suc_intrinsic_size_layout);
++        }
++        if (viewGroup != null) {
++            viewGroup.setClipChildren(true);
++            View inflate = getLayoutInflater().inflate(R.layout.search_bar_layout, null);
++            int childCount = viewGroup.getChildCount();
++            if (viewGroup instanceof FrameLayout) {
++                if (!ThemeHelper.shouldApplyGlifExpressiveStyle(getApplicationContext())
++                        && (findManagedViewById =
++                                        layout.findManagedViewById(
++                                                com.google.android.setupdesign.R.id
++                                                        .sud_landscape_content_area))
++                                != null) {
++                    findManagedViewById.setPadding(0, 0, 0, 0);
++                }
++                final View childAt = viewGroup.getChildAt(0);
++                final FrameLayout.LayoutParams layoutParams =
++                        (FrameLayout.LayoutParams) childAt.getLayoutParams();
++                final View findViewById = inflate.findViewById(R.id.suw_locale_picker_search_bar);
++                findViewById.post(
++                        new Runnable() {
++                            @Override
++                            public final void run() {
++                                layoutParams.topMargin =
++                                        findViewById.getBottom() + (findViewById.getHeight() / 4);
++                                childAt.setLayoutParams(layoutParams);
++                            }
++                        });
++                if (isSuwUseModalDialogEnabled) {
++                    inflate.setPadding(
++                            inflate.getPaddingLeft(),
++                            (int)
++                                    PartnerConfigHelper.get(getApplicationContext())
++                                            .getDimension(
++                                                    getApplicationContext(),
++                                                    PartnerConfig.CONFIG_ICON_MARGIN_TOP),
++                            inflate.getPaddingRight(),
++                            inflate.getPaddingBottom());
++                    View findManagedViewById2 =
++                            layout.findManagedViewById(
++                                    com.google.android.setupdesign.R.id.sud_landscape_content_area);
++                    if (findManagedViewById2 != null) {
++                        findManagedViewById2.setPadding(
++                                findManagedViewById2.getPaddingLeft(),
++                                inflate.getHeight(),
++                                findManagedViewById2.getPaddingRight(),
++                                findManagedViewById2.getPaddingBottom());
++                    }
++                }
++                viewGroup.addView(inflate, childCount);
++            } else {
++                int i = childCount + 1;
++                final View[] viewArr = new View[i];
++                viewArr[0] = inflate;
++                int i2 = 0;
++                while (i2 < childCount) {
++                    int i3 = i2 + 1;
++                    viewArr[i3] = viewGroup.getChildAt(i2);
++                    i2 = i3;
++                }
++                viewGroup.removeAllViews();
++                View findViewById2 =
++                        viewArr[2].findViewById(
++                                com.google.android.setupdesign.R.id.sud_landscape_content_area);
++                if (findViewById2 != null) {
++                    findViewById2.setPadding(
++                            findViewById2.getPaddingStart(),
++                            0,
++                            findViewById2.getPaddingEnd(),
++                            findViewById2.getPaddingBottom());
++                }
++                final LinearLayout.LayoutParams layoutParams2 =
++                        (LinearLayout.LayoutParams) viewArr[2].getLayoutParams();
++                final View findViewById3 = inflate.findViewById(R.id.suw_locale_picker_search_bar);
++                findViewById3.post(
++                        new Runnable() {
++                            @Override
++                            public final void run() {
++                                layoutParams2.bottomMargin = (findViewById3.getHeight() * 3) / 2;
++                                viewArr[2].setLayoutParams(layoutParams2);
++                            }
++                        });
++                for (int i4 = 0; i4 < i; i4++) {
++                    viewGroup.addView(viewArr[i4], i4);
++                }
++                ScrollView scrollView =
++                        findViewById(com.google.android.setupdesign.R.id.sud_header_scroll_view);
++                if (scrollView != null) {
++                    scrollView.setContentDescription(
++                            getApplicationContext().getString(R.string.search_region_page));
++                }
++            }
++        }
++        mBackIcon = findViewById(R.id.back_icon);
++        if (mBackIcon != null) {
++            mBackIcon.setOnClickListener(
++                    new View.OnClickListener() {
++                        @Override
++                        public final void onClick(View view) {
++                            FeatureFactory.getFeatureFactory()
++                                    .getMetricsFeatureProvider()
++                                    .action(
++                                            getApplicationContext(),
++                                            SettingsEnums
++                                                    .ACTION_NO_PREFERRED_REGION_AFTER_SEARCH_REGION_IN_SUW,
++                                            new Pair[0]);
++                            finish();
++                        }
++                    });
++        }
++        mSearchActionBarText = findViewById(R.id.search_action_bar_text);
++        if (mSearchActionBarText != null) {
++            mSearchActionBarText.addTextChangedListener(this);
++            mSearchActionBarText.requestFocus();
++        }
++        mClearSearchQueryButton = findViewById(R.id.clear_search_query);
++        if (mClearSearchQueryButton != null) {
++            mClearSearchQueryButton.setOnClickListener(
++                    new View.OnClickListener() {
++                        @Override
++                        public final void onClick(View view) {
++                            clearLanguageSearchText();
++                        }
++                    });
++        }
++        mRecyclerView = layout.getRecyclerView();
++        mAdapter = (RecyclerItemAdapter) layout.getAdapter();
++        LocaleSelectedListener localeSelectedListener =
++                new LocaleSelectedListener() {
++                    @Override
++                    public void onLocaleSelected(LocaleStore.LocaleInfo localeInfo) {
++                        Intent intent = new Intent();
++                        intent.putExtra("localeInfo", (Serializable) localeInfo);
++                        setResult(Activity.RESULT_OK, intent);
++                        finish();
++                    }
++                };
++        mFocusChangeListener =
++                new ViewTreeObserver.OnGlobalFocusChangeListener() {
++                    @Override
++                    public void onGlobalFocusChanged(View oldFocus, View newFocus) {
++                        if (mRecyclerView == null
++                                || mAdapter == null
++                                || newFocus == null
++                                || newFocus.getParent() != mRecyclerView) {
++                            return;
++                        }
++                        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
++                        if (layoutManager instanceof LinearLayoutManager) {
++                            LinearLayoutManager linearLayoutManager =
++                                    (LinearLayoutManager) layoutManager;
++                            int childAdapterPosition =
++                                    mRecyclerView.getChildAdapterPosition(newFocus);
++                            int itemCount = mAdapter.getItemCount();
++                            if (childAdapterPosition == -1 || childAdapterPosition >= itemCount) {
++                                return;
++                            }
++                            int findLastVisibleItemPosition =
++                                    linearLayoutManager.findLastVisibleItemPosition();
++                            int i5 = findLastVisibleItemPosition + 1;
++                            if (childAdapterPosition != findLastVisibleItemPosition
++                                    || i5 >= itemCount) {
++                                return;
++                            }
++                            mRecyclerView.smoothScrollToPosition(i5);
++                        }
++                    }
++                };
++        SetupLocalePickerListController setupLocalePickerListController =
++                new SetupLocalePickerListController(
++                        getApplicationContext(), this, mLocaleInfo, mIsNumberingMode);
++        mSetupLocalePickerListController = setupLocalePickerListController;
++        setupLocalePickerListController.setLocaleSelectedListener(localeSelectedListener);
++        mSetupLocalePickerListController.displayScreen(mAdapter);
++        if (mSetupLocalePickerListController != null) {
++            mOriginalLocaleInfos = mSetupLocalePickerListController.getSupportedLocaleList();
++            mOriginalLocaleInfos.addAll(mSetupLocalePickerListController.getSuggestedLocaleList());
++        }
++    }
++
++    private void filterSearch(String str) {
++        if (mSearchFilter == null) {
++            mSearchFilter = new SearchFilter();
++        }
++        if (mOriginalLocaleInfos == null) {
++            Log.w(
++                    "SetupRegionSearchActivity",
++                    "Locales haven't loaded completely yet, so nothing can be filtered");
++        } else {
++            mSearchFilter.filter(str);
++        }
++    }
++
++    class SearchFilter extends Filter {
++        @Override
++        protected FilterResults performFiltering(CharSequence prefix) {
++            FilterResults results = new FilterResults();
++            mPrefix = prefix;
++            if (TextUtils.isEmpty(prefix)) {
++                results.values = mOriginalLocaleInfos;
++                results.count = mOriginalLocaleInfos.size();
++                return results;
++            }
++            List<LocaleStore.LocaleInfo> newList = new ArrayList<>(mOriginalLocaleInfos);
++            Locale locale = Locale.getDefault();
++            String prefixString = LocaleHelper.normalizeForSearch(prefix.toString(), locale);
++            final ArrayList<LocaleStore.LocaleInfo> newValues = new ArrayList<>();
++            final int count = newList.size();
++            for (int i = 0; i < count; i++) {
++                final LocaleStore.LocaleInfo value = newList.get(i);
++                final String nameToCheck =
++                        LocaleHelper.normalizeForSearch(value.getFullNameInUiLanguage(), locale);
++                final String nativeNameToCheck =
++                        LocaleHelper.normalizeForSearch(value.getFullNameNative(), locale);
++                if (wordMatches(nativeNameToCheck, prefixString)
++                        || wordMatches(nameToCheck, prefixString)) {
++                    if (!newValues.contains(value)) {
++                        newValues.add(value);
++                    }
++                }
++            }
++            results.values = newValues;
++            results.count = newValues.size();
++            return results;
++        }
++
++        @Override
++        protected void publishResults(CharSequence constraint, FilterResults results) {
++            if (mSetupLocalePickerListController == null) {
++                Log.d("SetupRegionSearchActivity", "publishResults(), can not get item.");
++                return;
++            }
++            mLocaleOptions = (ArrayList<LocaleStore.LocaleInfo>) results.values;
++            mSetupLocalePickerListController.onSearchListChanged(mLocaleOptions, mPrefix);
++        }
++
++        private boolean wordMatches(String valueText, String prefixString) {
++            if (valueText == null) {
++                return false;
++            }
++            if (valueText.startsWith(prefixString)) {
++                return true;
++            }
++            Matcher matcher = Pattern.compile("^.*?\\((.*)").matcher(valueText);
++            if (matcher.find()) {
++                return matcher.group(1).startsWith(prefixString);
++            }
++            return false;
++        }
++    }
++
++    @Override
++    public void onTextChanged(CharSequence s, int start, int before, int count) {
++        if (mClearSearchQueryButton != null) {
++            mClearSearchQueryButton.setVisibility(s.length() == 0 ? View.GONE : View.VISIBLE);
++        }
++        filterSearch(s.toString());
++    }
++
++    private void clearLanguageSearchText() {
++        Editable text;
++        if (mSearchActionBarText != null && (text = mSearchActionBarText.getText()) != null) {
++            text.clear();
++        }
++    }
++
++    @Override
++    public void onActivityResult(int requestCode, int resultCode, Intent data) {
++        if (requestCode == REQUEST_LOCALE_PICKER && resultCode == RESULT_OK) {
++            if (data != null) {
++                LocaleStore.LocaleInfo serializableExtra =
++                        (LocaleStore.LocaleInfo) data.getSerializableExtra("localeInfo");
++                Intent intent = new Intent();
++                intent.putExtra("localeInfo", (Serializable) serializableExtra);
++                setResult(Activity.RESULT_OK, intent);
++            }
++            finish();
++        }
++    }
++}
+diff --git a/src/com/google/android/settings/localepicker/SetupSystemLocalePickerActivity.java b/src/com/google/android/settings/localepicker/SetupSystemLocalePickerActivity.java
+new file mode 100644
+index 00000000000..523149a2125
+--- /dev/null
++++ b/src/com/google/android/settings/localepicker/SetupSystemLocalePickerActivity.java
+@@ -0,0 +1,187 @@
++package com.google.android.settings.localepicker;
++
++import android.app.Activity;
++import android.content.Intent;
++import android.os.Bundle;
++import android.provider.Settings;
++import android.util.Log;
++import android.util.TypedValue;
++import android.view.View;
++import android.view.ViewGroup;
++import android.view.ViewTreeObserver;
++import android.widget.ImageView;
++import android.widget.ScrollView;
++
++import androidx.recyclerview.widget.LinearLayoutManager;
++import androidx.recyclerview.widget.RecyclerView;
++
++import com.android.internal.app.LocaleStore;
++
++import com.google.android.setupdesign.GlifRecyclerLayout;
++import com.google.android.setupdesign.items.RecyclerItemAdapter;
++import com.google.android.setupdesign.template.HeaderMixin;
++import com.google.android.setupdesign.util.ThemeHelper;
++import com.android.settings.R;
++
++import java.io.Serializable;
++
++public class SetupSystemLocalePickerActivity extends Activity {
++    private RecyclerItemAdapter mAdapter;
++    private ViewTreeObserver.OnGlobalFocusChangeListener mFocusChangeListener = null;
++    private RecyclerView mRecyclerView;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        applySuwTheme();
++        super.onCreate(savedInstanceState);
++        setupLayout();
++    }
++
++    @Override
++    protected void onResume() {
++        super.onResume();
++        if (mRecyclerView != null) {
++            mRecyclerView
++                    .getViewTreeObserver()
++                    .addOnGlobalFocusChangeListener(mFocusChangeListener);
++        }
++    }
++
++    @Override
++    protected void onPause() {
++        super.onPause();
++        if (mRecyclerView != null) {
++            mRecyclerView
++                    .getViewTreeObserver()
++                    .removeOnGlobalFocusChangeListener(mFocusChangeListener);
++        }
++    }
++
++    private void applySuwTheme() {
++        setTheme(R.style.Theme_Settings_LocalePicker);
++        if (ThemeHelper.shouldApplyGlifExpressiveStyle(getApplicationContext())) {
++            if (ThemeHelper.trySetSuwTheme(this)) {
++                return;
++            }
++            setTheme(ThemeHelper.getSuwDefaultTheme(getApplicationContext()));
++            ThemeHelper.trySetDynamicColor(this);
++            return;
++        }
++        ThemeHelper.applyTheme(this);
++        ThemeHelper.trySetDynamicColor(this);
++    }
++
++    private void setupLayout() {
++        setContentView(R.layout.setup_language_picker);
++        setupContent();
++    }
++
++    private void setupContent() {
++        GlifRecyclerLayout layout = findViewById(R.id.setup_wizard_language_picker_layout);
++        ((HeaderMixin) layout.getMixin(HeaderMixin.class)).getTextView().setVisibility(View.GONE);
++        ImageView imageView = findViewById(com.google.android.setupdesign.R.id.sud_layout_icon);
++        if (getResources().getBoolean(R.bool.config_force_showing_icon_on_locale_picker_screen)
++                && imageView != null) {
++            TypedValue typedValue = new TypedValue();
++            if (getTheme()
++                    .resolveAttribute(
++                            com.google.android.setupdesign.R.attr.sudGlifIconSize,
++                            typedValue,
++                            true)) {
++                int dimension = (int) typedValue.getDimension(getResources().getDisplayMetrics());
++                ViewGroup.LayoutParams layoutParams = imageView.getLayoutParams();
++                if (layoutParams != null) {
++                    layoutParams.width = dimension;
++                    layoutParams.height = dimension;
++                    imageView.setLayoutParams(layoutParams);
++                }
++            }
++        }
++        mRecyclerView = layout.getRecyclerView();
++        mAdapter = (RecyclerItemAdapter) layout.getAdapter();
++        LocaleSelectedListener localeSelectedListener =
++                new LocaleSelectedListener() {
++                    @Override
++                    public void onLocaleSelected(LocaleStore.LocaleInfo localeInfo) {
++                        int isSuggestedLocale =
++                                Settings.Global.getInt(
++                                        getApplicationContext().getContentResolver(),
++                                        "is_suggested_locale",
++                                        0);
++                        Intent intent = new Intent();
++                        intent.putExtra("localeInfo", (Serializable) localeInfo);
++                        intent.putExtra("EXTRA_IS_SUGGESTED_LOCALE", isSuggestedLocale);
++                        setResult(Activity.RESULT_OK, intent);
++                        finish();
++                    }
++                };
++        mFocusChangeListener =
++                new ViewTreeObserver.OnGlobalFocusChangeListener() {
++                    @Override
++                    public void onGlobalFocusChanged(View oldFocus, View newFocus) {
++                        if (mRecyclerView == null
++                                || mAdapter == null
++                                || newFocus == null
++                                || newFocus.getParent() != mRecyclerView) {
++                            return;
++                        }
++                        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
++                        if (layoutManager instanceof LinearLayoutManager) {
++                            LinearLayoutManager linearLayoutManager =
++                                    (LinearLayoutManager) layoutManager;
++                            int childAdapterPosition =
++                                    mRecyclerView.getChildAdapterPosition(newFocus);
++                            int itemCount = mAdapter.getItemCount();
++                            if (childAdapterPosition == -1 || childAdapterPosition >= itemCount) {
++                                return;
++                            }
++                            int findLastVisibleItemPosition =
++                                    linearLayoutManager.findLastVisibleItemPosition();
++                            int i = findLastVisibleItemPosition + 1;
++                            if (childAdapterPosition != findLastVisibleItemPosition
++                                    || i >= itemCount) {
++                                return;
++                            }
++                            mRecyclerView.smoothScrollToPosition(i);
++                        }
++                    }
++                };
++        ScrollView scrollView =
++                findViewById(com.google.android.setupdesign.R.id.sud_header_scroll_view);
++        if (scrollView != null) {
++            scrollView.setContentDescription(
++                    getApplicationContext().getString(R.string.language_picker_page));
++        }
++        SetupLocalePickerListController controller =
++                new SetupLocalePickerListController(getApplicationContext(), this, null, false);
++        controller.setLocaleSelectedListener(localeSelectedListener);
++        String psku = getIntent().getExtras().getString("extra_psku");
++        if (psku == null) {
++            Log.d("SetupSystemLocalePickerActivity", "No suggested PSKU");
++            psku = "";
++        }
++        controller.setPsku(psku);
++        controller.displayScreen(mAdapter);
++    }
++
++    @Override
++    public void onActivityResult(int requestCode, int resultCode, Intent data) {
++        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
++            if (data != null) {
++                int isSuggestedLocale =
++                        Settings.Global.getInt(
++                                getApplicationContext().getContentResolver(),
++                                "is_suggested_locale",
++                                0);
++                LocaleStore.LocaleInfo serializableExtra =
++                        (LocaleStore.LocaleInfo) data.getSerializableExtra("localeInfo");
++                Intent intent = new Intent();
++                intent.putExtra(
++                        "EXTRA_SELECTED_LOCALE", serializableExtra.getLocale().toLanguageTag());
++                intent.putExtra("EXTRA_IS_SUGGESTED_LOCALE", isSuggestedLocale);
++                setResult(Activity.RESULT_OK, intent);
++            }
++            finish();
++        }
++    }
++}
+-- 
+2.43.0
+

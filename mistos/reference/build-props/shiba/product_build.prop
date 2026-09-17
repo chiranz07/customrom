@@ -1,0 +1,333 @@
+####################################
+# from generate-common-build-props
+# These properties identify this partition image.
+####################################
+ro.product.product.brand=google
+ro.product.product.device=shiba
+ro.product.product.manufacturer=Google
+ro.product.product.model=Pixel 8
+ro.product.product.name=shiba
+ro.product.model_for_attestation=Pixel 8
+ro.product.brand_for_attestation=google
+ro.product.name_for_attestation=shiba
+ro.product.device_for_attestation=shiba
+ro.product.manufacturer_for_attestation=Google
+ro.product.build.date=Thu Sep 17 18:03:37 UTC 2026
+ro.product.build.date.utc=1789668217
+ro.product.build.fingerprint=google/shiba/shiba:17/CP2A.260805.005/15828068:user/release-keys
+ro.product.build.id=CP2A.260605.016
+ro.product.build.uuid=abqxEpjd4x7p_hGYGK2Ra5wS2Rx-dygo0rbMCImUV1o
+ro.product.build.tags=test-keys
+ro.product.build.type=userdebug
+ro.product.build.version.incremental=1789668217
+ro.product.build.version.release=17
+ro.product.build.version.release_or_codename=17
+ro.product.build.version.sdk=37
+ro.product.build.version.sdk_full=37.0
+####################################
+# from gen_build_prop.py:generate_build_info
+####################################
+# begin build properties
+ro.build.fingerprint=google/shiba/shiba:17/CP2A.260805.005/15828068:user/release-keys
+ro.build.id=CP2A.260605.016
+ro.build.uuid=abqxEpjd4x7p_hGYGK2Ra5wS2Rx-dygo0rbMCImUV1o
+ro.build.display.id=CP2A.260605.016 test-keys
+ro.build.version.incremental=1789668217
+ro.build.version.sdk=37
+ro.build.version.sdk_full=37.0
+ro.build.version.preview_sdk=0
+ro.build.version.preview_sdk_fingerprint=REL
+ro.build.version.codename=REL
+ro.build.version.all_codenames=REL
+ro.build.version.known_codenames=Base,Base11,Cupcake,Donut,Eclair,Eclair01,EclairMr1,Froyo,Gingerbread,GingerbreadMr1,Honeycomb,HoneycombMr1,HoneycombMr2,IceCreamSandwich,IceCreamSandwichMr1,JellyBean,JellyBeanMr1,JellyBeanMr2,Kitkat,KitkatWatch,Lollipop,LollipopMr1,M,N,NMr1,O,OMr1,P,Q,R,S,Sv2,Tiramisu,UpsideDownCake,VanillaIceCream,Baklava,CANARY,CinnamonBun
+ro.build.version.release=17
+ro.build.version.release_or_codename=17
+ro.build.version.release_or_preview_display=17
+ro.build.version.security_patch=2026-08-01
+ro.build.version.base_os=
+ro.build.version.min_supported_target_sdk=28
+ro.build.date=Thu Sep 17 18:03:37 UTC 2026
+ro.build.date.utc=1789668217
+ro.build.type=userdebug
+ro.build.user=android-build
+ro.build.host=r-7836a4472174bf33-vecc
+ro.build.tags=test-keys
+ro.build.flavor=shiba-userdebug
+ro.lineage.device=shiba
+ro.mist.device=shiba
+# ro.product.cpu.abi and ro.product.cpu.abi2 are obsolete,
+# use ro.product.cpu.abilist instead.
+ro.product.cpu.abi=arm64-v8a
+ro.product.locale=en-US
+ro.wifi.channels=
+# Do not try to parse description or thumbprint
+ro.build.description=shiba-user 17 CP2A.260805.005 15828068 release-keys
+# end build properties
+####################################
+# from device/google/shusky/shiba/mist_about.prop
+####################################
+# Mist-OS "About phone" hardware card (packages/apps/Settings
+# src/com/mist/utils/AboutPhoneData.java + HyperPreference.java).
+# Lives in a .prop file on purpose: values with spaces get split/truncated
+# when passed through PRODUCT_PRODUCT_PROPERTIES (see ro.mistos.flavor,
+# which ships as "Cinnamon" instead of "Cinnamon Bun" for exactly that reason).
+ro.mist.device.name=Pixel 8
+ro.mist.soc=Google Tensor G3
+ro.mist.platform=Zuma
+ro.mist.display=1080 x 2400, 120 Hz
+ro.mist.screen=6.2" Actua OLED
+ro.mist.battery=4575 mAh
+ro.mist.camera=50MP + 12MP
+ro.mist.front=10.5MP
+####################################
+# from device/google/zuma/product.prop
+####################################
+# Battery
+persist.vendor.testing_battery_profile=2
+# Bluetooth
+bluetooth.ble.allow_enc_with_bredr=true
+bluetooth.core.le_audio.codec_extension_aidl.enabled=true
+bluetooth.device.class_of_device=90,66,12
+bluetooth.hfp.swb.supported=true
+bluetooth.leaudio.dual_bidirection_swb.supported=true
+bluetooth.profile.a2dp.source.enabled=true
+bluetooth.profile.asha.central.enabled=true
+bluetooth.profile.avrcp.target.enabled=true
+bluetooth.profile.bap.broadcast.assist.enabled=true
+bluetooth.profile.bap.broadcast.source.enabled=true
+bluetooth.profile.bap.unicast.client.enabled=true
+bluetooth.profile.bas.client.enabled=true
+bluetooth.profile.ccp.server.enabled=true
+bluetooth.profile.csip.set_coordinator.enabled=true
+bluetooth.profile.gatt.enabled=true
+bluetooth.profile.hap.client.enabled=true
+bluetooth.profile.hfp.ag.enabled=true
+bluetooth.profile.hid.device.enabled=true
+bluetooth.profile.hid.host.enabled=true
+bluetooth.profile.map.server.enabled=true
+bluetooth.profile.mcp.server.enabled=true
+bluetooth.profile.opp.enabled=true
+bluetooth.profile.pan.nap.enabled=true
+bluetooth.profile.pan.panu.enabled=true
+bluetooth.profile.pbap.server.enabled=true
+bluetooth.profile.sap.server.enabled=true
+bluetooth.profile.vcp.controller.enabled=true
+bluetooth.sco.managed_by_audio=true
+persist.bluetooth.a2dp_aac.vbr_supported=true
+persist.bluetooth.bqr.event_mask=295262
+persist.bluetooth.bqr.min_interval_ms=500
+persist.bluetooth.bqr.vnd_quality_mask=16
+persist.bluetooth.bqr.vnd_trace_mask=0
+persist.bluetooth.leaudio.allow_list=SM-R510,WF-1000XM5,SM-R630,WH-1000XM6,880066-0100,G4,G5,AG4,AG5,LinkBuds Fit,WF-1000XM6
+persist.bluetooth.leaudio.allow_list_extend=LinkBuds Open
+persist.bluetooth.leaudio.notify.idle.during.call=true
+persist.bluetooth.leaudio_offload.disabled=false
+persist.bluetooth.vendor.btsnoop=false
+ro.bluetooth.finder.supported=true
+ro.bluetooth.leaudio_offload.supported=true
+ro.bluetooth.leaudio_switcher.supported=true
+# Camera
+ro.frameworks.camera2.extension.service=com.google.android.apps.camera.services.extensions.service.CameraExtensions
+ro.vendor.camera.extensions.package=com.google.android.apps.camera.services
+# Device family
+ro.build.device_family=HK3SB3AK3
+# Dumpstate
+dumpstate.strict_run=false
+# e-SIM
+masterclear.allow_retain_esim_profiles_after_fdr=true
+# fsck
+persist.fsck.disable_linear_lookup=on
+ro.preventative_fsck=1
+# FUSE passthrough
+persist.sys.fuse.passthrough.enable=true
+# MTE
+persist.arm64.memtag.app.com.android.nfc=off
+persist.arm64.memtag.app.com.android.se=off
+persist.arm64.memtag.app.com.android.bluetooth=off
+persist.arm64.memtag.system_server=off
+ro.arm64.memtag.bootctl_device_policy_manager=true
+ro.arm64.memtag.bootctl_supported=1
+# Postinstall
+ro.postinstall.fstab.prefix=/product
+# Power
+vendor.powerhal.adpf.rate=16666666
+# Quick start
+ro.quick_start.oem_id=00e0
+# Strongbox
+ro.strongbox.manufacturer=Google
+ro.strongbox.model=Titan-M2
+# Telephony
+persist.radio.multisim.config=dsds
+persist.radio.reboot_on_modem_change=false
+persist.vendor.ril.camp_on_earlier=1
+# Thermal
+ro.thermal_warmreset=true
+# Window extensions
+persist.settings.large_screen_opt.enabled=false
+persist.settings.large_screen_opt_for_dp.enabled=true
+# ZRAM
+mm.zram.maintenance.first_delay_seconds=86400
+mm.zram.maintenance.periodic_delay_seconds=86400
+mmd.zram.comp_algorithm=lz77eh
+mmd.zram.enabled=true
+mmd.zram.size=50%
+mmd.zram.writeback.device_size=1073741824
+mmd.zram.writeback.enabled=true
+mmd.zram.writeback.huge_idle.enabled=false
+mmd.zram.writeback.idle.enabled=true
+mmd.zram.writeback.limit.enabled=false
+mmd.zram.writeback.max_idle_seconds=86400
+mmd.zram.writeback.min_idle_seconds=0
+mmd.zram.writeback.use_nr_tags_prop=true
+ro.zram_backing_device_min_free_mb=1536
+####################################
+# from device/google/shusky/shiba/product.prop
+####################################
+# Bluetooth
+bluetooth.core.le.dsa_transport_preference=iso-sw,le-acl
+bluetooth.device_id.product_id=16654
+bluetooth.hci.timeout_milliseconds=5000
+bluetooth.profile.hap.enabled_by_default=true
+persist.bluetooth.extended_dump_on_fail.enabled=true
+persist.bluetooth.opus.enabled=true
+persist.vendor.bluetooth.bluetooth_hal.enabled=false
+# Cutout
+ro.support_hide_display_cutout=true
+# Google keyboard
+ro.com.google.ime.kb_pad_port_b=8
+# Quick start
+ro.quick_start.device_id=shiba
+####################################
+# from variable ADDITIONAL_PRODUCT_PROPERTIES
+####################################
+ro.product.page_size=4096
+ro.build.characteristics=nosdcard
+ro.product.ab_ota_partitions=abl,bl1,bl2,bl31,boot,dtbo,gcf,gsa,gsa_bl1,init_boot,ldfw,modem,pbl,product,pvmfw,system,system_dlkm,system_ext,tzsw,vbmeta,vbmeta_system,vbmeta_vendor,vendor,vendor_boot,vendor_dlkm,vendor_kernel_boot
+ro.product.cpu.pagesize.max=16384
+ro.product.build.no_bionic_page_size_macro=true
+# Value overridden by post_process_props.py. Original value: default
+ro.dalvik.vm.enable_uffd_gc=true
+####################################
+# from variable PRODUCT_PRODUCT_PROPERTIES
+####################################
+is_expressive_design_enabled=true
+dalvik.vm.debug.alloc=0
+ro.url.legal=http://www.google.com/intl/%s/mobile/android/basic/phone-legal.html
+ro.url.legal.android_privacy=http://www.google.com/intl/%s/mobile/android/basic/privacy.html
+ro.error.receiver.system.apps=com.google.android.gms
+ro.setupwizard.enterprise_mode=1
+ro.atrace.core.services=com.google.android.gms,com.google.android.gms.ui,com.google.android.gms.persistent
+ro.setupwizard.rotation_locked=true
+ro.com.google.ime.theme_id=5
+ro.opa.eligible_device=true
+ro.com.android.wifi-watchlist=GoogleGuest
+ro.setupwizard.network_required=false
+ro.setupwizard.gservices_delay=-1
+ro.setupwizard.mode=OPTIONAL
+setupwizard.feature.predeferred_enabled=false
+drm.service.enabled=true
+persist.sys.dun.override=0
+persist.sys.disable_rescue=true
+ro.input.video_enabled=false
+persist.sys.activity_anim_perf_override=
+persist.sys.ax_emoji_style=android
+ro.com.google.clientidbase=android-google
+persist.sys.strictmode.disable=true
+ro.ota.allow_downgrade=true
+ro.control_privapp_permissions=enforce
+debug.graphics.game_default_frame_rate.disabled=true
+persist.sys.disable_rescue=true
+ro.boot.wificountrycode=00
+ro.surface_flinger.supports_background_blur=1
+dalvik.vm.systemuicompilerfilter=speed
+debug.sf.enable_transaction_tracing=false
+ro.config.ringtone=23_echo_of_fate.ogg
+ro.config.notification_sound=21_oneplus.ogg
+ro.config.alarm_alert=11_isekai.ogg
+ro.com.google.clientidbase=android-google
+ro.com.google.ime.theme_id=5
+ro.com.google.ime.system_lm_dir=/product/usr/share/ime/google/d3_lms
+ro.setupwizard.enterprise_mode=1
+ro.setupwizard.esim_cid_ignore=00000001
+setupwizard.feature.baseline_setupwizard_enabled=true
+setupwizard.feature.day_night_mode_enabled=true
+setupwizard.feature.portal_notification=true
+setupwizard.feature.enable_quick_start_flow=true
+setupwizard.feature.enable_restore_anytime=true
+setupwizard.feature.enable_wifi_tracker=true
+setupwizard.feature.lifecycle_refactoring=true
+setupwizard.feature.notification_refactoring=true
+setupwizard.feature.show_pai_screen_in_main_flow.carrier1839=false
+setupwizard.feature.show_pixel_tos=true
+setupwizard.feature.show_support_link_in_deferred_setup=false
+setupwizard.feature.skip_button_use_mobile_data.carrier1839=true
+setupwizard.personal_safety_suw_enabled=true
+setupwizard.theme=glif_expressive
+setupwizard.feature.default_locale_enhancement_enabled=true
+setupwizard.feature.device_info_icon_enabled=true
+setupwizard.feature.provisioning_profile_mode=true
+setupwizard.feature.enable_gil=
+setupwizard.feature.enable_gil_logging=true
+setupwizard.feature.enable_minors_setup_flow=true
+setupwizard.feature.enable_parental_notice_activity=true
+setupwizard.feature.enable_parental_setup=true
+setupwizard.feature.enhanced_setup_design_metrics=true
+setupwizard.feature.is_suw_onboarding_contract_enabled=true
+setupwizard.feature.joined_up_loading=true
+setupwizard.feature.locale_agnostic_enabled=true
+ro.setupwizard.rotation_locked=true
+ro.storage_manager.enabled=false
+ro.storage_manager.show_opt_in=false
+ro.url.legal=http://www.google.com/intl/%s/mobile/android/basic/phone-legal.html
+ro.url.legal.android_privacy=http://www.google.com/intl/%s/mobile/android/basic/privacy.html
+ro.opa.eligible_device=true
+ro.error.receiver.system.apps=com.google.android.gms
+ro.atrace.core.services=com.google.android.gms,com.google.android.gms.ui,com.google.android.gms.persistent
+ro.gwfcactivation.disabled_carriers=1492
+ro.carriersetup.vzw_consent_page=true
+debug.photos.eraser_camo=1
+debug.photos.eraser_suggestion=1
+debug.photos.force_pixel_eol=1
+debug.photos.p_editr.eraser=1
+ro.mist.version=MistOS-5.0-Alpha-17.0-MINI-20260917-1803-shiba-UNOFFICIAL
+ro.mist.display.version=MistOS-5.0-Alpha-MINI-shiba-UNOFFICIAL-20260917-1803
+ro.mist.build.version=17.0
+ro.modversion=
+ro.mist.packagetype=MINI
+ro.mist.version_display=5.0-Alpha
+ro.mist.version.base=5.0
+ro.mistos.maintainer=chiranz
+ro.mistos.flavor=Cinnamon
+Bun
+ro.mist.codename=Alpha
+ro.mist.buildtype=UNOFFICIAL
+ro.lineagelegal.url=https://lineageos.org/legal
+media.recorder.show_manufacturer_and_model=true
+ro.support_one_handed_mode=true
+net.tethering.noprovisioning=true
+ro.com.android.mobiledata=false
+persist.wm.extensions.enabled=true
+# Removed by post_process_props.py because overridden by ro.config.ringtone=23_echo_of_fate.ogg
+#ro.config.ringtone?=Ring_Synth_04.ogg
+# Removed by post_process_props.py because overridden by ro.config.notification_sound=21_oneplus.ogg
+#ro.config.notification_sound?=pixiedust.ogg
+ro.com.android.dataroaming=true
+ro.boot.vendor.overlay.theme=com.android.internal.systemui.navbar.gestural
+dalvik.vm.heapstartsize=16m
+dalvik.vm.heapgrowthlimit=256m
+dalvik.vm.heapsize=512m
+dalvik.vm.heaptargetutilization=0.5
+dalvik.vm.heapminfree=8m
+dalvik.vm.heapmaxfree=32m
+dalvik.vm.enable_time_based_gc_trigger=true
+dalvik.vm.jitmaxsize=128m
+dalvik.vm.jitinitialsize=16m
+dalvik.vm.parallel-image-loading=true
+dalvik.vm.madvise.vdexfile.size=104857600
+dalvik.vm.madvise.odexfile.size=104857600
+dalvik.vm.usap_pool_enabled=true
+dalvik.vm.usap_pool_size_max=2
+traced.relay_producer_port=vsock://-1:2010
+remote_provisioning.hostname=remoteprovisioning.googleapis.com
+persist.wm.extensions.activity_embedding_guard_with_android_15=false
+# end of file
