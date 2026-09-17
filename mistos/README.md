@@ -272,8 +272,10 @@ the file area.
 | 20260917-1358 | Now Playing via KeyguardSection — song text on lock screen confirmed |
 | **20260917-1457** | **Current shiba release.** Now Playing pill centered. sha256 `56a11da23b0265bdd3b5bcf113ebf4c9e5c6e0276748ef68ba070b7281d959c0` |
 | 20260917-1514 (husky) | First husky build, same feature set as shiba 1457. sha256 `5c6fa940…c955` |
-| **20260917-1723** | **Current shiba release.** + High brightness mode page (manual, QS tile, auto), Tap-to-check page crash fix, Lock screen → Shortcuts fix. sha256 `49d9a097e6967f1282cfe3c0b3aedf6e100ed10b4b0a19ba62e83aa300c61a4a` |
-| **20260917-1731 (husky)** | **Current husky release**, same changes, **untested on hardware**. sha256 `e90bb34b3bf563d47b55f0328353a6de7de00e663a9fc6eb81e9c88d69c85c0a` |
+| 20260917-1723 | + HBM page (sysfs-based — did not work: the display HAL overrides the panel node), Tap-to-check page crash fix, Lock screen → Shortcuts fix. sha256 `49d9a097…1a4a` |
+| 20260917-1731 (husky) | same as 1723. sha256 `e90bb34b…5c0a` |
+| **20260917-1804** | **Current shiba release.** High brightness mode reimplemented on the framework's HighBrightnessModeController (manual force + QS tile, custom sunlight threshold, no-time-limit). sha256 `2ca4126411165f1b6eb6e7d8ac2fe60b3e599ef94714632a7e6796abb7b3d9c7` |
+| **20260917-1816 (husky)** | **Current husky release**, same changes, **untested on hardware**. sha256 `d5920c1c9ffaf088d45f88945d45cfebb9d94be81d586372b80e710d4e459f52` |
 
 ## 11. husky (Pixel 8 Pro)
 
