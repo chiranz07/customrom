@@ -1,0 +1,185 @@
+diff --git a/common.mk b/common.mk
+index 7175c91..fa09a6c 100644
+--- a/common.mk
++++ b/common.mk
+@@ -213,7 +213,6 @@ PRODUCT_PACKAGES += \
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+ 
+ PRODUCT_COPY_FILES += \
+-	device/google/zuma/default-permissions.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/default-permissions/default-permissions.xml \
+ 	device/google/zuma/component-overrides.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/component-overrides.xml \
+ 	frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml \
+ 
+@@ -326,11 +325,11 @@ PRODUCT_PACKAGES += \
+     EuiccSupportPixelOverlay \
+     FrameworkResOverlayProductZuma \
+     FrameworkResOverlayVendorZuma \
+-    GoogleConfigOverlay \
+-    GooglePermissionControllerSafetyCenterOverlay \
+-    PixelConfigOverlay2019 \
+-    PixelConfigOverlay2021 \
+-    PixelConfigOverlayCommon \
++    ShuskyGoogleConfigOverlay \
++    ShuskyGooglePermissionControllerSafetyCenterOverlay \
++    ShuskyPixelConfigOverlay2019 \
++    ShuskyPixelConfigOverlay2021 \
++    ShuskyPixelConfigOverlayCommon \
+     PixelConnectivityOverlay2023 \
+     PixelDisplayServiceOverlayProductZuma \
+     PixelNfcOverlayCommon \
+diff --git a/overlay/GoogleConfigOverlay/Android.bp b/overlay/GoogleConfigOverlay/Android.bp
+index ee88915..d01bc54 100644
+--- a/overlay/GoogleConfigOverlay/Android.bp
++++ b/overlay/GoogleConfigOverlay/Android.bp
+@@ -4,6 +4,6 @@
+ //
+ 
+ runtime_resource_overlay {
+-    name: "GoogleConfigOverlay",
++    name: "ShuskyGoogleConfigOverlay",
+     product_specific: true,
+ }
+diff --git a/overlay/GooglePermissionControllerSafetyCenterOverlay/Android.bp b/overlay/GooglePermissionControllerSafetyCenterOverlay/Android.bp
+index 11708ca..8f9ce21 100644
+--- a/overlay/GooglePermissionControllerSafetyCenterOverlay/Android.bp
++++ b/overlay/GooglePermissionControllerSafetyCenterOverlay/Android.bp
+@@ -4,6 +4,6 @@
+ //
+ 
+ runtime_resource_overlay {
+-    name: "GooglePermissionControllerSafetyCenterOverlay",
++    name: "ShuskyGooglePermissionControllerSafetyCenterOverlay",
+     product_specific: true,
+ }
+diff --git a/overlay/PixelConfigOverlay2019/Android.bp b/overlay/PixelConfigOverlay2019/Android.bp
+index 481ed70..c72593f 100644
+--- a/overlay/PixelConfigOverlay2019/Android.bp
++++ b/overlay/PixelConfigOverlay2019/Android.bp
+@@ -4,6 +4,6 @@
+ //
+ 
+ runtime_resource_overlay {
+-    name: "PixelConfigOverlay2019",
++    name: "ShuskyPixelConfigOverlay2019",
+     product_specific: true,
+ }
+diff --git a/overlay/PixelConfigOverlay2021/Android.bp b/overlay/PixelConfigOverlay2021/Android.bp
+index 71de0c7..aa5544f 100644
+--- a/overlay/PixelConfigOverlay2021/Android.bp
++++ b/overlay/PixelConfigOverlay2021/Android.bp
+@@ -4,6 +4,6 @@
+ //
+ 
+ runtime_resource_overlay {
+-    name: "PixelConfigOverlay2021",
++    name: "ShuskyPixelConfigOverlay2021",
+     product_specific: true,
+ }
+diff --git a/overlay/PixelConfigOverlayCommon/Android.bp b/overlay/PixelConfigOverlayCommon/Android.bp
+index aacc2f3..890376f 100644
+--- a/overlay/PixelConfigOverlayCommon/Android.bp
++++ b/overlay/PixelConfigOverlayCommon/Android.bp
+@@ -4,6 +4,6 @@
+ //
+ 
+ runtime_resource_overlay {
+-    name: "PixelConfigOverlayCommon",
++    name: "ShuskyPixelConfigOverlayCommon",
+     product_specific: true,
+ }
+diff --git a/sepolicy/vendor/gxp_logging.te b/sepolicy/vendor/gxp_logging.te
+index 9554f39..93c1099 100644
+--- a/sepolicy/vendor/gxp_logging.te
++++ b/sepolicy/vendor/gxp_logging.te
+@@ -14,3 +14,7 @@ allow gxp_logging fwk_stats_service:service_manager find;
+ allow gxp_logging gxp_device:chr_file rw_file_perms;
+ allow gxp_logging sysfs_gxp:dir search;
+ allow gxp_logging sysfs_gxp:file rw_file_perms;
++
++# Perfetto producer connection attempt; harmless if refused, same
++# established pattern as hal_camera_default.te in this same tree.
++dontaudit gxp_logging traced_producer_socket:sock_file write;
+diff --git a/sepolicy/vendor/hal_camera_default.te b/sepolicy/vendor/hal_camera_default.te
+index 3f6fdd6..84df80b 100644
+--- a/sepolicy/vendor/hal_camera_default.te
++++ b/sepolicy/vendor/hal_camera_default.te
+@@ -61,6 +61,7 @@ allow hal_camera_default sysfs_leds:dir r_dir_perms;
+ allow hal_camera_default sysfs_leds:file r_file_perms;
+ allow hal_camera_default tee_device:chr_file rw_file_perms;
+ allow hal_camera_default vendor_camera_data_file:dir rw_dir_perms;
++allow hal_camera_default vendor_camera_data_file:dir create;
+ allow hal_camera_default vendor_camera_data_file:file create_file_perms;
+ 
+ dontaudit hal_camera_default system_data_file:dir search;
+diff --git a/sepolicy/vendor/property_contexts b/sepolicy/vendor/property_contexts
+index 9c942a1..f0b504f 100644
+--- a/sepolicy/vendor/property_contexts
++++ b/sepolicy/vendor/property_contexts
+@@ -5,6 +5,18 @@ persist.vendor.camera. u:object_r:vendor_camera_prop:s0
+ persist.vendor.camera.pbcs.debug. u:object_r:vendor_camera_pbcs_debug_prop:s0
+ persist.vendor.cbd. u:object_r:vendor_cbd_prop:s0
+ persist.vendor.config. u:object_r:vendor_persist_config_default_prop:s0
++# NOTE: telephony.ril.modem_bin_status (set by cbd.rc, a real vendor blob
++# file) is NOT vendor-namespaced, so it can't be labeled here at all --
++# Android's VTS-enforced property namespace check (check_prop_prefix)
++# rejects any vendor property_contexts entry for a non-"vendor."-prefixed
++# property outright, regardless of what type it's given. Confirmed via a
++# real build failure trying exactly that. Fixing this properly would need
++# either BUILD_BROKEN_VENDOR_PROPERTY_NAMESPACE := true (too broad -- weakens
++# VTS compliance for every vendor property, not just this one) or patching
++# cbd.rc itself to target a vendor-prefixed property name instead (risky --
++# other unknown components may read this exact literal name). Left as a
++# known, non-fatal denial (vendor_init can't set it, low-impact: it just
++# tracks which of two modem firmware binary variants is active).
+ persist.vendor.display. u:object_r:vendor_display_prop:s0
+ persist.vendor.fingerprint. u:object_r:vendor_fingerprint_prop:s0
+ persist.vendor.gps. u:object_r:vendor_gps_prop:s0
+diff --git a/vendor.prop b/vendor.prop
+index 7cdadaf..c1cf5d6 100644
+--- a/vendor.prop
++++ b/vendor.prop
+@@ -112,8 +112,12 @@ vendor.media.omx=0
+ vendor.powerhal.apf_disabled=false
+ vendor.powerhal.apf_enabled=true
+ 
+-# Rescue party
+-persist.device_config.configuration.disable_rescue_party=true
++# NOTE: "Rescue party" disable removed -- persist.device_config.* properties
++# can't be set from vendor.prop at all (vendor_init has no write access to
++# device_config_configuration_prop by design; confirmed via on-device boot
++# denial). This line never actually took effect. Setting this for real
++# would need a DeviceConfig.setProperty() call at runtime, not a static
++# vendor prop file.
+ 
+ # SoC
+ ro.soc.manufacturer=Google
+diff --git a/vintf/manifest.xml b/vintf/manifest.xml
+index 58de72f..efb4269 100644
+--- a/vintf/manifest.xml
++++ b/vintf/manifest.xml
+@@ -87,11 +87,20 @@
+         <fqname>ISecureElement/SIM1</fqname>
+         <fqname>ISecureElement/SIM2</fqname>
+     </hal>
+-    <hal format="aidl">
+-        <name>android.hardware.security.keymint</name>
+-        <version>3</version>
+-        <fqname>IRemotelyProvisionedComponent/strongbox</fqname>
+-    </hal>
++    <!-- IRemotelyProvisionedComponent/strongbox was declared here but never
++         backed by any implementation: the actual citadel keymint blob's own
++         VINTF fragment (vendor/google/shiba/proprietary/vendor/etc/vintf/
++         manifest/android.hardware.security.keymint-service-v3.citadel.xml,
++         extracted straight from Google's real proprietary blob) only
++         declares IKeyMintDevice/strongbox, never the RKP component.
++         servicemanager tried to lazy-start it forever (246 retries/46min
++         uptime observed on-device), permanently blocking rkpdapp and
++         mediaserver. Confirmed via live `service list` that only
++         IRemotelyProvisionedComponent/default is actually registered.
++         The framework compatibility matrix lists "strongbox" as an
++         allowed instance, not a mandatory one (most Android devices have
++         no discrete secure element at all), so removing this stray
++         declaration doesn't violate VINTF compatibility. -->
+     <hal format="aidl">
+         <name>com.google.input</name>
+         <version>8</version>

@@ -1,0 +1,54 @@
+diff --git a/arch/arm64/configs/blu_spark_defconfig b/arch/arm64/configs/blu_spark_defconfig
+index 0a4416edc..323fc2300 100644
+--- a/arch/arm64/configs/blu_spark_defconfig
++++ b/arch/arm64/configs/blu_spark_defconfig
+@@ -2541,7 +2541,7 @@ CONFIG_USB_NET_DRIVERS=m
+ # CONFIG_USB_CATC is not set
+ # CONFIG_USB_KAWETH is not set
+ # CONFIG_USB_PEGASUS is not set
+-CONFIG_USB_RTL8150=m
++# CONFIG_USB_RTL8150 is not set
+ CONFIG_USB_RTL8152=m
+ # CONFIG_USB_LAN78XX is not set
+ CONFIG_USB_USBNET=m
+diff --git a/arch/arm64/configs/gki_defconfig b/arch/arm64/configs/gki_defconfig
+index cea2e6714..c78decf23 100644
+--- a/arch/arm64/configs/gki_defconfig
++++ b/arch/arm64/configs/gki_defconfig
+@@ -364,7 +364,6 @@ CONFIG_PPP_MPPE=m
+ CONFIG_PPTP=m
+ CONFIG_PPPOL2TP=m
+ CONFIG_USB_NET_DRIVERS=m
+-CONFIG_USB_RTL8150=m
+ CONFIG_USB_RTL8152=m
+ CONFIG_USB_USBNET=m
+ CONFIG_USB_NET_CDC_EEM=m
+diff --git a/include/linux/minmax.h b/include/linux/minmax.h
+index eaaf5c008..58184b9dc 100644
+--- a/include/linux/minmax.h
++++ b/include/linux/minmax.h
+@@ -311,8 +311,12 @@ static inline bool in_range32(u32 val, u32 start, u32 len)
+  * Use these carefully: no type checking, and uses the arguments
+  * multiple times. Use for obvious constants only.
+  */
++#ifndef MIN
+ #define MIN(a, b) __cmp(min, a, b)
++#endif
++#ifndef MAX
+ #define MAX(a, b) __cmp(max, a, b)
++#endif
+ #define MIN_T(type, a, b) __cmp(min, (type)(a), (type)(b))
+ #define MAX_T(type, a, b) __cmp(max, (type)(a), (type)(b))
+ 
+diff --git a/modules.bzl b/modules.bzl
+index 52d92225a..d34b14b73 100644
+--- a/modules.bzl
++++ b/modules.bzl
+@@ -32,7 +32,6 @@ _COMMON_GKI_MODULES_LIST = [
+     "drivers/net/usb/cdc_ncm.ko",
+     "drivers/net/usb/r8152.ko",
+     "drivers/net/usb/r8153_ecm.ko",
+-    "drivers/net/usb/rtl8150.ko",
+     "drivers/net/usb/usbnet.ko",
+     "drivers/net/wwan/wwan.ko",
+     "drivers/usb/class/cdc-acm.ko",

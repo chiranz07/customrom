@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JamesDSP (james.dsp) ships as a system app (not privileged) at
+     /product/app/JamesDSP/ with no background-FGS exemption. Without this,
+     RootAudioProcessorService.onCreate() throws
+     ForegroundServiceStartNotAllowedException the moment the screen turns
+     off (BFGS denied), crashing the DSP engine mid-playback, confirmed
+     live on-device: BFGS denied: true / code:DENIED with screen off,
+     BFGS denied: false / code:PROC_STATE_TOP once power-save-allowlisted.
+     Isolation-tested: the allowlist alone is sufficient, no
+     SYSTEM_ALERT_WINDOW grant or priv-app move needed. -->
+<config>
+    <allow-in-power-save package="james.dsp" />
+</config>

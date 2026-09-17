@@ -1,0 +1,137 @@
+diff --git a/gms_mini.mk b/gms_mini.mk
+index 1827b0a..fcdfb67 100644
+--- a/gms_mini.mk
++++ b/gms_mini.mk
+@@ -23,7 +23,7 @@ PRODUCT_PACKAGES += \
+     com.google.android.gmssystem.prodvic
+ 
+ # Quick Tap
+-TARGET_SUPPORTS_QUICK_TAP ?= true
++TARGET_SUPPORTS_QUICK_TAP ?= false
+ ifeq ($(TARGET_SUPPORTS_QUICK_TAP),true)
+ PRODUCT_PACKAGES += \
+     quick_tap
+@@ -44,8 +44,6 @@ PRODUCT_PACKAGES += \
+     SoundPickerPrebuilt_33000242 \
+     TrichromeLibrary \
+     TrichromeLibrary-Stub \
+-    WallpaperAIPrebuilt_10000372 \
+-    WallpaperEmojiPrebuilt-foldable-wallpaper \
+     WebViewGoogle \
+     WebViewGoogle-Stub \
+     talkback
+@@ -63,41 +61,32 @@ PRODUCT_PACKAGES += \
+ endif
+ 
+ # product/priv-app
++# Velvet (Google Search/Assistant) is required here even in the minimal
++# GMS variant -- NexusLauncherRelease's own Settings screen
++# (MySettingsFragment.initPreference, "search_settings" key) calls
++# OSEInfo.getOverlayPackage().equals(OSEInfo.pkg) with no null check, and
++# getOverlayPackage() returns null when no search-overlay app is
++# installed, crashing Pixel Launcher's Settings with an NPE every time
++# it's opened. Confirmed via smali decompile of the built APK. Without
++# Velvet there is no way to open Home settings at all.
++# GoogleRestorePrebuilt (com.google.android.apps.restore, Pixel's "Data
++# Restore Tool"/Migrate) is queried directly by SetupWizard during first
++# boot (settingscard content provider) even when not doing a phone-to-phone
++# migration -- without it SetupWizard throws Unknown authority /
++# SecurityException on every boot. Self-contained prebuilt, no deps.
+ PRODUCT_PACKAGES += \
+     AndroidAutoStubPrebuilt \
+     CarrierLocation \
+     ConfigUpdater \
+-    CustomizationBundlePrebuiltFullVersion \
+-    DeviceIntelligenceNetworkPrebuiltAstrea \
+-    DevicePersonalizationPrebuiltPixel2020 \
+-    FilesPrebuilt \
+     GoogleDialer \
+     GoogleRestorePrebuilt-v1007163 \
+-    KidsSupervisionStub \
+-    OdadPrebuilt \
+-    PartnerSetupPrebuilt \
+-    Phonesky \
+-    PrebuiltBugle \
+     PrebuiltDeskClockGoogle_76042511 \
+     PrebuiltPixelCoreServices \
+     SettingsIntelligenceGooglePrebuilt \
+     SetupWizardPrebuilt_versioned \
+-    TurboPrebuilt \
++    Phonesky \
+     Velvet \
+-    VerifierPrebuiltClassic \
+-    WellbeingPrebuilt
+-
+-ifneq ($(filter Google google,$(PRODUCT_MANUFACTURER)),)
+-PRODUCT_PACKAGES += \
+-    SCONE-v69510
+-endif
+-
+-ifneq ($(filter flame coral redfin oriole raven panther cheetah lynx felix shiba husky akita tokay caiman komodo tegu frankel blazer mustang rango stallion, $(LINEAGE_BUILD)),)
+-PRODUCT_PACKAGES += \
+-    DreamlinerDreamsPrebuilt_100894 \
+-    DreamlinerPrebuilt_22000020 \
+-    DreamlinerUpdater
+-endif
++    VerifierPrebuiltClassic
+ 
+ # system/app
+ PRODUCT_PACKAGES += \
+@@ -109,17 +98,9 @@ PRODUCT_PACKAGES += \
+     DocumentsUIGoogle \
+     TagGoogle
+ 
+-# system_ext/app
+-PRODUCT_PACKAGES += \
+-    EmergencyInfoGoogleNoUi \
+-    Flipendo
+-
+ # system_ext/priv-app
+ PRODUCT_PACKAGES += \
+-    AvatarPickerGoogle \
+-    GoogleFeedback \
+     GoogleServicesFramework \
+-    MoseyApp \
+     NexusLauncherRelease \
+     SetupWizardPixelPrebuilt_versioned \
+     WallpaperPickerGoogleRelease
+diff --git a/product/blobs/etc/sysconfig/pixel_experience_2017.xml b/product/blobs/etc/sysconfig/pixel_experience_2017.xml
+index 9ee04d2..fc5e75f 100644
+--- a/product/blobs/etc/sysconfig/pixel_experience_2017.xml
++++ b/product/blobs/etc/sysconfig/pixel_experience_2017.xml
+@@ -42,12 +42,26 @@
+     <allow-in-power-save package="com.google.pixel.gate.android.pysupport" />
+     <allow-in-power-save package="com.google.pixel.gate.android.daemon" />
+ 
+-    <!-- Hide DocumentsUi Launcher/Downloads intent handling. DocumentsUi
+-         PrebootReceiver does not properly hide the launcher in work profile,
+-         so we need to include this as well. -->
++    <!-- Real root cause, found by decompiling DocumentsUIGoogle.apk directly:
++         com.android.documentsui.PreBootReceiver (PRE_BOOT_COMPLETED) is real
++         Google code that actively calls setComponentEnabledSetting() on its
++         own LauncherActivity/ViewDownloadsActivity at boot; this is why
++         two earlier attempts (inverting this override to enabled="true", and
++         removing it outright) both failed on a genuinely fresh /data-wiped
++         boot: neither one touches the actual mechanism doing the disabling.
++         The manifest itself declares no android:enabled attribute on the
++         alias (confirmed via aapt2 dump), so the disable is 100% runtime
++         code, not a static manifest/config default. mist_shiba never
++         inherits gms_full.mk (TARGET_USES_MINI_GAPPS is hardcoded true), so
++         FilesPrebuilt is never present, meaning Google's own intended
++         behavior (hide this in favor of Files by Google) leaves us with no
++         file manager icon at all. Fix: disable PreBootReceiver itself so its
++         disabling code never runs, plus keep the launcher components
++         explicitly enabled as a belt-and-suspenders measure. -->
+     <component-override package="com.google.android.documentsui" >
+-        <component class="com.android.documentsui.LauncherActivity" enabled="false" />
+-        <component class="com.android.documentsui.ViewDownloadsActivity" enabled="false" />
++        <component class="com.android.documentsui.PreBootReceiver" enabled="false" />
++        <component class="com.android.documentsui.LauncherActivity" enabled="true" />
++        <component class="com.android.documentsui.ViewDownloadsActivity" enabled="true" />
+     </component-override>
+ 
+     <!-- ACTION_MANAGE_STORAGE handled by Files by Google -->
+diff --git a/product/packages/privileged_apps/DeviceIntelligenceNetworkPrebuiltAstrea/Android.mk b/product/packages/privileged_apps/DeviceIntelligenceNetworkPrebuiltAstrea.disabled/Android.mk.disabled
+similarity index 100%
+rename from product/packages/privileged_apps/DeviceIntelligenceNetworkPrebuiltAstrea/Android.mk
+rename to product/packages/privileged_apps/DeviceIntelligenceNetworkPrebuiltAstrea.disabled/Android.mk.disabled

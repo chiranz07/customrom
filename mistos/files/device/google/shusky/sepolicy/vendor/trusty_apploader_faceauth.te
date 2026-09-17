@@ -1,0 +1,14 @@
+# The real Pixel face-auth Trusty Application ships inside a vendor APEX
+# (com.google.android.hardware.biometrics.face) and gets loaded at boot via
+# `exec_background - system shell -- /vendor/bin/trusty_apploader
+# /apex/.../etc/firmware/faceauth.app` (ta_init.rc, bundled in the apex
+# itself). zuma's trusty_apploader.te only grants access to two device
+# nodes (dmabuf_system_heap_device, tee_device) -- no permission at all to
+# read the actual TA file it's told to load, which lives under a vendor
+# APEX mount. Without this, the TA never loads, the framework falls back
+# to generic/insecure face auth, and no error surfaces anywhere except a
+# silent SELinux denial in the log.
+
+allow trusty_apploader apex_mnt_dir:dir { search getattr };
+allow trusty_apploader vendor_apex_file:dir { search getattr };
+allow trusty_apploader vendor_apex_file:file r_file_perms;

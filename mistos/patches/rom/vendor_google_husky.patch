@@ -1,0 +1,28 @@
+diff --git a/husky-vendor.mk b/husky-vendor.mk
+index 26ee7a0..3afac84 100644
+--- a/husky-vendor.mk
++++ b/husky-vendor.mk
+@@ -657,7 +657,6 @@ PRODUCT_COPY_FILES += \
+     vendor/google/husky/proprietary/product/etc/sysconfig/allowlist_com.android.omadm.service.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/allowlist_com.android.omadm.service.xml \
+     vendor/google/husky/proprietary/product/etc/sysconfig/allowlist_com.shannon.imsservice.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/allowlist_com.shannon.imsservice.xml \
+     vendor/google/husky/proprietary/product/etc/sysconfig/firproximity.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/firproximity.xml \
+-    vendor/google/husky/proprietary/product/etc/sysconfig/google-hiddenapi-package-whitelist.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/google-hiddenapi-package-whitelist.xml \
+     vendor/google/husky/proprietary/product/etc/sysconfig/nexus.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/nexus.xml \
+     vendor/google/husky/proprietary/product/etc/sysconfig/nowplaying_app_26q1.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/nowplaying_app_26q1.xml \
+     vendor/google/husky/proprietary/product/etc/sysconfig/pixel_experience_2017.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_experience_2017.xml \
+diff --git a/proprietary/vendor/etc/init/hw/init.zuma.rc b/proprietary/vendor/etc/init/hw/init.zuma.rc
+index 55ea2fa..51a6184 100644
+--- a/proprietary/vendor/etc/init/hw/init.zuma.rc
++++ b/proprietary/vendor/etc/init/hw/init.zuma.rc
+@@ -579,11 +579,6 @@ on fs
+ #load ecd firmware
+     write /proc/ecd/load_firmware 1
+ 
+-service abox /vendor/bin/main_abox 17c50000.abox
+-    class late_start
+-    user audioserver
+-    group audioserver
+-    seclabel u:r:abox:s0
+ 
+ # on userdebug and eng builds, enable kgdb on the serial console
+ on property:ro.debuggable=1

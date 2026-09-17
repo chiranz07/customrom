@@ -1,0 +1,12 @@
+diff --git a/config.mk b/config.mk
+index bb4cc1a..64a6a40 100644
+--- a/config.mk
++++ b/config.mk
+@@ -148,7 +148,6 @@ PRODUCT_PACKAGES += \
+     FontOneUISansOverlay \
+     FontOneplusSansOverlay \
+     FontOneplusSlateOverlay \
+-    FontPoppinsSourceOverlay \
+     FontOswaldOverlay \
+     FontPlayOverlay \
+     FontQuandoOverlay \

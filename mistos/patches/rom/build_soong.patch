@@ -1,0 +1,31 @@
+diff --git a/ui/build/rbe.go b/ui/build/rbe.go
+index b3d95c4..6398af8 100644
+--- a/ui/build/rbe.go
++++ b/ui/build/rbe.go
+@@ -256,7 +256,7 @@ func startRBEproxy(ctx Context, config Config) {
+ 	e := ctx.BeginTrace(metrics.RunSetupTool, "rbe_bootstrap")
+ 	defer e.End()
+ 
+-	ctx.Status.Status("Starting rbe...")
++	ctx.Status.Status("Starting ninja...")
+ 	executable := config.SisoBin()
+ 	args := []string{
+ 		"proxy",
+@@ -330,7 +330,7 @@ func startReproxy(ctx Context, config Config) {
+ 	e := ctx.BeginTrace(metrics.RunSetupTool, "rbe_bootstrap")
+ 	defer e.End()
+ 
+-	ctx.Status.Status("Starting rbe...")
++	ctx.Status.Status("Starting ninja...")
+ 	cmd := Command(ctx, config, e, "startReproxy bootstrap", rbeCommand(ctx, config, bootstrapCmd))
+ 
+ 	if output, err := cmd.CombinedOutput(); err != nil {
+@@ -347,7 +347,7 @@ func stopRBE(ctx Context, config Config) {
+ 		cmd := Command(ctx, config, nil, "stopRBE bootstrap", rbeCommand(ctx, config, bootstrapCmd), "-shutdown")
+ 		output, err = cmd.CombinedOutput()
+ 		if err != nil {
+-			ctx.Fatalf("rbe bootstrap with shutdown failed with: %v\n%s\n", err, output)
++			ctx.Fatalf("soong bootstrap with shutdown failed with: %v\n%s\n", err, output)
+ 		}
+ 	}
+ 

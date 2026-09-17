@@ -1,0 +1,12 @@
+diff --git a/target/product/base_product.mk b/target/product/base_product.mk
+index 3b23c0b..c132afa 100644
+--- a/target/product/base_product.mk
++++ b/target/product/base_product.mk
+@@ -26,7 +26,6 @@ PRODUCT_PACKAGES += \
+     product_manifest.xml \
+     selinux_policy_product \
+     product-build.prop \
+-    com.android.hardware.biometrics.fingerprint.virtual \
+     preinstalled-packages-base-product.xml \
+ 
+ # Packages included only for eng or userdebug builds, previously debug tagged

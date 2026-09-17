@@ -1,0 +1,111 @@
+diff --git a/Android.bp b/Android.bp
+index dc7d44c..81355ef 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -13,6 +13,13 @@ android_app_import {
+     product_specific: true,
+ }
+ 
++prebuilt_etc {
++    name: "allowlist_james_dsp.xml",
++    src: "proprietary/product/etc/sysconfig/allowlist_james_dsp.xml",
++    sub_dir: "sysconfig",
++    product_specific: true,
++}
++
+ cc_prebuilt_library_shared {
+     name: "libjamesdspaidl",
+     installable: true,
+diff --git a/config.mk b/config.mk
+index 8bbad2a..0083360 100644
+--- a/config.mk
++++ b/config.mk
+@@ -3,7 +3,8 @@ PRODUCT_SOONG_NAMESPACES += \
+ 
+ PRODUCT_PACKAGES += \
+     JamesDSP \
+-    libjamesdspaidl
++    libjamesdspaidl \
++    allowlist_james_dsp.xml
+ 
+ PRODUCT_COPY_FILES += \
+ 	vendor/JamesDSP/proprietary/vendor/etc/audio_effects_config.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects_config.xml
+diff --git a/proprietary/product/etc/sysconfig/allowlist_james_dsp.xml b/proprietary/product/etc/sysconfig/allowlist_james_dsp.xml
+new file mode 100644
+index 0000000..6dd9d79
+--- /dev/null
++++ b/proprietary/product/etc/sysconfig/allowlist_james_dsp.xml
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- JamesDSP (james.dsp) ships as a system app (not privileged) at
++     /product/app/JamesDSP/ with no background-FGS exemption. Without this,
++     RootAudioProcessorService.onCreate() throws
++     ForegroundServiceStartNotAllowedException the moment the screen turns
++     off (BFGS denied), crashing the DSP engine mid-playback, confirmed
++     live on-device: BFGS denied: true / code:DENIED with screen off,
++     BFGS denied: false / code:PROC_STATE_TOP once power-save-allowlisted.
++     Isolation-tested: the allowlist alone is sufficient, no
++     SYSTEM_ALERT_WINDOW grant or priv-app move needed. -->
++<config>
++    <allow-in-power-save package="james.dsp" />
++</config>
+diff --git a/proprietary/vendor/etc/audio_effects_config.xml b/proprietary/vendor/etc/audio_effects_config.xml
+index 39094f1..6b4c133 100644
+--- a/proprietary/vendor/etc/audio_effects_config.xml
++++ b/proprietary/vendor/etc/audio_effects_config.xml
+@@ -27,29 +27,24 @@
+          Each library element must contain a "name" attribute and a "path" attribute giving the
+          name of a library .so file on the target device.
+     -->
++    <!-- Only libraries actually present in shiba's /vendor/lib64/soundfx are
++         listed here. The AOSP reference config this was copied from also
++         lists generic software fallback libs (*sw.so), libpreprocessingaidl.so,
++         liberaser.so and libextensioneffect.so, none of which ship on this
++         device; shiba's real Tensor/Pixel AEC/NS/AGC implementation is
++         libaudiopreprocessing.so instead of AOSP's libpreprocessingaidl.so,
++         and there is no eraser/extension_effect implementation at all.
++         Confirmed by listing the actual installed soundfx directory. -->
+     <libraries>
+-        <library name="aecsw" path="libaecsw.so"/>
+-        <library name="agc1sw" path="libagc1sw.so"/>
+-        <library name="agc2sw" path="libagc2sw.so"/>
+-        <library name="bassboostsw" path="libbassboostsw.so"/>
+         <library name="bundle" path="libbundleaidl.so"/>
+         <library name="downmix" path="libdownmixaidl.so"/>
+         <library name="dynamics_processing" path="libdynamicsprocessingaidl.so"/>
+-        <library name="equalizersw" path="libequalizersw.so"/>
+-        <library name="eraser" path="liberaser.so"/>
+         <library name="haptic_generator" path="libhapticgeneratoraidl.so"/>
+         <library name="loudness_enhancer" path="libloudnessenhanceraidl.so"/>
+-        <library name="nssw" path="libnssw.so"/>
+-        <library name="env_reverbsw" path="libenvreverbsw.so"/>
+-        <library name="pre_processing" path="libpreprocessingaidl.so"/>
+-        <library name="preset_reverbsw" path="libpresetreverbsw.so"/>
++        <library name="pre_processing" path="libaudiopreprocessing.so"/>
+         <library name="reverb" path="libreverbaidl.so"/>
+-        <library name="virtualizersw" path="libvirtualizersw.so"/>
+         <library name="visualizer" path="libvisualizeraidl.so"/>
+-        <library name="volumesw" path="libvolumesw.so"/>
+-        <library name="extensioneffect" path="libextensioneffect.so"/>
+-        <library name="spatializersw" path="libspatializersw.so"/>
+-        <library name="jdsp" path="libjamesdspaidl.so"/>   
++        <library name="jdsp" path="libjamesdspaidl.so"/>
+     </libraries>
+ 
+     <!-- list of effects to load.
+@@ -77,7 +72,6 @@
+         <effect name="bassboost" library="bundle" uuid="8631f300-72e2-11df-b57e-0002a5d5c51b"/>
+         <effect name="downmix" library="downmix" uuid="93f04452-e4fe-41cc-91f9-e475b6d1d69f"/>
+         <effect name="dynamics_processing" library="dynamics_processing" uuid="e0e6539b-1781-7261-676f-6d7573696340"/>
+-        <effect name="eraser" library="eraser" uuid="fa81ad26-588b-11ed-9b6a-0242ac120002"/>
+         <effect name="haptic_generator" library="haptic_generator" uuid="97c4acd1-8b82-4f2f-832e-c2fe5d7a9931"/>
+         <effect name="loudness_enhancer" library="loudness_enhancer" uuid="fa415329-2034-4bea-b5dc-5b381c8d1e2c"/>
+         <effect name="reverb_env_aux" library="reverb" uuid="4a387fc0-8ab3-11df-8bad-0002a5d5c51b"/>
+@@ -88,7 +82,6 @@
+         <effect name="visualizer" library="visualizer" uuid="d069d9e0-8329-11df-9168-0002a5d5c51b"/>
+         <effect name="volume" library="bundle" uuid="119341a0-8469-11df-81f9-0002a5d5c51b"/>
+         <effect name="equalizer" library="bundle" uuid="ce772f20-847d-11df-bb17-0002a5d5c51b"/>
+-        <effect name="extension_effect" library="extensioneffect" uuid="fa81dd00-588b-11ed-9b6a-0242ac120002" type="fa81de0e-588b-11ed-9b6a-0242ac120002"/>
+         <effect name="acoustic_echo_canceler" library="pre_processing" uuid="bb392ec0-8d4d-11e0-a896-0002a5d5c51b"/>
+         <effect name="noise_suppression" library="pre_processing" uuid="c06c8400-8e06-11e0-9cb6-0002a5d5c51b"/>
+ 		<effect name="jamesdsp" library="jdsp" uuid="f27317f4-c984-4de6-9a90-545759495bf2" type="f98765f4-c321-5de6-9a45-123459495ab2"/>

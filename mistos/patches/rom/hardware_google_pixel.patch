@@ -1,0 +1,17 @@
+diff --git a/common/pixel-common-device.mk b/common/pixel-common-device.mk
+index 722881b..30f415e 100644
+--- a/common/pixel-common-device.mk
++++ b/common/pixel-common-device.mk
+@@ -58,12 +58,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
+     dalvik.vm.systemuicompilerfilter=speed
+ endif
+ 
+-# Virtual fingerprint HAL
+-PRODUCT_PACKAGES += com.android.hardware.biometrics.fingerprint.virtual
+-
+-# Virtual face HAL
+-PRODUCT_PACKAGES += com.android.hardware.biometrics.face.virtual
+-
+ # AI Labs artifacts
+ ifeq ($(RELEASE_INSTALL_AI_LABS_ARTIFACTS), true)
+   include vendor/google/AILabs/ai_labs.mk

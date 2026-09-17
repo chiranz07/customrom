@@ -1,0 +1,20 @@
+diff --git a/config/rro_overlays.mk b/config/rro_overlays.mk
+index 3743b73..8f47e15 100644
+--- a/config/rro_overlays.mk
++++ b/config/rro_overlays.mk
+@@ -62,6 +62,14 @@ PRODUCT_PACKAGES += \
+     UdfpsOverlay \
+     VerifierResOverlay \
+     WallpaperPicker2Overlay \
+-    WallpaperPicker2PixelOverlay \
+     WildlifeSettingsVpnOverlay2022 \
+     WildlifeSysuiVpnOverlay2022
++# WallpaperPicker2Overlay targets com.google.android.apps.wallpaper, which
++# genuinely exists once WallpaperPickerGoogleRelease is included (it was
++# missing from gms_mini.mk, an earlier over-trim -- see vendor/gms/gms_mini.mk).
++# WallpaperPicker2PixelOverlay stays excluded: it targets
++# com.google.android.apps.wallpaper.pixel, a different package variant that
++# doesn't exist in this build (WallpaperPickerGoogleRelease.apk here
++# self-identifies as the bare com.google.android.apps.wallpaper). Both
++# overlays share the same self-package name (com.google.android.wallpaper.
++# picker.overlay) so only one can ever be installed at a time regardless.

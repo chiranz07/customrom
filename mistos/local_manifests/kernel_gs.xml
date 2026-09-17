@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Kernel local manifest: overrides kernel/manifest's "kernel/common" project
+  (path=aosp) with engstk/gs, branch blu_spark-17-susfs (KernelSU-Next + SUSFS),
+  built against Google's android-gs-shusky-6.1-android16 base manifest.
+
+  Base manifest branch is intentionally android-gs-shusky-6.1-android16, NOT
+  a nonexistent "android17" branch; GKI's KMI can stay stable across a
+  platform version bump, and engstk's r268 release (built Aug 2026, matching
+  our Aug 2026 vendor blobs) confirms this branch's private/devices tree is
+  what's actually used to produce current Android-17-era shusky kernels.
+
+  linkfile entries are redeclared from the original kernel/common project
+  entry; removing a project drops its linkfiles unless restated here.
+-->
+<manifest>
+  <remote name="github" fetch="https://github.com/" />
+
+  <remove-project name="kernel/common" />
+  <project name="engstk/gs" path="aosp" revision="blu_spark-17-susfs" remote="github" groups="partner" clone-depth="1">
+    <linkfile src="build.config.constants" dest="common/build.config.constants" />
+    <linkfile src="modules.bzl" dest="common/modules.bzl" />
+  </project>
+</manifest>

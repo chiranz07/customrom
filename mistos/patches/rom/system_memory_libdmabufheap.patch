@@ -1,0 +1,26 @@
+diff --git a/BufferAllocator.cpp b/BufferAllocator.cpp
+index abfeafd..8459467 100644
+--- a/BufferAllocator.cpp
++++ b/BufferAllocator.cpp
+@@ -117,6 +117,8 @@ BufferAllocator::BufferAllocator() {
+         QueryIonHeaps();
+ }
+ 
++BufferAllocator::~BufferAllocator() {}
++
+ int BufferAllocator::MapNameToIonMask(const std::string& heap_name, unsigned int ion_heap_mask,
+                                       unsigned int ion_heap_flags) {
+     if (!ion_heap_mask)
+diff --git a/include/BufferAllocator/BufferAllocator.h b/include/BufferAllocator/BufferAllocator.h
+index 8ad85ec..fac53ab 100644
+--- a/include/BufferAllocator/BufferAllocator.h
++++ b/include/BufferAllocator/BufferAllocator.h
+@@ -35,7 +35,7 @@
+ class BufferAllocator {
+   public:
+     BufferAllocator();
+-    ~BufferAllocator() {}
++    ~BufferAllocator();
+ 
+     /* Not copyable or movable */
+     BufferAllocator(const BufferAllocator&) = delete;

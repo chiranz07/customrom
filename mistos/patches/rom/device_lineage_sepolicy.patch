@@ -1,0 +1,13 @@
+diff --git a/common/private/toolbox.te b/common/private/toolbox.te
+index 64f5780..d505bdb 100644
+--- a/common/private/toolbox.te
++++ b/common/private/toolbox.te
+@@ -1 +1,8 @@
+ allow toolbox self:capability kill;
++
++# post-fs-data one-time migration cleanup (init.rc, persist.sys.mist.spoof.migrated)
++# runs `rm -rf /data/adb/tricky_store /data/adb/playintegrityfix
++# /data/adb/gameprops /data/adb/.custom_rom_hide_allowlist` via toolbox's rm
++# applet. Without search on adb_data_file:dir, rm can't traverse into
++# /data/adb at all, so the cleanup silently never removes those paths.
++allow toolbox adb_data_file:dir search;

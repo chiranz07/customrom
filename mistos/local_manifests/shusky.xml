@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Local manifest for building Project Mist-OS (branch 17.0 / lineage-24.0)
+  for Google Pixel 8 (shiba) + Pixel 8 Pro (husky).
+
+  Notes:
+   * The 'github' and 'aosp' remotes are already defined by Mist-OS's default.xml,
+     so they are NOT re-declared here.
+   * Device/SoC/kernel-config trees: ionutsandroidbuilds, branch 17.0 (self-contained,
+     no gs-common dependency, already has inherit-product-if-exists hooks for
+     vendor/google/faceunlock/config.mk and vendor/JamesDSP/config.mk).
+   * Proprietary blobs: TheMuppets, branch lineage-24.0 (confirmed active/current,
+     already ships the real Google face-unlock APEX, NowPlayingPrebuilt.apk, and
+     the Columbus/instant_sense CHRE ambient-sensing napps + GXP Callisto firmware
+     that Clear Calling's ML pipeline depends on).
+   * Kernel (engstk/gs, blu_spark-17-susfs) is NOT in this manifest; it's built
+     separately via Bazel against Google's own kernel/manifest, see kernel/BUILD.md.
+   * JamesDSP (Fleur-Project/packages_apps_JamesDSP, branch early) pulled here too;
+     needs AIDL-compat verification once built.
+   * Pixel 8a (akita) intentionally omitted; not a target device.
+-->
+<manifest>
+
+  <!-- 'gitlab' remote is already declared by Mist-OS's manifests/snippets/mist.xml;
+       do NOT re-declare it here (throws "remote already exists"). -->
+
+  <!-- Google face-unlock enabler: real HAL/APEX already comes from TheMuppets'
+       shiba-vendor.mk (com.google.android.hardware.biometrics.face). This repo
+       supplies the disable-basic-unlock config.mk + prebuilt SettingsGoogleFutureFaceEnroll
+       + RRO overlay. Only branch available is 16.0 (Android 16); cross-version
+       compat with our Android 17 base is a build-time verification item, not assumed. -->
+  <project name="crdroidandroid/proprietary_vendor_google_faceunlock" path="vendor/google/faceunlock" revision="16.0" remote="gitlab" clone-depth="1" />
+
+  <!-- Device / SoC / kernel-config trees (self-contained, no gs-common dep) -->
+  <project name="ionutsandroidbuilds/android_device_google_shusky" path="device/google/shusky" revision="17.0" remote="github" clone-depth="1" />
+  <project name="ionutsandroidbuilds/android_device_google_zuma" path="device/google/zuma" revision="17.0" remote="github" clone-depth="1" />
+  <project name="ionutsandroidbuilds/android_device_google_shusky-kernels" path="device/google/shusky-kernels" revision="17.0" remote="github" clone-depth="1" />
+
+  <!-- Proprietary vendor blobs (TheMuppets, lineage-24.0; confirmed fresh) -->
+  <project name="TheMuppets/proprietary_vendor_google_shiba" path="vendor/google/shiba" revision="lineage-24.0" remote="github" clone-depth="1" />
+  <project name="TheMuppets/proprietary_vendor_google_husky" path="vendor/google/husky" revision="lineage-24.0" remote="github" clone-depth="1" />
+
+  <!-- JamesDSP: path MUST be vendor/JamesDSP; that's what zuma/common.mk's
+       existing inherit-product-if-exists hook expects (config.mk pulls in just
+       the JamesDSP + libjamesdsp packages; auto-wired, no manual inherit needed
+       in our own product makefile). Switched from Fleur-Project's fork (legacy
+       libhardware effect ABI only, confirmed dead on this device: it uses the
+       AIDL audio effects HAL exclusively, never constructs the legacy factory
+       that reads audio_effects.xml) to ionutgherman's "aidl" branch, confirmed
+       working by the user on a different device/ROM (Infinity X). -->
+  <project name="ionutgherman/vendor_JamesDSP" path="vendor/JamesDSP" revision="aidl" remote="github" clone-depth="1" />
+
+  <!-- Real Google Camera (GCam) prebuilt + Pixel camera effects/libs for zuma,
+       user-provided source (tested/trusted by user, same pattern as
+       faceunlock/JamesDSP above). -->
+  <project name="ionutsandroidbuilds/proprietary_vendor_google_camera" path="vendor/google/camera" revision="zuma" remote="gitlab" clone-depth="1" />
+
+</manifest>

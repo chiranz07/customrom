@@ -1,5 +1,14 @@
 # customrom — Pixel 8 (shiba) custom ROM build notes
 
+Two ROMs are documented here, each self-contained:
+
+| ROM | Where | Status |
+|---|---|---|
+| **Mist-OS 5.0 (Android 17)** | **[`mistos/`](mistos/README.md)** — build guide, full knowledge base (`HANDOFF.md`), per-repo patches, scripts, manifests | Built & published Sept 2026 |
+| Project Infinity-X (Android 16) | this directory (below) | Built June 2026 |
+
+---
+
 Reproducible build notes + artifacts for **Project Infinity-X (Android 16)** on the **Google Pixel 8 "shiba"**, captured from a working build (June 2026).
 
 ## What's here

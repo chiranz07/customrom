@@ -1,0 +1,32 @@
+diff --git a/config.mk b/config.mk
+index fb2d9e0..8bd0cfe 100644
+--- a/config.mk
++++ b/config.mk
+@@ -23,4 +23,4 @@ PRODUCT_COPY_FILES += \
+     frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.hardware.biometrics.face.xml
+ 
+ # Sepolicy
+-#BOARD_SEPOLICY_DIRS += vendor/google/faceunlock/sepolicy
++BOARD_SEPOLICY_DIRS += vendor/google/faceunlock/sepolicy
+diff --git a/sepolicy/hal_exo_camera_injection.te b/sepolicy/hal_exo_camera_injection.te
+index 138d1b1..1e48d69 100644
+--- a/sepolicy/hal_exo_camera_injection.te
++++ b/sepolicy/hal_exo_camera_injection.te
+@@ -5,6 +5,10 @@ hal_server_domain(hal_exo_camera_injection, hal_camera)
+ type hal_exo_camera_injection_exec, exec_type, vendor_file_type, file_type;
+ init_daemon_domain(hal_exo_camera_injection)
+ 
++# add_hwservice() below needs this declared -- missing from upstream, an
++# oversight matching this file's own "TODO" note about being provisional.
++type hal_exo_camera_injection_hwservice, hwservice_manager_type;
++
+ hwbinder_use(hal_exo_camera_injection)
+ add_hwservice(hal_exo_camera_injection, hal_exo_camera_injection_hwservice)
+ allow hal_exo_camera_injection hal_graphics_mapper_hwservice:hwservice_manager find;
+diff --git a/sepolicy/service.te b/sepolicy/service.te
+deleted file mode 100644
+index 9aad986..0000000
+--- a/sepolicy/service.te
++++ /dev/null
+@@ -1 +0,0 @@
+-type hal_face_debug_service, protected_service, service_manager_type;

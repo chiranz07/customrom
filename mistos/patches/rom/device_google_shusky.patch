@@ -1,0 +1,470 @@
+diff --git a/AndroidProducts.mk b/AndroidProducts.mk
+index 0cb2c4a..cf13996 100644
+--- a/AndroidProducts.mk
++++ b/AndroidProducts.mk
+@@ -7,4 +7,10 @@ PRODUCT_MAKEFILES := \
+     $(LOCAL_DIR)/aosp_husky.mk \
+     $(LOCAL_DIR)/aosp_shiba.mk \
+     $(LOCAL_DIR)/lineage_husky.mk \
+-    $(LOCAL_DIR)/lineage_shiba.mk
++    $(LOCAL_DIR)/lineage_shiba.mk \
++    $(LOCAL_DIR)/mist_husky.mk \
++    $(LOCAL_DIR)/mist_shiba.mk
++
++COMMON_LUNCH_CHOICES := \
++    mist_shiba-userdebug \
++    mist_husky-userdebug
+diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
+index 9eaed43..60de7fc 100644
+--- a/BoardConfigCommon.mk
++++ b/BoardConfigCommon.mk
+@@ -10,6 +10,32 @@ VENDOR_SECURITY_PATCH := $(BOOT_SECURITY_PATCH)
+ 
+ include device/google/zuma/BoardConfig-common.mk
+ 
++# Mist-OS's extra packages (KernelSU-Next+SUSFS kernel modules, JamesDSP,
++# Now Playing blobs, GMS) push the dynamic partitions past Google's stock
++# 500MB safety margin (BOARD_SUPER_PARTITION_ERROR_LIMIT above) even though
++# the actual image still fits well within the real BOARD_SUPER_PARTITION_SIZE.
++# Narrow the margin to 64MB instead of removing it outright.
++BOARD_SUPER_PARTITION_ERROR_LIMIT := $(shell echo $$(($(BOARD_SUPER_PARTITION_SIZE) - 67108864)))
++
++# Mist-OS's vendor/lineage/build/soong/Android.bp unconditionally defines
++# generated_kernel_includes/prebuilt_kernel_includes Soong modules that
++# reference $(KERNEL_BUILD_OUT_PREFIX) -- Soong doesn't gate on the Make-side
++# TARGET_NO_KERNEL flag set above, so the variable must exist even though
++# this is a GKI device that doesn't build its kernel through this legacy
++# in-tree mechanism. ionutsandroidbuilds' device tree doesn't include this
++# (it wasn't authored against Mist-OS's vendor/lineage build system) --
++# added here rather than upstream. Caught by `m nothing`, not assumed.
++#
++# BoardConfigKernel.mk alone sets KERNEL_BUILD_OUT_PREFIX as a plain Make var,
++# but Soong's custom lineage_generator module type reads it through a
++# separate SOONG_CONFIG export mechanism (lineageVarsPlugin namespace) that
++# BoardConfigSoong.mk sets up via its static EXPORT_TO_SOONG list -- which
++# already includes KERNEL_BUILD_OUT_PREFIX. Must include Kernel then Soong,
++# in that order, so the Make values exist before BoardConfigSoong.mk reads
++# them into the namespace.
++include vendor/lineage/config/BoardConfigKernel.mk
++include vendor/lineage/config/BoardConfigSoong.mk
++
+ # Kernel modules
+ BOARD_VENDOR_KERNEL_RAMDISK_KERNEL_MODULES_BLOCKLIST_FILE := $(DEVICE_PATH)/recovery/modules.blocklist.vendor_kernel_boot
+ BOARD_VENDOR_KERNEL_RAMDISK_KERNEL_MODULES_LOAD_RAW := $(strip $(shell cat $(DEVICE_PATH)/recovery/modules.load.vendor_kernel_boot))
+diff --git a/device-husky.mk b/device-husky.mk
+index cf108be..880565c 100644
+--- a/device-husky.mk
++++ b/device-husky.mk
+@@ -37,8 +37,9 @@ PRODUCT_PACKAGES += \
+     SettingsHuskyOverlay \
+     SystemUIGoogleOverlayVendorHusky
+ 
+-PRODUCT_PACKAGES += \
+-    ApertureOverlayHusky
++# ApertureOverlayHusky intentionally not shipped: vendor/google/camera's
++# GoogleCamera module overrides Aperture, so the RRO's target never exists.
++# Re-add if GoogleCamera is ever dropped and Aperture comes back.
+ 
+ # PowerShare
+ include hardware/google/pixel/powershare/device.mk
+diff --git a/device-shiba.mk b/device-shiba.mk
+index e6924c3..7facd20 100644
+--- a/device-shiba.mk
++++ b/device-shiba.mk
+@@ -15,6 +15,17 @@ endif
+ # Inherit from zuma
+ include device/google/zuma/common.mk
+ 
++# Fingerprint
++# etc/permissions/android.hardware.fingerprint.xml is deliberately skipped
++# from the vendor blob pull (device/google/shusky/shiba/skip-files-vendor.txt)
++# on the assumption AOSP provides it -- but nothing ever actually added
++# AOSP's own module, so neither existed and Settings hid fingerprint
++# enrollment entirely (PackageManager.hasSystemFeature(FEATURE_FINGERPRINT)
++# was false). The real Goodix HAL/service/firmware are all still pulled in
++# fine, this was purely the missing feature declaration.
++PRODUCT_PACKAGES += \
++    android.hardware.fingerprint.prebuilt.xml
++
+ # GPS
+ PRODUCT_PACKAGES += \
+     android.hardware.sensors-V2-ndk.vendor:64
+@@ -36,8 +47,10 @@ PRODUCT_PACKAGES += \
+     SettingsShibaOverlay \
+     SystemUIGoogleOverlayVendorShiba
+ 
+-PRODUCT_PACKAGES += \
+-    ApertureOverlayShiba
++# ApertureOverlayShiba intentionally not shipped: vendor/google/camera's
++# GoogleCamera module declares overrides: ["Aperture", "Camera2"], so its
++# target package never exists and the RRO would just be inert dead weight.
++# Re-add if GoogleCamera is ever dropped and Aperture comes back.
+ 
+ # PowerShare
+ include hardware/google/pixel/powershare/device.mk
+diff --git a/mist_husky.mk b/mist_husky.mk
+new file mode 100644
+index 0000000..0342b94
+--- /dev/null
++++ b/mist_husky.mk
+@@ -0,0 +1,62 @@
++#
++# SPDX-FileCopyrightText: The LineageOS Project
++# SPDX-FileCopyrightText: The Calyx Institute
++# SPDX-License-Identifier: Apache-2.0
++#
++# Mist-OS product makefile for Pixel 8 Pro (husky). See mist_shiba.mk for
++# the face-unlock/JamesDSP auto-wiring note -- same applies here.
++
++$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
++
++# Minimal GMS -- see mist_shiba.mk for rationale.
++WITH_GMS := true
++TARGET_USES_MINI_GAPPS := true
++
++# See mist_shiba.mk for full rationale -- Mist-OS's LINEAGE_BUILD
++# auto-derivation expects a "lineage_"-prefixed product name, which our
++# "mist_" naming doesn't match. Root cause of the apns-conf.xml collision.
++LINEAGE_BUILD := husky
++
++DEVICE_CODENAME := husky
++DEVICE_PATH := device/google/shusky
++VENDOR_PATH := vendor/google/husky
++$(call inherit-product, $(DEVICE_PATH)/aosp_$(DEVICE_CODENAME).mk)
++
++# Device identifier. Must come after all inclusions.
++PRODUCT_NAME := mist_$(DEVICE_CODENAME)
++PRODUCT_BRAND := google
++PRODUCT_MODEL := Pixel 8 Pro
++PRODUCT_DEVICE := $(DEVICE_CODENAME)
++PRODUCT_MANUFACTURER := Google
++
++# Fingerprint matches the actual blob/firmware level (TheMuppets husky blobs,
++# Aug 2026 SPL) -- do not spoof newer than this.
++PRODUCT_BUILD_PROP_OVERRIDES += \
++    BuildDesc="husky-user 17 CP2A.260805.005 15828068 release-keys" \
++    BuildFingerprint=google/husky/husky:17/CP2A.260805.005/15828068:user/release-keys \
++    DeviceProduct=$(DEVICE_CODENAME)
++
++# Mini GApps packages land in bare system/ and trip generic_system.mk's GSI
++# artifact-path requirement -- same offenders as mist_shiba.mk across both
++# checkers (GMS package is device-independent); verify with m nothing once
++# husky is lunched too.
++PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST += \
++    system/apex/com.google.android.webapp.apex \
++    system/lib64/libtensorflowlite_gpu_jni.so \
++    system/app/GoogleExtShared/GoogleExtShared.apk \
++    system/app/GooglePrintRecommendationService/GooglePrintRecommendationService.apk \
++    system/priv-app/DocumentsUIGoogle/DocumentsUIGoogle.apk \
++    system/priv-app/TagGoogle/TagGoogle.apk
++
++# Same apns-conf.xml collision as mist_shiba.mk -- see there for rationale.
++PRODUCT_PACKAGES := $(filter-out apns-conf.xml,$(PRODUCT_PACKAGES))
++PRODUCT_COPY_FILES := $(filter-out device/sample/etc/apns-full-conf.xml:product/etc/apns-conf.xml,$(PRODUCT_COPY_FILES))
++
++# Same zuma default-permissions.xml collision as mist_shiba.mk.
++PRODUCT_COPY_FILES := $(filter-out device/google/zuma/default-permissions.xml:product/etc/default-permissions/default-permissions.xml,$(PRODUCT_COPY_FILES))
++
++# Same DeviceIntelligenceNetworkPrebuiltAstrea collision as mist_shiba.mk --
++# see there for rationale. Not yet verified against husky's own m nothing.
++PRODUCT_PACKAGES := $(filter-out DeviceIntelligenceNetworkPrebuiltAstrea,$(PRODUCT_PACKAGES))
++
++$(call inherit-product, $(VENDOR_PATH)/$(DEVICE_CODENAME)-vendor.mk)
+diff --git a/mist_shiba.mk b/mist_shiba.mk
+new file mode 100644
+index 0000000..1d8ffc7
+--- /dev/null
++++ b/mist_shiba.mk
+@@ -0,0 +1,155 @@
++#
++# SPDX-FileCopyrightText: The LineageOS Project
++# SPDX-FileCopyrightText: The Calyx Institute
++# SPDX-License-Identifier: Apache-2.0
++#
++# Mist-OS product makefile for Pixel 8 (shiba).
++# device/google/shusky ships only aosp_shiba.mk / lineage_shiba.mk -- this
++# adds the mist_shiba lunch target the same way, cloning aosp_shiba.mk.
++#
++# Google face-unlock and JamesDSP are NOT inherited here -- zuma/common.mk
++# already has inherit-product-if-exists hooks for vendor/google/faceunlock/config.mk
++# and vendor/JamesDSP/config.mk, and both projects are pulled by our local
++# manifest at exactly those paths. Auto-wired, nothing to add.
++
++# Plain (non-PRODUCT_*) variables set anywhere in this file are visible to
++# every inherited makefile: inherit-product only RECORDS the parent path, and
++# the build parses this whole file first, then the parents. (That same
++# ordering is why a PRODUCT_PACKAGES filter-out in this file can never remove
++# something a parent adds: the parent's += happens after we've been parsed.)
++MISTOS_MAINTAINER := chiranz
++
++# Quick Tap (back double-tap). vendor/gms/gms_mini.mk defaults this to
++# `?= false` (gms_full/pico default it to true), which silently dropped
++# ColumbusService (vendor/lineage/config/mist.mk gates on it) and the
++# quick_tap sysconfig. Pixel 8 has the real Columbus CHRE nanoapp in the
++# blobs (vendor/etc/chre/columbus.so, appId 0x476f6f676c001019, the exact
++# ID ColumbusService's CHRESensor talks to) plus android.hardware.context_hub,
++# so the CHRE path is used, no AP-sensor tflite model needed.
++TARGET_SUPPORTS_QUICK_TAP := true
++
++$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
++
++# Minimal GMS: Play Store + Play Services core, not the full bundled-apps
++# package (Photos/YouTube/Maps/etc). Real Pixel features (Now Playing,
++# face-unlock enroll UI, Clear Calling toggle) come from TheMuppets' blobs
++# and the face-unlock/pixel-framework projects, not from the GApps package
++# itself, so mini is enough -- no need for the full package's bloat.
++WITH_GMS := true
++TARGET_USES_MINI_GAPPS := true
++
++# Mist-OS's own tooling (mistify()) always lunches lineage_<device>, never a
++# custom-prefixed product -- LINEAGE_BUILD auto-derives from that "lineage_"
++# prefix somewhere in the base chain, which our "mist_" naming never matches.
++# Root cause of the apns-conf.xml collision: build/make/target/product/
++# aosp_product.mk only adds its (colliding) generic APN copy rule
++# `ifeq ($(LINEAGE_BUILD),)` -- i.e. only when this is unset. Setting it
++# explicitly suppresses that path entirely -- the actual fix. The earlier
++# PRODUCT_COPY_FILES filter-out (still left in above) apparently ran at the
++# wrong point in the inherit chain to catch it; not worth chasing further
++# under time pressure now that the real root cause is addressed here.
++LINEAGE_BUILD := shiba
++
++DEVICE_CODENAME := shiba
++DEVICE_PATH := device/google/shusky
++VENDOR_PATH := vendor/google/shiba
++$(call inherit-product, $(DEVICE_PATH)/aosp_$(DEVICE_CODENAME).mk)
++
++# Mist "About phone" hardware card props (ro.mist.soc/battery/display/...).
++# A .prop file, not PRODUCT_PRODUCT_PROPERTIES: those split on spaces.
++TARGET_PRODUCT_PROP += $(DEVICE_PATH)/$(DEVICE_CODENAME)/mist_about.prop
++
++# Device identifier. Must come after all inclusions.
++PRODUCT_NAME := mist_$(DEVICE_CODENAME)
++PRODUCT_BRAND := google
++PRODUCT_MODEL := Pixel 8
++PRODUCT_DEVICE := $(DEVICE_CODENAME)
++PRODUCT_MANUFACTURER := Google
++
++# Fingerprint matches the actual blob/firmware level (TheMuppets shiba blobs,
++# Aug 2026 SPL) -- do not spoof newer than this, it breaks Play Integrity's
++# claimed-vs-attested check rather than helping it.
++PRODUCT_BUILD_PROP_OVERRIDES += \
++    BuildDesc="shiba-user 17 CP2A.260805.005 15828068 release-keys" \
++    BuildFingerprint=google/shiba/shiba:17/CP2A.260805.005/15828068:user/release-keys \
++    DeviceProduct=$(DEVICE_CODENAME)
++
++# Mini GApps packages land in bare system/ and trip generic_system.mk's GSI
++# artifact-path requirement. TWO separate checkers (soong analysis, then
++# kati/make) each report their own offender set -- both caught by m nothing,
++# not guessed, on separate build passes.
++PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST += \
++    system/apex/com.google.android.webapp.apex \
++    system/lib64/libtensorflowlite_gpu_jni.so \
++    system/app/GoogleExtShared/GoogleExtShared.apk \
++    system/app/GooglePrintRecommendationService/GooglePrintRecommendationService.apk \
++    system/priv-app/DocumentsUIGoogle/DocumentsUIGoogle.apk \
++    system/priv-app/TagGoogle/TagGoogle.apk
++
++# Two sources both write to product/etc/apns-conf.xml: Mist's own vendor/apn
++# Soong module (pulled via telephony.mk's PRODUCT_PACKAGES), and a generic
++# AOSP PRODUCT_COPY_FILES entry from device/sample/etc/apns-full-conf.xml
++# inherited somewhere in the base chain. Confirmed the second one via
++# `get_build_var PRODUCT_COPY_FILES | grep apns` -- filtering PRODUCT_PACKAGES
++# alone didn't help since that's not where this entry comes from. GMS/vendor
++# blobs already carry real Google carrier-config data (CarrierSettings,
++# CarrierLocation, CarrierMetrics, onecall_no.pb in TheMuppets' blobs), so
++# dropping the generic AOSP fallback costs nothing functional.
++PRODUCT_PACKAGES := $(filter-out apns-conf.xml,$(PRODUCT_PACKAGES))
++PRODUCT_COPY_FILES := $(filter-out device/sample/etc/apns-full-conf.xml:product/etc/apns-conf.xml,$(PRODUCT_COPY_FILES))
++
++# zuma's own default-permissions.xml collides with Mist-OS's own (Soong,
++# ROM-wide baseline) version at the same destination. Dropping zuma's --
++# lower risk than merging two permission-grant XML files blindly under time
++# pressure; worst case is some Pixel-specific app needs a runtime permission
++# grant instead of a default one, not a functional break.
++PRODUCT_COPY_FILES := $(filter-out device/google/zuma/default-permissions.xml:product/etc/default-permissions/default-permissions.xml,$(PRODUCT_COPY_FILES))
++
++# DeviceIntelligenceNetworkPrebuiltAstrea: mini-gapps' generic package
++# collides by LOCAL_MODULE name with the real one already provided by
++# vendor/google/shiba's blobs. NOTE: filtering PRODUCT_PACKAGES alone does
++# NOT fix this -- kati globs and registers every Android.mk it finds
++# regardless of PRODUCT_PACKAGES membership, so the actual fix is renaming
++# vendor/gms's competing package directory out of discovery:
++# vendor/gms/product/packages/privileged_apps/DeviceIntelligenceNetworkPrebuiltAstrea
++# is renamed to ...Astrea.disabled (and its Android.mk to Android.mk.disabled).
++# The real TheMuppets copy (vendor/google/shiba/Android.bp) is what ships.
++# Left this filter in as harmless belt-and-suspenders.
++PRODUCT_PACKAGES := $(filter-out DeviceIntelligenceNetworkPrebuiltAstrea,$(PRODUCT_PACKAGES))
++
++# AOSP's base_product.mk and hardware/google/pixel/common/pixel-common-device.mk
++# both unconditionally add the generic/emulator "virtual" biometrics HAL
++# modules (meant for CTS/VTS and Cuttlefish, not real hardware). Shipping them
++# alongside the real Goodix fingerprint HAL and Google's real face-unlock HAL
++# causes an AIDL instance conflict -- fingerprint disappears from Settings
++# entirely, and the fake virtual face HAL gets used instead of real Pixel
++# Face Unlock. NOTE: this filter alone does NOT actually remove them (same
++# category as the Astrea case above) -- the real fix is deleting the two
++# PRODUCT_PACKAGES += lines directly in those two source files. Left this
++# filter in as harmless belt-and-suspenders.
++PRODUCT_PACKAGES := $(filter-out \
++    com.android.hardware.biometrics.fingerprint.virtual \
++    com.android.hardware.biometrics.face.virtual, \
++    $(PRODUCT_PACKAGES))
++
++# vendor/lineage/config/mist.mk unconditionally ships Mist-OS's own generic
++# co.aospa.sense (Paranoid Android "Sense", Megvii-SDK-based) software face
++# unlock as "FaceUnlock", and sets ro.face.sense_service=true, which our
++# patched FaceService reads to register SenseProvider as THE face provider,
++# never even constructing a FaceProvider for the real Google/Pixel HAL --
++# confirmed on-device via dumpsys face showing provider: SenseProvider at
++# sensorId 1008 (BIOMETRIC_WEAK) while the real HAL sat fully registered and
++# unused (0 log lines post-boot, getSensorProps() never called). This also
++# statically overrides Settings' own config_face_enroll resource back to
++# Sense's enrollment activity via FaceUnlockOverlay.apk (an immutable static
++# RRO -- can't be disabled at runtime, has to not exist). Removing
++# "FaceUnlock" here cascades via its own `required` list in
++# packages/apps/FaceUnlock/Android.bp to also drop FaceUnlockOverlay, its
++# auto-generated product RRO, and all co.aospa.sense support files, since
++# Soong only installs `required` modules when the requiring module itself
++# is installed. FaceEnrollOverlay.apk (targets the *Google* enroll app, not
++# Settings) is unaffected and still needed.
++PRODUCT_PACKAGES := $(filter-out FaceUnlock,$(PRODUCT_PACKAGES))
++PRODUCT_SYSTEM_EXT_PROPERTIES := $(filter-out ro.face.sense_service=true,$(PRODUCT_SYSTEM_EXT_PROPERTIES))
++
++$(call inherit-product, $(VENDOR_PATH)/$(DEVICE_CODENAME)-vendor.mk)
+diff --git a/sepolicy/vendor/audioserver_jamesdsp.te b/sepolicy/vendor/audioserver_jamesdsp.te
+new file mode 100644
+index 0000000..526afc9
+--- /dev/null
++++ b/sepolicy/vendor/audioserver_jamesdsp.te
+@@ -0,0 +1,15 @@
++# JamesDSP audio effect (vendor/JamesDSP) needs audioserver to be able to
++# read/write its unlabeled config/preset files, and its native library needs
++# execmem for its DSP processing. Per vendor/JamesDSP/README.md's own
++# integration guide -- get_prop(audioserver, vendor_audio_prop) is skipped
++# per the README's own note for Google devices, whose sepolicy already
++# grants that.
++
++allow audioserver unlabeled:file {
++    getattr
++    open
++    read
++    write
++};
++
++allow hal_audio_default hal_audio_default:process execmem;
+diff --git a/sepolicy/vendor/file_contexts b/sepolicy/vendor/file_contexts
+index f8663d6..9497e5d 100644
+--- a/sepolicy/vendor/file_contexts
++++ b/sepolicy/vendor/file_contexts
+@@ -5,3 +5,4 @@
+ /vendor/bin/hw/lhd u:object_r:lhd_exec:s0
+ /vendor/bin/hw/scd u:object_r:scd_exec:s0
+ /vendor/bin/hw/vendor\.dolby\.media\.c2-default-service u:object_r:mediacodec_exec:s0
++/vendor/bin/gpuflag u:object_r:gpuflag_exec:s0
+diff --git a/sepolicy/vendor/genfs_contexts b/sepolicy/vendor/genfs_contexts
+deleted file mode 100644
+index 7995265..0000000
+--- a/sepolicy/vendor/genfs_contexts
++++ /dev/null
+@@ -1,4 +0,0 @@
+-genfscon sysfs /devices/platform/10c90000.hsi2c/i2c-9/9-003c u:object_r:sysfs_wlc:s0
+-genfscon sysfs /devices/platform/111e0000.spi/spi_master/spi21/spi21.0/nstandby u:object_r:sysfs_gps:s0
+-genfscon sysfs /devices/platform/bbd_pps/pps_assert u:object_r:sysfs_gps_assert:s0
+-genfscon sysfs /devices/virtual/pps/pps0/assert_elapsed u:object_r:sysfs_gps_assert:s0
+diff --git a/sepolicy/vendor/gpuflag.te b/sepolicy/vendor/gpuflag.te
+new file mode 100644
+index 0000000..66bea4d
+--- /dev/null
++++ b/sepolicy/vendor/gpuflag.te
+@@ -0,0 +1,25 @@
++# /vendor/bin/gpuflag ships in TheMuppets' real vendor blobs (both shiba
++# and husky) with its own /vendor/etc/init/gpuflag.rc
++# (exec_background u:r:gpuflag:s0 -- /vendor/bin/gpuflag), but no matching
++# sepolicy domain exists anywhere in this device tree -- confirmed via
++# on-device logcat: setexeccon('u:r:gpuflag:s0') fails outright with
++# EINVAL every boot (the type is simply undefined), so GPU feature flags
++# never get applied. ionutsandroidbuilds' zuma tree never ported the real
++# Pixel sepolicy for this binary. Minimal domain to get it running --
++# extend based on any further denials that show up in logs once this is
++# in place, same as was done for trusty_apploader/hal_face_default.
++
++type gpuflag, domain;
++type gpuflag_exec, exec_type, file_type, vendor_file_type;
++
++init_daemon_domain(gpuflag)
++
++# Verified on-device 2026-09-17: with this domain the binary now starts
++# (no more setexeccon EINVAL every boot) and exits 1 after 36ms with NO avc
++# denials. That exit is the binary's own "unsupported device" path: the
++# only sysfs node it knows is /sys/devices/genpd:0:34f00000.gpu0/power/
++# autosuspend_delay_ms, which does not exist on shiba (zuma's Mali is at
++# 1f000000; 34f00000 appears nowhere in the zuma kernel sources), and the
++# same binary ships unchanged in the husky blobs. It is a shared gs-family
++# tool aimed at a newer SoC; exiting 1 on zuma is stock behavior. Nothing
++# more to grant here.
+diff --git a/sepolicy/vendor/hal_face_default_extra.te b/sepolicy/vendor/hal_face_default_extra.te
+new file mode 100644
+index 0000000..763fb31
+--- /dev/null
++++ b/sepolicy/vendor/hal_face_default_extra.te
+@@ -0,0 +1,21 @@
++# Confirmed via on-device logcat (userdebug avc denials at boot, right after
++# the face TA successfully loads via trusty_apploader -- that part already
++# works fine, these are the actual blockers):
++#
++#   avc: denied { read } for comm="android.hardwar" name="u:object_r:default_prop:s0" \
++#       scontext=u:r:hal_face_default:s0 tcontext=u:object_r:default_prop:s0 tclass=file \
++#       permissive=0 bug=b/487141902
++#   avc: denied { read } for comm="android.hardwar" name="/" dev="sda10" ino=3 \
++#       scontext=u:r:hal_face_default:s0 tcontext=u:object_r:metadata_file:s0 tclass=dir \
++#       permissive=0
++#
++# Either denial failing an init check is consistent with the HAL reporting
++# itself unavailable and the framework falling back to generic face auth.
++
++# get_prop(hal_face_default, default_prop) -- REVERTED: violates a hard
++# AOSP neverallow (system/sepolicy/{public,private}/property.te) that blocks
++# every domain from broadly reading the generic default_prop bucket. Need
++# the actual property name to give it its own dedicated context instead;
++# still figuring that out (property name not visible in the on-device
++# logcat capture we have so far, only its unlabeled fallback context).
++allow hal_face_default metadata_file:dir r_dir_perms;
+diff --git a/sepolicy/vendor/trusty_apploader_faceauth.te b/sepolicy/vendor/trusty_apploader_faceauth.te
+new file mode 100644
+index 0000000..3061254
+--- /dev/null
++++ b/sepolicy/vendor/trusty_apploader_faceauth.te
+@@ -0,0 +1,14 @@
++# The real Pixel face-auth Trusty Application ships inside a vendor APEX
++# (com.google.android.hardware.biometrics.face) and gets loaded at boot via
++# `exec_background - system shell -- /vendor/bin/trusty_apploader
++# /apex/.../etc/firmware/faceauth.app` (ta_init.rc, bundled in the apex
++# itself). zuma's trusty_apploader.te only grants access to two device
++# nodes (dmabuf_system_heap_device, tee_device) -- no permission at all to
++# read the actual TA file it's told to load, which lives under a vendor
++# APEX mount. Without this, the TA never loads, the framework falls back
++# to generic/insecure face auth, and no error surfaces anywhere except a
++# silent SELinux denial in the log.
++
++allow trusty_apploader apex_mnt_dir:dir { search getattr };
++allow trusty_apploader vendor_apex_file:dir { search getattr };
++allow trusty_apploader vendor_apex_file:file r_file_perms;
+diff --git a/shiba/mist_about.prop b/shiba/mist_about.prop
+new file mode 100644
+index 0000000..29c1307
+--- /dev/null
++++ b/shiba/mist_about.prop
+@@ -0,0 +1,13 @@
++# Mist-OS "About phone" hardware card (packages/apps/Settings
++# src/com/mist/utils/AboutPhoneData.java + HyperPreference.java).
++# Lives in a .prop file on purpose: values with spaces get split/truncated
++# when passed through PRODUCT_PRODUCT_PROPERTIES (see ro.mistos.flavor,
++# which ships as "Cinnamon" instead of "Cinnamon Bun" for exactly that reason).
++ro.mist.device.name=Pixel 8
++ro.mist.soc=Google Tensor G3
++ro.mist.platform=Zuma
++ro.mist.display=1080 x 2400, 120 Hz
++ro.mist.screen=6.2" Actua OLED
++ro.mist.battery=4575 mAh
++ro.mist.camera=50MP + 12MP
++ro.mist.front=10.5MP
