@@ -271,7 +271,9 @@ the file area.
 | 20260917-1253/1254 | + Clear Calling (DCS, verified on a real call), first Now Playing lock-screen attempt (rendered 0×0: wrong parent) |
 | 20260917-1358 | Now Playing via KeyguardSection — song text on lock screen confirmed |
 | **20260917-1457** | **Current shiba release.** Now Playing pill centered. sha256 `56a11da23b0265bdd3b5bcf113ebf4c9e5c6e0276748ef68ba070b7281d959c0` |
-| **20260917-1514 (husky)** | **First husky build**, same feature set, **untested on hardware**. sha256 `5c6fa94023b869a896dd5479a07b0b535885eccebf5de9657b1ba62b7190c955` |
+| 20260917-1514 (husky) | First husky build, same feature set as shiba 1457. sha256 `5c6fa940…c955` |
+| **20260917-1723** | **Current shiba release.** + High brightness mode page (manual, QS tile, auto), Tap-to-check page crash fix, Lock screen → Shortcuts fix. sha256 `49d9a097e6967f1282cfe3c0b3aedf6e100ed10b4b0a19ba62e83aa300c61a4a` |
+| **20260917-1731 (husky)** | **Current husky release**, same changes, **untested on hardware**. sha256 `e90bb34b3bf563d47b55f0328353a6de7de00e663a9fc6eb81e9c88d69c85c0a` |
 
 ## 11. husky (Pixel 8 Pro)
 
