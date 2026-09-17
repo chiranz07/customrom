@@ -16,6 +16,9 @@ Maintainer: chiranz · Releases: https://sourceforge.net/projects/chiranz/files/
 |---|---|
 | `README.md` | This guide |
 | `HANDOFF.md` | Full knowledge base: root causes, verification methods, dead ends, decisions |
+| `FEATURES.md` | **Per-feature recipes** (symptom → root cause → files → re-apply → verify) for Face Unlock, fingerprint, JamesDSP, Files icon, StrongBox, Quick Tap, Clear Calling, Now Playing on lock screen, High brightness mode, Settings fixes, and the GApps set that is "the right size" |
+| `agent-memory/` | The previous AI agent's persistent memory files — load first when resuming with an agent |
+| `reference/` | Installed-file lists, build.props and product_packages of the last shipped builds; Pixel Framework analysis artifacts |
 | `local_manifests/shusky.xml` | The ROM local manifest (device tree, blobs, JamesDSP, GCam, face unlock) → goes to `.repo/local_manifests/` |
 | `local_manifests/kernel_gs.xml` | Kernel local manifest (engstk/gs overlay) — **reference only, the ROM ships the stock kernel** |
 | `patches/rom/*.patch` | One `git diff --binary` patch per upstream repo. `MANIFEST.txt` lists the base commit each patch was made against |
