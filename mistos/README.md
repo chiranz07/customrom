@@ -18,7 +18,8 @@ Maintainer: chiranz · Releases: https://sourceforge.net/projects/chiranz/files/
 | `HANDOFF.md` | Full knowledge base: root causes, verification methods, dead ends, decisions |
 | `FEATURES.md` | **Per-feature recipes** (symptom → root cause → files → re-apply → verify) for Face Unlock, fingerprint, JamesDSP, Files icon, StrongBox, Quick Tap, Clear Calling, Now Playing on lock screen, High brightness mode, Settings fixes, and the GApps set that is "the right size" |
 | `agent-memory/` | The previous AI agent's persistent memory files — load first when resuming with an agent |
-| `reference/` | Installed-file lists, build.props and product_packages of the last shipped builds; Pixel Framework analysis artifacts |
+| `reference/` | Installed-file lists, build.props and product_packages of the last shipped builds; Pixel Framework analysis artifacts; **`source-pins/`: `repo manifest -r` snapshots pinning all 1,247 ROM and 82 kernel projects to the exact commits used** |
+| `source/` | Reference copies (edits applied, `.git` stripped) of `device/google/shusky`, `device/google/zuma`, `vendor/google/faceunlock`, `vendor/JamesDSP` and the Mist manifest repo — see `source/README.md` for what was too large to include and how to reproduce the exact tree from the pins |
 | `local_manifests/shusky.xml` | The ROM local manifest (device tree, blobs, JamesDSP, GCam, face unlock) → goes to `.repo/local_manifests/` |
 | `local_manifests/kernel_gs.xml` | Kernel local manifest (engstk/gs overlay) — **reference only, the ROM ships the stock kernel** |
 | `patches/rom/*.patch` | One `git diff --binary` patch per upstream repo. `MANIFEST.txt` lists the base commit each patch was made against |
