@@ -1,0 +1,39 @@
+# Audio
+ro.audio.spatializer_enabled=true
+
+# Bluetooth
+persist.bluetooth.a2dp_offload.cap=sbc-aac-aptx-aptxhd-ldac-opus
+
+# Camera
+persist.vendor.camera.rls_range_supported=false
+persist.vendor.camera.rls_supported=false
+
+# DCK
+ro.gms.dck.eligible_wcc=2
+
+# Display
+ro.surface_flinger.ignore_hdr_camera_layers=true
+ro.surface_flinger.set_idle_timer_ms=1000
+
+# Fingerprint
+ro.vendor.fingerprint.ta.name=g7.app
+
+# Media
+ro.odm.build.media_performance_class=34
+
+# PKVM
+hypervisor.memory_reclaim.supported=1
+
+# Power
+vendor.powerhal.apf_disabled=false
+vendor.powerhal.apf_enabled=true
+
+# SVN
+ro.vendor.build.svn=77
+
+# Vibrator
+persist.vendor.vibrator.hal.chirp.enabled=0
+persist.vendor.vibrator.hal.context.scale=60
+ro.vendor.vibrator.hal.device.mass=0.187
+ro.vendor.vibrator.hal.loc.coeff=2.75
+vendor.audio.hapticgenerator.distortion.output.gain=0.38

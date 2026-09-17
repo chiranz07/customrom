@@ -1,0 +1,25 @@
+# /vendor/bin/gpuflag ships in TheMuppets' real vendor blobs (both shiba
+# and husky) with its own /vendor/etc/init/gpuflag.rc
+# (exec_background u:r:gpuflag:s0 -- /vendor/bin/gpuflag), but no matching
+# sepolicy domain exists anywhere in this device tree -- confirmed via
+# on-device logcat: setexeccon('u:r:gpuflag:s0') fails outright with
+# EINVAL every boot (the type is simply undefined), so GPU feature flags
+# never get applied. ionutsandroidbuilds' zuma tree never ported the real
+# Pixel sepolicy for this binary. Minimal domain to get it running --
+# extend based on any further denials that show up in logs once this is
+# in place, same as was done for trusty_apploader/hal_face_default.
+
+type gpuflag, domain;
+type gpuflag_exec, exec_type, file_type, vendor_file_type;
+
+init_daemon_domain(gpuflag)
+
+# Verified on-device 2026-09-17: with this domain the binary now starts
+# (no more setexeccon EINVAL every boot) and exits 1 after 36ms with NO avc
+# denials. That exit is the binary's own "unsupported device" path: the
+# only sysfs node it knows is /sys/devices/genpd:0:34f00000.gpu0/power/
+# autosuspend_delay_ms, which does not exist on shiba (zuma's Mali is at
+# 1f000000; 34f00000 appears nowhere in the zuma kernel sources), and the
+# same binary ships unchanged in the husky blobs. It is a shared gs-family
+# tool aimed at a newer SoC; exiting 1 on zuma is stock behavior. Nothing
+# more to grant here.

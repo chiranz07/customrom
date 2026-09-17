@@ -1,0 +1,17 @@
+# Bluetooth
+bluetooth.core.le.dsa_transport_preference=iso-sw,le-acl
+bluetooth.device_id.product_id=16654
+bluetooth.hci.timeout_milliseconds=5000
+bluetooth.profile.hap.enabled_by_default=true
+persist.bluetooth.extended_dump_on_fail.enabled=true
+persist.bluetooth.opus.enabled=true
+persist.vendor.bluetooth.bluetooth_hal.enabled=false
+
+# Cutout
+ro.support_hide_display_cutout=true
+
+# Google keyboard
+ro.com.google.ime.kb_pad_port_b=8
+
+# Quick start
+ro.quick_start.device_id=shiba

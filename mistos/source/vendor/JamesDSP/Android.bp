@@ -1,0 +1,37 @@
+// Authors: james34602 and PBone
+//
+android_app_import {
+    name: "JamesDSP",
+    owner: "james34602",
+    apk: "proprietary/product/app/JamesDSP/JamesDSP.apk",
+    preprocessed: true,
+    presigned: true,
+    dex_preopt: {
+        enabled: false,
+    },
+    overrides: ["AudioFX", "MusicFX"],
+    product_specific: true,
+}
+
+prebuilt_etc {
+    name: "allowlist_james_dsp.xml",
+    src: "proprietary/product/etc/sysconfig/allowlist_james_dsp.xml",
+    sub_dir: "sysconfig",
+    product_specific: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libjamesdspaidl",
+    installable: true,
+    strip: {
+        none: true,
+    },
+    target: {
+        android_arm64: {
+            srcs: ["proprietary/vendor/lib64/soundfx/libjamesdspaidl.so"],
+            shared_libs: ["android.hardware.audio.effect-V2-ndk", "android.hardware.common-V2-ndk", "android.hardware.common.fmq-V1-ndk", "android.media.audio.common.types-V3-ndk", "libaudioaidlcommon", "libaudioutils", "libbase", "libbinder_ndk", "libc++", "libc", "libcutils", "libdl", "libfmq", "liblog", "libm", "libutils"],        },
+    },
+    vendor: true,
+    ignore_max_page_size: true,
+    relative_install_path: "soundfx",
+}

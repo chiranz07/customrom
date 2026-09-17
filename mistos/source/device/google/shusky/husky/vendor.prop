@@ -1,0 +1,46 @@
+# Audio
+ro.audio.spatializer_enabled=true
+
+# Bluetooth
+persist.bluetooth.a2dp_offload.cap=sbc-aac-aptx-aptxhd-ldac-opus
+
+# Camera
+persist.vendor.camera.rls_supported=false
+
+# DCK
+ro.gms.dck.eligible_wcc=3
+
+# Display
+persist.vendor.display.primary.boot_config=1008x2244@120
+ro.surface_flinger.ignore_hdr_camera_layers=true
+ro.surface_flinger.support_kernel_idle_timer=true
+ro.vendor.primarydisplay.blocking_zone.min_refresh_rate_by_nits=15:10,:1
+vendor.display.0.brightness.acl.default=0
+vendor.display.0.brightness.dimming.usage?=1
+vendor.display.preferred_mode=1008x2244@120
+vendor.primarydisplay.op.hs_hz=120
+vendor.primarydisplay.op.ns_hz=60
+vendor.primarydisplay.op.ns_min_dbv=1172
+
+# Fingerprint
+ro.vendor.fingerprint.ta.name=g7.app
+
+# Media
+ro.odm.build.media_performance_class=34
+
+# PKVM
+hypervisor.memory_reclaim.supported=1
+
+# SVN
+ro.vendor.build.svn=77
+
+# Touch
+ro.vendor.touch.dump.proc=/proc/fts/driver_test
+ro.vendor.touch.dump.sys=/sys/class/spi_master/spi20/spi20.0
+
+# Vibrator
+persist.vendor.vibrator.hal.chirp.enabled=0
+persist.vendor.vibrator.hal.context.scale=60
+ro.vendor.vibrator.hal.device.mass=0.222
+ro.vendor.vibrator.hal.loc.coeff=2.8
+vendor.audio.hapticgenerator.distortion.output.gain=0.38

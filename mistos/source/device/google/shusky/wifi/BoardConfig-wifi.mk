@@ -1,0 +1,21 @@
+#
+# SPDX-FileCopyrightText: 2021 The Android Open-Source Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# WiFi
+BOARD_WLAN_DEVICE := bcmdhd
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
+BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_bcmdhd
+WPA_SUPPLICANT_VERSION := VER_0_8_X
+BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+BOARD_HOSTAPD_DRIVER := NL80211
+# Wifi interface combination - {1 STA + 1 AP} or {1 STA + 1 AP_BRIDGED} or {1 STA + 1 P2P}
+# or {1 STA + 1 NAN} or {2 STA}
+WIFI_HAL_INTERFACE_COMBINATIONS := {{{STA}, 1}, {{P2P, NAN, AP, AP_BRIDGED}, 1}}, {{{STA}, 2}}
+# Avoid Wifi reset on MAC Address change
+WIFI_AVOID_IFACE_RESET_MAC_CHANGE := true
+WIFI_FEATURE_HOSTAPD_11AX := true
+BOARD_HOSTAPD_CONFIG_80211W_MFP_OPTIONAL := true
+WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
+WIFI_BRCM_OPEN_SOURCE_MULTI_AKM := enabled

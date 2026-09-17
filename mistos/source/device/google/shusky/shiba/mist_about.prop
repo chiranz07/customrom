@@ -1,0 +1,13 @@
+# Mist-OS "About phone" hardware card (packages/apps/Settings
+# src/com/mist/utils/AboutPhoneData.java + HyperPreference.java).
+# Lives in a .prop file on purpose: values with spaces get split/truncated
+# when passed through PRODUCT_PRODUCT_PROPERTIES (see ro.mistos.flavor,
+# which ships as "Cinnamon" instead of "Cinnamon Bun" for exactly that reason).
+ro.mist.device.name=Pixel 8
+ro.mist.soc=Google Tensor G3
+ro.mist.platform=Zuma
+ro.mist.display=1080 x 2400, 120 Hz
+ro.mist.screen=6.2" Actua OLED
+ro.mist.battery=4575 mAh
+ro.mist.camera=50MP + 12MP
+ro.mist.front=10.5MP

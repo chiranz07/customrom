@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2026 Mist-OS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="hbm_title">High brightness mode</string>
+    <string name="hbm_summary">Peak brightness on demand, Quick Settings tile, sunlight threshold</string>
+    <string name="hbm_tile_label">HBM</string>
+
+    <string name="hbm_manual_category">Manual</string>
+    <string name="hbm_enable_title">High brightness mode</string>
+    <string name="hbm_enable_summary">Unlock the panel\'s peak brightness at any time and set brightness to maximum. Turning it off restores your previous brightness.</string>
+
+    <string name="hbm_auto_category">Automatic (sunlight)</string>
+    <string name="auto_hbm_enable_title">Custom sunlight threshold</string>
+    <string name="auto_hbm_enable_summary">Use your own light threshold for automatic peak brightness (requires adaptive brightness)</string>
+    <string name="auto_hbm_threshold_title">Light threshold (lux)</string>
+    <string name="auto_hbm_threshold_summary">Stock is 10000 lux; direct sunlight is usually above 20000</string>
+    <string name="auto_hbm_no_time_limit_title">No time limit</string>
+    <string name="auto_hbm_no_time_limit_summary">Stock allows peak brightness for only 5 minutes in every 30. Removing the limit increases heat and battery use.</string>
+
+    <string name="hbm_footer">Peak brightness is still disabled while HDR content is on screen, in Battery Saver, and when the display gets hot. Automatic mode only works with adaptive brightness on, because the ambient light reading comes from it.</string>
+</resources>

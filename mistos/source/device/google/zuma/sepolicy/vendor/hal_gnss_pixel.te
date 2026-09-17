@@ -1,0 +1,6 @@
+type hal_gnss_pixel, domain;
+type hal_gnss_pixel_exec, exec_type, file_type, vendor_file_type;
+
+hal_server_domain(hal_gnss_pixel, hal_gnss)
+
+init_daemon_domain(hal_gnss_pixel)

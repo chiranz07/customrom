@@ -1,0 +1,21 @@
+# Confirmed via on-device logcat (userdebug avc denials at boot, right after
+# the face TA successfully loads via trusty_apploader -- that part already
+# works fine, these are the actual blockers):
+#
+#   avc: denied { read } for comm="android.hardwar" name="u:object_r:default_prop:s0" \
+#       scontext=u:r:hal_face_default:s0 tcontext=u:object_r:default_prop:s0 tclass=file \
+#       permissive=0 bug=b/487141902
+#   avc: denied { read } for comm="android.hardwar" name="/" dev="sda10" ino=3 \
+#       scontext=u:r:hal_face_default:s0 tcontext=u:object_r:metadata_file:s0 tclass=dir \
+#       permissive=0
+#
+# Either denial failing an init check is consistent with the HAL reporting
+# itself unavailable and the framework falling back to generic face auth.
+
+# get_prop(hal_face_default, default_prop) -- REVERTED: violates a hard
+# AOSP neverallow (system/sepolicy/{public,private}/property.te) that blocks
+# every domain from broadly reading the generic default_prop bucket. Need
+# the actual property name to give it its own dedicated context instead;
+# still figuring that out (property name not visible in the on-device
+# logcat capture we have so far, only its unlabeled fallback context).
+allow hal_face_default metadata_file:dir r_dir_perms;

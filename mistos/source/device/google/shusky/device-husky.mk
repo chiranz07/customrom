@@ -1,0 +1,69 @@
+#
+# SPDX-FileCopyrightText: 2021 The Android Open-Source Project
+# SPDX-FileCopyrightText: The LineageOS Project
+# SPDX-FileCopyrightText: The Calyx Institute
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Kernel
+TARGET_KERNEL_DIR := device/google/shusky-kernels
+
+ifneq ($(TARGET_BOOTS_16K),true)
+PRODUCT_16K_DEVELOPER_OPTION := true
+endif
+
+# Inherit from zuma
+include device/google/zuma/common.mk
+
+# GPS
+PRODUCT_PACKAGES += \
+    android.hardware.sensors-V2-ndk.vendor:64
+
+# Overlays
+PRODUCT_PACKAGES += \
+    FrameworkResOverlayVendorShusky \
+    PixelNfcOverlayShusky \
+    PixelWifiOverlay2023Shusky \
+    SafetyRegulatoryInfoOverlayProductShusky
+
+PRODUCT_PACKAGES += \
+    DMServiceOverlayVendorHusky \
+    FrameworkResOverlayProductHusky \
+    FrameworkResOverlayVendorHusky \
+    PixelDisplayServiceOverlayProductHusky \
+    PixelNfcOverlayHusky \
+    PixelUwbOverlayHK3 \
+    SettingsGoogleHuskyOverlay \
+    SettingsHuskyOverlay \
+    SystemUIGoogleOverlayVendorHusky
+
+# ApertureOverlayHusky intentionally not shipped: vendor/google/camera's
+# GoogleCamera module overrides Aperture, so the RRO's target never exists.
+# Re-add if GoogleCamera is ever dropped and Aperture comes back.
+
+# PowerShare
+include hardware/google/pixel/powershare/device.mk
+
+# Properties
+TARGET_PRODUCT_PROP += $(DEVICE_PATH)/$(DEVICE_CODENAME)/product.prop
+TARGET_VENDOR_PROP += $(DEVICE_PATH)/$(DEVICE_CODENAME)/vendor.prop
+
+# Recovery
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/recovery/init.recovery.device.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.husky.rc
+
+PRODUCT_PACKAGES += \
+    init.recovery.husky.touch.rc
+
+# Soong namespaces
+PRODUCT_SOONG_NAMESPACES += \
+    $(DEVICE_PATH)
+
+# Window extensions
+$(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
+
+# Fingerprint feature declaration (FEATURE_FINGERPRINT). Never added by this
+# device tree; without it Settings hides fingerprint enrollment entirely.
+# Same fix as device-shiba.mk.
+PRODUCT_PACKAGES += \
+    android.hardware.fingerprint.prebuilt.xml

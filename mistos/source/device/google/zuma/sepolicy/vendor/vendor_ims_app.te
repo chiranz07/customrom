@@ -1,0 +1,7 @@
+binder_call(vendor_ims_app, rild)
+
+get_prop(vendor_ims_app, vendor_imssvc_prop)
+
+set_prop(vendor_ims_app, vendor_rild_prop)
+
+allow vendor_ims_app hal_exynos_rild_hwservice:hwservice_manager find;

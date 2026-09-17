@@ -1,0 +1,15 @@
+# JamesDSP audio effect (vendor/JamesDSP) needs audioserver to be able to
+# read/write its unlabeled config/preset files, and its native library needs
+# execmem for its DSP processing. Per vendor/JamesDSP/README.md's own
+# integration guide -- get_prop(audioserver, vendor_audio_prop) is skipped
+# per the README's own note for Google devices, whose sepolicy already
+# grants that.
+
+allow audioserver unlabeled:file {
+    getattr
+    open
+    read
+    write
+};
+
+allow hal_audio_default hal_audio_default:process execmem;

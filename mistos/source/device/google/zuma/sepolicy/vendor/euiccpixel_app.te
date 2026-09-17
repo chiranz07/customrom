@@ -1,0 +1,4 @@
+set_prop(euiccpixel_app, vendor_modem_prop)
+set_prop(euiccpixel_app, vendor_secure_element_prop)
+
+dontaudit euiccpixel_app secure_element_service:service_manager find;

@@ -1,0 +1,16 @@
+type chre, domain;
+type chre_exec, exec_type, file_type, vendor_file_type;
+
+binder_call(chre, stats_service_server)
+
+init_daemon_domain(chre)
+
+wakelock_use(chre)
+
+allow chre aoc_device:chr_file rw_file_perms;
+allow chre chre_data_file:dir create_dir_perms;
+allow chre chre_data_file:file create_file_perms;
+allow chre device:dir r_dir_perms;
+allow chre fwk_stats_service:service_manager find;
+allow chre sysfs_aoc:dir search;
+allow chre sysfs_aoc_boottime:file r_file_perms;

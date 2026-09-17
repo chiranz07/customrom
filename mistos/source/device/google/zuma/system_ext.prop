@@ -1,0 +1,5 @@
+# Audio
+ro.audio.ihaladaptervendorextension_enabled=true
+
+# Camera
+ro.camerax.extensions.enabled=true

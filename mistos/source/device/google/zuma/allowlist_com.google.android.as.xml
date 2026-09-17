@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<config>
+    <!-- Specify the explicit set of other applications that AI services are allowed to
+         interact with, including the providers that back the implementation of the APIs
+         provided by the package. -->
+    <allow-association target="com.google.android.as" allowed="com.android.bluetooth" />
+    <allow-association target="com.google.android.as" allowed="com.android.bluetooth.services" />
+    <allow-association target="com.google.android.as" allowed="com.android.providers.contacts" />
+    <allow-association target="com.google.android.as" allowed="com.android.providers.media" />
+    <allow-association target="com.google.android.as" allowed="com.android.providers.telephony" />
+    <allow-association target="com.google.android.as" allowed="com.android.systemui" />
+    <!-- AI services can bind to its open-source network component. -->
+    <allow-association target="com.google.android.as" allowed="com.google.android.as.oss" />
+
+    <!-- AI services open-source network component can only bind back to the core package. -->
+    <allow-association target="com.google.android.as.oss" allowed="com.google.android.as" />
+    <!-- AI services open-source network component can bind to AI Core. -->
+    <allow-association target="com.google.android.as.oss" allowed="com.google.android.aicore" />
+</config>

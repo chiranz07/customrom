@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2026 Mist-OS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/hbm_title">
+
+    <PreferenceCategory android:title="@string/hbm_manual_category">
+        <SwitchPreferenceCompat
+            android:key="hbm_force"
+            android:title="@string/hbm_enable_title"
+            android:summary="@string/hbm_enable_summary"
+            android:persistent="false"
+            android:defaultValue="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/hbm_auto_category">
+        <SwitchPreferenceCompat
+            android:key="auto_hbm"
+            android:title="@string/auto_hbm_enable_title"
+            android:summary="@string/auto_hbm_enable_summary"
+            android:persistent="false"
+            android:defaultValue="false" />
+
+        <SeekBarPreference
+            android:key="auto_hbm_threshold"
+            android:title="@string/auto_hbm_threshold_title"
+            android:summary="@string/auto_hbm_threshold_summary"
+            android:dependency="auto_hbm"
+            android:persistent="false"
+            android:defaultValue="10000"
+            android:max="60000"
+            app:min="1000"
+            app:seekBarIncrement="1000"
+            app:showSeekBarValue="true" />
+
+        <SwitchPreferenceCompat
+            android:key="auto_hbm_no_time_limit"
+            android:title="@string/auto_hbm_no_time_limit_title"
+            android:summary="@string/auto_hbm_no_time_limit_summary"
+            android:dependency="auto_hbm"
+            android:persistent="false"
+            android:defaultValue="false" />
+    </PreferenceCategory>
+
+    <Preference
+        android:key="hbm_footer"
+        android:selectable="false"
+        android:summary="@string/hbm_footer" />
+</PreferenceScreen>

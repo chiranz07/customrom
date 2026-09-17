@@ -1,0 +1,14 @@
+type intelligence_data_file, data_file_type, file_type;
+
+allow init boot_block_device:lnk_file relabelto;
+allow init custom_ab_block_device:lnk_file relabelto;
+allow init intelligence_data_file:dir mounton;
+allow init mnt_vendor_file:dir mounton;
+allow init modem_efs_file:dir mounton;
+allow init modem_img_file:dir mounton;
+allow init modem_img_file:filesystem { getattr mount relabelfrom };
+allow init modem_userdata_file:dir mounton;
+allow init persist_file:dir mounton;
+allow init ram_device:blk_file w_file_perms;
+allow init sysfs_scsi_devices_0000:file w_file_perms;
+allow init userdata_exp_block_device:blk_file write;
