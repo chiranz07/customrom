@@ -1145,10 +1145,20 @@ Verified against the real factory image `shiba-cp2a.260605.012`
   cp2a.260605). The empty `ro.boot.boot_patchlevel` therefore is simply how
   this firmware behaves, not a mismatch.
 **Fix:** `DeviceConnectivityServicePrebuilt_26.01.00` added to
-`gms_mini.mk`'s system_ext/priv-app list. Verify on-device: Settings →
-Sound & vibration → "Clear calling" toggle; `dumpsys package
-com.google.android.apps.pixel.dcservice`; during a call `getprop
-persist.vendor.audio.cca.enabled` flips with the toggle.
+`gms_mini.mk`'s system_ext/priv-app list. **CONFIRMED WORKING ON-DEVICE
+2026-09-17** (build `...-1253`): toggle present under Settings → Sound &
+vibration, and a real 7-minute wideband call logged
+`AHal::AudioMetric::AtomWriter: CcaAtom: source: VOICE, status: {
+is_ignored: 0, is_active: 1, is_ui_on: 1, band: WB,
+duration_cca_enabled_second: 428 }`. **Verification recipe:** place a call
+with the toggle on, hang up, then `adb shell "logcat -d | grep -E
+'CcaAtom|SaveSuezDataEndCall'"` and read `is_active`/`is_ui_on`/
+`duration_cca_enabled_second`. Do NOT use `getprop
+persist.vendor.audio.cca.enabled` from adb shell — SELinux denies the read
+(`Access denied finding property`) so it always prints empty; same
+property-visibility trap described earlier in this file. "CCA Gain
+mute/unmute" / "CCA rb underrun" / `AOC: CCA unloaded` lines at call end
+are normal teardown chatter.
 
 Original root-cause notes (kept; the "APK missing" conclusion is superseded):
 
@@ -1376,12 +1386,37 @@ is an empty `<merge/>` stub included by `keyguard_bottom_area.xml`;
 - `src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java`
   (as upstream, receiver for SHOW/HIDE with the permission guard, TTL alarm,
   user-switch handling; typed `getParcelableExtra`).
-- `src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt`
-  (new, Mist-side): `CoreStartable` that finds the container in
-  `NotificationShadeWindowView` (retries 5×1s if not inflated yet), calls
-  `initializeView(...)` and creates the service; bound in
-  `dagger/SystemUICoreStartableModule.kt` (`@ClassKey(AmbientIndicationStartable::class)`).
-  Replaces SystemUIGoogle's `GoogleServices` wiring.
+- `src/com/android/systemui/ambientmusic/AmbientIndicationAreaSection.kt`
+  (new, Mist-side): a `KeyguardSection` bound to AOSP's optional
+  `KEYGUARD_AMBIENT_INDICATION_AREA_SECTION` slot (`@Binds @Named` added in
+  `keyguard/ui/view/layout/sections/KeyguardSectionsModule.kt`, consumed by
+  `DefaultKeyguardBlueprint`/`SplitShadeKeyguardBlueprint`). It inflates
+  `layout/ambient_indication` into `KeyguardRootView`, constrains it
+  BOTTOM→TOP of `keyguard_indication_area` and START/END→parent, calls
+  `initializeView(...)`, creates the `AmbientIndicationService`, and stops
+  it in `removeViews` (blueprint rebuilds). Also reports text visibility to
+  `KeyguardInteractor.setAmbientIndicationVisible()` (AOSP uses it to shrink
+  the notification stack).
+  **First attempt (build `...-1253`) used a CoreStartable + the legacy
+  `keyguard_bottom_area.xml` include instead and rendered nothing:** the
+  device agent's view dump showed `KeyguardBottomAreaView` is inflated but
+  permanently GONE on Android 17 (superseded by `KeyguardRootView`), so the
+  container was VISIBLE at 0×0 inside a GONE parent — while the service
+  logged "Showing ambient indication." happily. Trap noted by the agent:
+  `R.id.keyguard_indication_area` exists in BOTH trees (dead LinearLayout in
+  the bottom area, live `KeyguardIndicationArea` in the root view), so
+  naive `findViewById` from the window root can resolve the dead one. The
+  include was removed from `keyguard_bottom_area.xml` (comment left in
+  place) so exactly one container exists.
+  **CONFIRMED WORKING ON-DEVICE on build `...-1358`** (user: "the song
+  shows on the lock screen"). One cosmetic follow-up: the pill sat at the
+  left edge — Google's `ambient_indication_inner.xml` is a ConstraintLayout
+  whose centering only comes from a runtime-applied ConstraintSet, and the
+  outer container had asymmetric 100dp/41dp margins from the old
+  FrameLayout placement. Fixed after 1358 by making the inner root a
+  FrameLayout with `layout_gravity="center_horizontal|bottom"`, symmetric
+  24dp margins, and deleting the `res/xml/ambient_indication_inner_*.xml`
+  ConstraintSets + the runtime apply code.
 - `res/layout/ambient_indication.xml` (stub → real container),
   `res/layout/ambient_indication_inner.xml`,
   `res/xml/ambient_indication_inner_{downwards,upwards}.xml`,
@@ -1788,7 +1823,16 @@ the actual flashable artifact. Before reporting anything as fixed:
    `getprop`-based "it's missing" conclusion, and remember `grep -c` on a
    log tag counts lines, not distinct events (one Java exception can be
    20-40 stack-trace lines under the same tag).
-7. Don't declare victory on a single non-fatal-looking log line — chase it
+7. **Logcat "absence" of a SystemUI boot-time line proves nothing on this
+   device** (learned 2026-09-17): the `main` buffer rotates past
+   SystemUI's entire startup window within ~2.5 minutes under normal load,
+   while `events`/`kernel` retain far longer — so "the earliest line in
+   the buffer is right after boot" is a false coverage signal. The valid
+   check is the earliest surviving line from SystemUI's *own pid*
+   (`logcat -d --pid=$(pidof com.android.systemui) | head -1`); if that is
+   later than the moment you care about, use `dumpsys` (view hierarchy,
+   dumpables) instead of logcat.
+8. Don't declare victory on a single non-fatal-looking log line — chase it
    to see whether the component actually completes its job (e.g. "HAL has
    started successfully" *and* servicemanager confirming registration,
    not just the absence of an immediate crash).

@@ -1,0 +1,9 @@
+# Mist-OS "About phone" hardware card (see shiba/mist_about.prop for why this is a .prop file).
+ro.mist.device.name=Pixel 8 Pro
+ro.mist.soc=Google Tensor G3
+ro.mist.platform=Zuma
+ro.mist.display=1344 x 2992, 120 Hz
+ro.mist.screen=6.7" Super Actua LTPO OLED
+ro.mist.battery=5050 mAh
+ro.mist.camera=50MP + 48MP + 48MP
+ro.mist.front=10.5MP

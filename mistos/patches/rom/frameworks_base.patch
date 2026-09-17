@@ -1001,7 +1001,7 @@ index 000000000..961dff13a
 +</vector>
 \ No newline at end of file
 diff --git a/packages/SystemUI/res/layout/ambient_indication.xml b/packages/SystemUI/res/layout/ambient_indication.xml
-index 37ba35fd0..9a2c9f912 100644
+index 37ba35fd0..1755e2d8a 100644
 --- a/packages/SystemUI/res/layout/ambient_indication.xml
 +++ b/packages/SystemUI/res/layout/ambient_indication.xml
 @@ -15,5 +15,17 @@
@@ -1022,51 +1022,55 @@ index 37ba35fd0..9a2c9f912 100644
 +    android:layout="@layout/ambient_indication_inner"
 +    android:layout_gravity="bottom"
 +    android:layout_marginBottom="@dimen/ambient_indication_margin_bottom"
-+    android:layout_marginStart="100dp"
-+    android:layout_marginEnd="41dp" />
++    android:layout_marginStart="24dp"
++    android:layout_marginEnd="24dp" />
 diff --git a/packages/SystemUI/res/layout/ambient_indication_inner.xml b/packages/SystemUI/res/layout/ambient_indication_inner.xml
 new file mode 100644
-index 000000000..64a297146
+index 000000000..4024d8926
 --- /dev/null
 +++ b/packages/SystemUI/res/layout/ambient_indication_inner.xml
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,53 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<androidx.constraintlayout.widget.ConstraintLayout
++<!-- Inner layout of the Pixel ambient indication (Now Playing) pill.
++     Mist-OS: root changed from ConstraintLayout (whose centering depended on
++     a runtime-applied ConstraintSet) to a FrameLayout so the icon+text row is
++     centered by plain layout_gravity. -->
++<FrameLayout
 +    xmlns:android="http://schemas.android.com/apk/res/android"
-+    android:orientation="vertical"
 +    android:id="@+id/ambient_indication"
 +    android:paddingTop="4dp"
 +    android:layout_width="match_parent"
 +    android:layout_height="wrap_content"
 +    android:forceHasOverlappingRendering="false">
 +    <LinearLayout
-+        android:layout_gravity="center"
++        android:layout_gravity="center_horizontal|bottom"
 +        android:orientation="horizontal"
++        android:gravity="center_vertical"
 +        android:id="@+id/ambient_indication_info_container"
 +        android:layout_width="wrap_content"
 +        android:layout_height="wrap_content">
-+    <ImageView
-+        android:layout_gravity="center"
-+        android:id="@+id/ambient_indication_icon"
-+        android:visibility="gone"
-+        android:clickable="true"
-+        android:layout_width="48dp"
-+        android:layout_height="48dp"
-+        android:scaleType="center"/>
-+    <TextView
-+        android:textAppearance="@style/TextAppearance.Keyguard.BottomArea"
-+        android:textSize="14sp"
-+        android:gravity="center_vertical"
-+        android:layout_gravity="center"
-+        android:id="@+id/ambient_indication_text"
-+        android:paddingTop="15sp"
-+        android:paddingBottom="15sp"
-+        android:visibility="gone"
-+        android:layout_width="wrap_content"
-+        android:layout_height="wrap_content"
-+        android:singleLine="true"
-+        android:letterSpacing="0.02"
-+        android:forceHasOverlappingRendering="false"/>
++        <ImageView
++            android:layout_gravity="center"
++            android:id="@+id/ambient_indication_icon"
++            android:visibility="gone"
++            android:clickable="true"
++            android:layout_width="48dp"
++            android:layout_height="48dp"
++            android:scaleType="center"/>
++        <TextView
++            android:textAppearance="@style/TextAppearance.Keyguard.BottomArea"
++            android:textSize="14sp"
++            android:gravity="center_vertical"
++            android:layout_gravity="center"
++            android:id="@+id/ambient_indication_text"
++            android:paddingTop="15sp"
++            android:paddingBottom="15sp"
++            android:visibility="gone"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:singleLine="true"
++            android:letterSpacing="0.02"
++            android:forceHasOverlappingRendering="false"/>
 +    </LinearLayout>
 +    <ImageView
 +        android:layout_gravity="top|center_horizontal"
@@ -1078,7 +1082,22 @@ index 000000000..64a297146
 +        android:layout_height="@dimen/dock_logo_min_size"
 +        android:scaleType="fitXY"
 +        android:cropToPadding="true"/>
-+</androidx.constraintlayout.widget.ConstraintLayout>
++</FrameLayout>
+diff --git a/packages/SystemUI/res/layout/keyguard_bottom_area.xml b/packages/SystemUI/res/layout/keyguard_bottom_area.xml
+index bb7dbcc00..bd2ca98d3 100644
+--- a/packages/SystemUI/res/layout/keyguard_bottom_area.xml
++++ b/packages/SystemUI/res/layout/keyguard_bottom_area.xml
+@@ -125,6 +125,8 @@
+         <include layout="@layout/keyguard_bottom_area_overlay" />
+     </FrameLayout>
+ 
+-    <include layout="@layout/ambient_indication"
+-             android:id="@id/ambient_indication_container" />
++    <!-- Mist-OS: the Pixel ambient indication (Now Playing) container is no longer
++         included here. This legacy bottom area is inflated but permanently GONE on
++         Android 17, so anything inside it never draws; the container is now added to
++         KeyguardRootView by com.android.systemui.ambientmusic.AmbientIndicationAreaSection. -->
+ </com.android.systemui.statusbar.phone.KeyguardBottomAreaView>
 diff --git a/packages/SystemUI/res/values/dimens_ambient_indication.xml b/packages/SystemUI/res/values/dimens_ambient_indication.xml
 new file mode 100644
 index 000000000..129c5f88d
@@ -1097,38 +1116,12 @@ index 000000000..129c5f88d
 +    <dimen name="dock_logo_min_size">48dp</dimen>
 +    <dimen name="dock_top_logo_padding">8dp</dimen>
 +</resources>
-diff --git a/packages/SystemUI/res/xml/ambient_indication_inner_downwards.xml b/packages/SystemUI/res/xml/ambient_indication_inner_downwards.xml
+diff --git a/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationAreaSection.kt b/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationAreaSection.kt
 new file mode 100644
-index 000000000..5c06a2e01
+index 000000000..30e148632
 --- /dev/null
-+++ b/packages/SystemUI/res/xml/ambient_indication_inner_downwards.xml
-@@ -0,0 +1,7 @@
-+<?xml version="1.0" encoding="utf-8"?>
-+<ConstraintSet xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-+    <Constraint android:layout_gravity="center" android:orientation="horizontal" android:id="@+id/ambient_indication_info_container" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/ambient_indication_container_margin_top" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
-+    <Constraint android:layout_gravity="center" android:id="@+id/ambient_indication_icon" android:visibility="gone" android:clickable="true" android:layout_width="48dp" android:layout_height="48dp" android:scaleType="center"/>
-+    <Constraint android:textAppearance="@style/TextAppearance.Keyguard.BottomArea" android:textSize="14sp" android:gravity="center_vertical" android:layout_gravity="center" android:id="@+id/ambient_indication_text" android:paddingTop="15sp" android:paddingBottom="15sp" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:letterSpacing="0.02" android:forceHasOverlappingRendering="false"/>
-+    <Constraint android:layout_gravity="top|center_horizontal" android:id="@+id/docked_top_icon" android:padding="@dimen/dock_top_logo_padding" android:visibility="gone" android:clickable="true" android:layout_width="@dimen/dock_logo_min_size" android:layout_height="@dimen/dock_logo_min_size" android:scaleType="fitXY" android:cropToPadding="true" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/ambient_indication_info_container"/>
-+</ConstraintSet>
-diff --git a/packages/SystemUI/res/xml/ambient_indication_inner_upwards.xml b/packages/SystemUI/res/xml/ambient_indication_inner_upwards.xml
-new file mode 100644
-index 000000000..a889adfb6
---- /dev/null
-+++ b/packages/SystemUI/res/xml/ambient_indication_inner_upwards.xml
-@@ -0,0 +1,7 @@
-+<?xml version="1.0" encoding="utf-8"?>
-+<ConstraintSet xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-+    <Constraint android:layout_gravity="center" android:orientation="horizontal" android:id="@+id/ambient_indication_info_container" android:layout_width="wrap_content" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
-+    <Constraint android:layout_gravity="center" android:id="@+id/ambient_indication_icon" android:visibility="gone" android:clickable="true" android:layout_width="48dp" android:layout_height="48dp" android:scaleType="center"/>
-+    <Constraint android:textAppearance="@style/TextAppearance.Keyguard.BottomArea" android:textSize="14sp" android:gravity="center_vertical" android:layout_gravity="center" android:id="@+id/ambient_indication_text" android:paddingTop="15sp" android:paddingBottom="15sp" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:letterSpacing="0.02" android:forceHasOverlappingRendering="false"/>
-+    <Constraint android:layout_gravity="top|center_horizontal" android:id="@+id/docked_top_icon" android:padding="@dimen/dock_top_logo_padding" android:visibility="gone" android:clickable="true" android:layout_width="@dimen/dock_logo_min_size" android:layout_height="@dimen/dock_logo_min_size" android:scaleType="fitXY" android:cropToPadding="true" app:layout_constraintBottom_toTopOf="@+id/ambient_indication_info_container" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
-+</ConstraintSet>
-diff --git a/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt b/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt
-new file mode 100644
-index 000000000..0b3cbb43c
---- /dev/null
-+++ b/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationStartable.kt
-@@ -0,0 +1,95 @@
++++ b/packages/SystemUI/src/com/android/systemui/ambientmusic/AmbientIndicationAreaSection.kt
+@@ -0,0 +1,142 @@
 +/*
 + * Copyright (C) 2026 Mist-OS
 + *
@@ -1150,13 +1143,18 @@ index 000000000..0b3cbb43c
 +import android.content.Context
 +import android.os.Handler
 +import android.util.Log
-+import com.android.systemui.CoreStartable
-+import com.android.systemui.dagger.SysUISingleton
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import androidx.constraintlayout.widget.ConstraintLayout
++import androidx.constraintlayout.widget.ConstraintSet
 +import com.android.systemui.dagger.qualifiers.Background
++import com.android.systemui.keyguard.domain.interactor.KeyguardInteractor
++import com.android.systemui.keyguard.shared.model.KeyguardSection
 +import com.android.systemui.plugins.ActivityStarter
 +import com.android.systemui.power.domain.interactor.PowerInteractor
 +import com.android.systemui.res.R
-+import com.android.systemui.shade.NotificationShadeWindowView
++import com.android.systemui.shade.ShadeDisplayAware
 +import com.android.systemui.user.domain.interactor.SelectedUserInteractor
 +import com.android.systemui.util.wakelock.WakeLockLogger
 +import com.google.android.systemui.ambientmusic.AmbientIndicationContainer
@@ -1164,97 +1162,142 @@ index 000000000..0b3cbb43c
 +import javax.inject.Inject
 +
 +/**
-+ * Starts the Pixel "ambient indication" (Now Playing on the lock screen) pipeline: finds the
-+ * [AmbientIndicationContainer] that keyguard_bottom_area.xml inflates via
-+ * layout/ambient_indication.xml, initialises it and registers the
-+ * [AmbientIndicationService] receiver for Android System Intelligence's broadcasts.
++ * Keyguard section that hosts the Pixel "ambient indication" (Now Playing on the lock screen).
 + *
-+ * This replaces the part of SystemUIGoogle's GoogleServices that Mist-OS never shipped. Every
-+ * step is defensive: if the container is missing, nothing is registered and SystemUI keeps
-+ * running as before.
++ * Fills AOSP's `KEYGUARD_AMBIENT_INDICATION_AREA_SECTION` optional slot in
++ * `DefaultKeyguardBlueprint`/`SplitShadeKeyguardBlueprint`, so the container lives inside the
++ * live `KeyguardRootView` ConstraintLayout, directly above the keyguard indication area. (The
++ * legacy `keyguard_bottom_area.xml` is still inflated on Android 17 but permanently GONE, which is
++ * why parking the container there rendered nothing.)
++ *
++ * The section owns the whole lifecycle: it inflates the container, initialises it, starts the
++ * [AmbientIndicationService] broadcast receiver, and tears everything down when the blueprint
++ * rebuilds. Every step is defensive so a failure here can never crash SystemUI.
 + */
-+@SysUISingleton
-+class AmbientIndicationStartable
++class AmbientIndicationAreaSection
 +@Inject
 +constructor(
-+    private val context: Context,
++    @ShadeDisplayAware private val context: Context,
 +    private val activityStarter: ActivityStarter,
 +    private val alarmManager: AlarmManager,
-+    private val notificationShadeWindowView: NotificationShadeWindowView,
 +    private val powerInteractor: PowerInteractor,
 +    private val selectedUserInteractor: SelectedUserInteractor,
++    private val keyguardInteractor: KeyguardInteractor,
 +    private val wakeLockLogger: WakeLockLogger,
 +    @Background private val bgHandler: Handler,
-+) : CoreStartable {
++) : KeyguardSection() {
 +
 +    private var service: AmbientIndicationService? = null
-+    private var attempts = 0
 +
-+    override fun start() {
-+        tryStart()
++    override fun addViews(constraintLayout: ConstraintLayout) {
++        try {
++            val view =
++                LayoutInflater.from(context)
++                    .inflate(R.layout.ambient_indication, constraintLayout, false)
++            constraintLayout.addView(view)
++        } catch (e: Exception) {
++            Log.e(TAG, "Failed to inflate ambient indication", e)
++        }
 +    }
 +
-+    private fun tryStart() {
-+        if (service != null) return
++    override fun bindData(constraintLayout: ConstraintLayout) {
 +        val container =
-+            notificationShadeWindowView.findViewById<AmbientIndicationContainer>(
++            constraintLayout.findViewById<AmbientIndicationContainer>(
 +                R.id.ambient_indication_container
 +            )
 +        if (container == null) {
-+            // The shade hierarchy may not be fully inflated yet on the very first call.
-+            if (attempts++ < MAX_ATTEMPTS) {
-+                notificationShadeWindowView.postDelayed({ tryStart() }, RETRY_DELAY_MS)
-+            } else {
-+                Log.w(TAG, "ambient_indication_container not found, Now Playing on lock screen disabled")
-+            }
++            Log.w(TAG, "ambient_indication_container missing, Now Playing on lock screen disabled")
 +            return
 +        }
 +        try {
-+            container.initializeView(powerInteractor, activityStarter, wakeLockLogger, bgHandler)
-+            service = AmbientIndicationService(context, container, selectedUserInteractor, alarmManager)
-+            Log.i(TAG, "Ambient indication initialised")
++            container.initializeView(
++                powerInteractor,
++                activityStarter,
++                wakeLockLogger,
++                bgHandler,
++            ) { visible -> keyguardInteractor.setAmbientIndicationVisible(visible) }
++            service?.stop()
++            service =
++                AmbientIndicationService(context, container, selectedUserInteractor, alarmManager)
++            Log.i(TAG, "Ambient indication bound to keyguard root view")
 +        } catch (e: Exception) {
 +            Log.e(TAG, "Failed to initialise ambient indication", e)
 +        }
 +    }
 +
++    override fun applyConstraints(constraintSet: ConstraintSet) {
++        constraintSet.apply {
++            constrainWidth(R.id.ambient_indication_container, ViewGroup.LayoutParams.MATCH_PARENT)
++            constrainHeight(R.id.ambient_indication_container, ViewGroup.LayoutParams.WRAP_CONTENT)
++            // Sit just above the keyguard indication text ("Charging", "Swipe up to open").
++            connect(
++                R.id.ambient_indication_container,
++                ConstraintSet.BOTTOM,
++                R.id.keyguard_indication_area,
++                ConstraintSet.TOP,
++            )
++            connect(
++                R.id.ambient_indication_container,
++                ConstraintSet.START,
++                ConstraintSet.PARENT_ID,
++                ConstraintSet.START,
++            )
++            connect(
++                R.id.ambient_indication_container,
++                ConstraintSet.END,
++                ConstraintSet.PARENT_ID,
++                ConstraintSet.END,
++            )
++        }
++    }
++
++    override fun removeViews(constraintLayout: ConstraintLayout) {
++        service?.stop()
++        service = null
++        keyguardInteractor.setAmbientIndicationVisible(false)
++        constraintLayout.findViewById<View>(R.id.ambient_indication_container)?.let {
++            constraintLayout.removeView(it)
++        }
++    }
++
 +    companion object {
-+        private const val TAG = "AmbientIndicationStartable"
-+        private const val MAX_ATTEMPTS = 5
-+        private const val RETRY_DELAY_MS = 1000L
++        private const val TAG = "AmbientIndicationSection"
 +    }
 +}
-diff --git a/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt b/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt
-index 0768b1eae..f34dc3702 100644
---- a/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt
-+++ b/packages/SystemUI/src/com/android/systemui/dagger/SystemUICoreStartableModule.kt
-@@ -38,6 +38,7 @@ import com.android.systemui.dreams.DreamOverlayRegistrant
- import com.android.systemui.dreams.homecontrols.system.HomeControlsDreamStartable
- import com.android.systemui.globalactions.GlobalActionsComponent
- import com.android.systemui.haptics.msdl.MSDLCoreStartable
-+import com.android.systemui.ambientmusic.AmbientIndicationStartable
- import com.android.systemui.keyboard.KeyboardUI
- import com.android.systemui.keyboard.PhysicalKeyboardCoreStartable
- import com.android.systemui.keyevent.SysUIKeyGestureEventInitializer
-@@ -117,6 +118,12 @@ abstract class SystemUICoreStartableModule {
-     @ClassKey(KeyboardUI::class)
-     abstract fun bindKeyboardUI(sysui: KeyboardUI): CoreStartable
+diff --git a/packages/SystemUI/src/com/android/systemui/keyguard/ui/view/layout/sections/KeyguardSectionsModule.kt b/packages/SystemUI/src/com/android/systemui/keyguard/ui/view/layout/sections/KeyguardSectionsModule.kt
+index 016bc7cb2..6e78050c7 100644
+--- a/packages/SystemUI/src/com/android/systemui/keyguard/ui/view/layout/sections/KeyguardSectionsModule.kt
++++ b/packages/SystemUI/src/com/android/systemui/keyguard/ui/view/layout/sections/KeyguardSectionsModule.kt
+@@ -17,7 +17,9 @@
  
-+    /** Inject into AmbientIndicationStartable (Pixel Now Playing on lock screen). */
+ package com.android.systemui.keyguard.ui.view.layout.sections
+ 
++import com.android.systemui.ambientmusic.AmbientIndicationAreaSection
+ import com.android.systemui.keyguard.shared.model.KeyguardSection
++import dagger.Binds
+ import dagger.BindsOptionalOf
+ import dagger.Module
+ import javax.inject.Named
+@@ -36,6 +38,13 @@ abstract class KeyguardSectionsModule {
+     @Named(KEYGUARD_AMBIENT_INDICATION_AREA_SECTION)
+     abstract fun defaultAmbientIndicationAreaSection(): KeyguardSection
+ 
++    /** Mist-OS: Pixel "ambient indication" (Now Playing on lock screen) fills the optional slot. */
 +    @Binds
-+    @IntoMap
-+    @ClassKey(AmbientIndicationStartable::class)
-+    abstract fun bindAmbientIndicationStartable(sysui: AmbientIndicationStartable): CoreStartable
++    @Named(KEYGUARD_AMBIENT_INDICATION_AREA_SECTION)
++    abstract fun bindAmbientIndicationAreaSection(
++        section: AmbientIndicationAreaSection
++    ): KeyguardSection
 +
-     /** Inject into MediaProjectionTaskSwitcherCoreStartable. */
-     @Binds
-     @IntoMap
+     @BindsOptionalOf
+     @Named(KEYGUARD_BATTERY_CHARGING_SECTION)
+     abstract fun batteryChargingSection(): KeyguardSection
 diff --git a/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt
 new file mode 100644
-index 000000000..5a4383081
+index 000000000..29a8fc9fd
 --- /dev/null
 +++ b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt
-@@ -0,0 +1,406 @@
+@@ -0,0 +1,419 @@
 +/*
 + * Copyright (C) 2023 The Android Open Source Project
 + *
@@ -1352,18 +1395,25 @@ index 000000000..5a4383081
 +    private var textView: TextView? = null
 +    private var reverseChargingMessage: String = ""
 +
++    /** Notified whenever the ambient text becomes visible/hidden (drives keyguard layout). */
++    private var onTextVisibilityChanged: ((Boolean) -> Unit)? = null
++    private var lastReportedTextVisible: Boolean? = null
++
 +    fun initializeView(
 +        powerInteractor: PowerInteractor,
 +        activityStarter: ActivityStarter,
 +        wakeLockLogger: WakeLockLogger,
 +        bgHandler: Handler,
++        onTextVisibilityChanged: ((Boolean) -> Unit)? = null,
 +    ) {
 +        this.activityStarter = activityStarter
 +        this.powerInteractor = powerInteractor
++        this.onTextVisibilityChanged = onTextVisibilityChanged
 +        wakeLock = DelayedWakeLock(bgHandler, context, wakeLockLogger, TAG)
 +        addInflateListener {
 +            textView = findViewById(R.id.ambient_indication_text)
 +            iconView = findViewById(R.id.ambient_indication_icon)
++            // Centering is done by ambient_indication_inner.xml (FrameLayout + layout_gravity).
 +            ambientMusicAnimation = context.getDrawable(R.anim.audioanim_animation)
 +            ambientMusicNoteIcon = context.getDrawable(R.drawable.ic_music_note)
 +            textColor = textView?.currentTextColor ?: textColor
@@ -1490,6 +1540,10 @@ index 000000000..5a4383081
 +        val vis = if (updatePill) View.VISIBLE else View.GONE
 +        textView.visibility = vis
 +        iconView.visibility = if (icon == null) View.GONE else vis
++        if (lastReportedTextVisible != updatePill) {
++            lastReportedTextVisible = updatePill
++            onTextVisibilityChanged?.invoke(updatePill)
++        }
 +        if (!updatePill) {
 +            textView.animate().cancel()
 +            if (icon is AnimatedVectorDrawable) {
@@ -1532,6 +1586,8 @@ index 000000000..5a4383081
 +    }
 +
 +    private fun updateHorizontalSpacing() {
++        // Only meaningful when hosted in a FrameLayout (legacy bottom area). Inside the
++        // keyguard root ConstraintLayout the section's constraints center the pill instead.
 +        val textView = textView ?: return
 +        val iconView = iconView ?: return
 +        val lp = layoutParams as? FrameLayout.LayoutParams ?: return
@@ -1663,10 +1719,10 @@ index 000000000..5a4383081
 +}
 diff --git a/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java
 new file mode 100644
-index 000000000..b46d30589
+index 000000000..91d91159a
 --- /dev/null
 +++ b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationService.java
-@@ -0,0 +1,147 @@
+@@ -0,0 +1,163 @@
 +/*
 + * Copyright (C) 2023 The Android Open Source Project
 + *
@@ -1752,6 +1808,22 @@ index 000000000..b46d30589
 +                Context.RECEIVER_EXPORTED);
 +        Dependency.get(KeyguardUpdateMonitor.class).registerCallback(mCallback);
 +        Log.i(TAG, "AmbientIndicationService started.");
++    }
++
++    /** Unregisters everything; called when the keyguard blueprint rebuilds. */
++    public void stop() {
++        if (!mStarted) {
++            return;
++        }
++        mStarted = false;
++        mAlarmManager.cancel(mHideIndicationListener);
++        try {
++            mContext.unregisterReceiver(this);
++        } catch (IllegalArgumentException e) {
++            // already unregistered
++        }
++        Dependency.get(KeyguardUpdateMonitor.class).removeCallback(mCallback);
++        mAmbientIndicationContainer.hideAmbientMusic();
 +    }
 +
 +    @Override

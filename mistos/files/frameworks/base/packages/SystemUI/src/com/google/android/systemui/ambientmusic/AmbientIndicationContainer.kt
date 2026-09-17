@@ -95,18 +95,25 @@ class AmbientIndicationContainer(private val context: Context, attrs: AttributeS
     private var textView: TextView? = null
     private var reverseChargingMessage: String = ""
 
+    /** Notified whenever the ambient text becomes visible/hidden (drives keyguard layout). */
+    private var onTextVisibilityChanged: ((Boolean) -> Unit)? = null
+    private var lastReportedTextVisible: Boolean? = null
+
     fun initializeView(
         powerInteractor: PowerInteractor,
         activityStarter: ActivityStarter,
         wakeLockLogger: WakeLockLogger,
         bgHandler: Handler,
+        onTextVisibilityChanged: ((Boolean) -> Unit)? = null,
     ) {
         this.activityStarter = activityStarter
         this.powerInteractor = powerInteractor
+        this.onTextVisibilityChanged = onTextVisibilityChanged
         wakeLock = DelayedWakeLock(bgHandler, context, wakeLockLogger, TAG)
         addInflateListener {
             textView = findViewById(R.id.ambient_indication_text)
             iconView = findViewById(R.id.ambient_indication_icon)
+            // Centering is done by ambient_indication_inner.xml (FrameLayout + layout_gravity).
             ambientMusicAnimation = context.getDrawable(R.anim.audioanim_animation)
             ambientMusicNoteIcon = context.getDrawable(R.drawable.ic_music_note)
             textColor = textView?.currentTextColor ?: textColor
@@ -233,6 +240,10 @@ class AmbientIndicationContainer(private val context: Context, attrs: AttributeS
         val vis = if (updatePill) View.VISIBLE else View.GONE
         textView.visibility = vis
         iconView.visibility = if (icon == null) View.GONE else vis
+        if (lastReportedTextVisible != updatePill) {
+            lastReportedTextVisible = updatePill
+            onTextVisibilityChanged?.invoke(updatePill)
+        }
         if (!updatePill) {
             textView.animate().cancel()
             if (icon is AnimatedVectorDrawable) {
@@ -275,6 +286,8 @@ class AmbientIndicationContainer(private val context: Context, attrs: AttributeS
     }
 
     private fun updateHorizontalSpacing() {
+        // Only meaningful when hosted in a FrameLayout (legacy bottom area). Inside the
+        // keyguard root ConstraintLayout the section's constraints center the pill instead.
         val textView = textView ?: return
         val iconView = iconView ?: return
         val lp = layoutParams as? FrameLayout.LayoutParams ?: return

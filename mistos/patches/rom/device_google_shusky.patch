@@ -52,7 +52,7 @@ index 9eaed43..60de7fc 100644
  BOARD_VENDOR_KERNEL_RAMDISK_KERNEL_MODULES_BLOCKLIST_FILE := $(DEVICE_PATH)/recovery/modules.blocklist.vendor_kernel_boot
  BOARD_VENDOR_KERNEL_RAMDISK_KERNEL_MODULES_LOAD_RAW := $(strip $(shell cat $(DEVICE_PATH)/recovery/modules.load.vendor_kernel_boot))
 diff --git a/device-husky.mk b/device-husky.mk
-index cf108be..880565c 100644
+index cf108be..819bfef 100644
 --- a/device-husky.mk
 +++ b/device-husky.mk
 @@ -37,8 +37,9 @@ PRODUCT_PACKAGES += \
@@ -67,6 +67,16 @@ index cf108be..880565c 100644
  
  # PowerShare
  include hardware/google/pixel/powershare/device.mk
+@@ -60,3 +61,9 @@ PRODUCT_SOONG_NAMESPACES += \
+ 
+ # Window extensions
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
++
++# Fingerprint feature declaration (FEATURE_FINGERPRINT). Never added by this
++# device tree; without it Settings hides fingerprint enrollment entirely.
++# Same fix as device-shiba.mk.
++PRODUCT_PACKAGES += \
++    android.hardware.fingerprint.prebuilt.xml
 diff --git a/device-shiba.mk b/device-shiba.mk
 index e6924c3..7facd20 100644
 --- a/device-shiba.mk
@@ -102,12 +112,27 @@ index e6924c3..7facd20 100644
  
  # PowerShare
  include hardware/google/pixel/powershare/device.mk
+diff --git a/husky/mist_about.prop b/husky/mist_about.prop
+new file mode 100644
+index 0000000..6a3f06c
+--- /dev/null
++++ b/husky/mist_about.prop
+@@ -0,0 +1,9 @@
++# Mist-OS "About phone" hardware card (see shiba/mist_about.prop for why this is a .prop file).
++ro.mist.device.name=Pixel 8 Pro
++ro.mist.soc=Google Tensor G3
++ro.mist.platform=Zuma
++ro.mist.display=1344 x 2992, 120 Hz
++ro.mist.screen=6.7" Super Actua LTPO OLED
++ro.mist.battery=5050 mAh
++ro.mist.camera=50MP + 48MP + 48MP
++ro.mist.front=10.5MP
 diff --git a/mist_husky.mk b/mist_husky.mk
 new file mode 100644
-index 0000000..0342b94
+index 0000000..475462f
 --- /dev/null
 +++ b/mist_husky.mk
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,69 @@
 +#
 +# SPDX-FileCopyrightText: The LineageOS Project
 +# SPDX-FileCopyrightText: The Calyx Institute
@@ -115,6 +140,10 @@ index 0000000..0342b94
 +#
 +# Mist-OS product makefile for Pixel 8 Pro (husky). See mist_shiba.mk for
 +# the face-unlock/JamesDSP auto-wiring note -- same applies here.
++
++# Parity with mist_shiba.mk (see that file for the reasoning behind each).
++MISTOS_MAINTAINER := chiranz
++TARGET_SUPPORTS_QUICK_TAP := true
 +
 +$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
 +
@@ -131,6 +160,9 @@ index 0000000..0342b94
 +DEVICE_PATH := device/google/shusky
 +VENDOR_PATH := vendor/google/husky
 +$(call inherit-product, $(DEVICE_PATH)/aosp_$(DEVICE_CODENAME).mk)
++
++# Mist "About phone" hardware card props (.prop file: PRODUCT_*_PROPERTIES split on spaces).
++TARGET_PRODUCT_PROP += $(DEVICE_PATH)/$(DEVICE_CODENAME)/mist_about.prop
 +
 +# Device identifier. Must come after all inclusions.
 +PRODUCT_NAME := mist_$(DEVICE_CODENAME)

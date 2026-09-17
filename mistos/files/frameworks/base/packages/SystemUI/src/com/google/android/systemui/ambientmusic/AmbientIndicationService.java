@@ -85,6 +85,22 @@ public final class AmbientIndicationService extends BroadcastReceiver {
         Log.i(TAG, "AmbientIndicationService started.");
     }
 
+    /** Unregisters everything; called when the keyguard blueprint rebuilds. */
+    public void stop() {
+        if (!mStarted) {
+            return;
+        }
+        mStarted = false;
+        mAlarmManager.cancel(mHideIndicationListener);
+        try {
+            mContext.unregisterReceiver(this);
+        } catch (IllegalArgumentException e) {
+            // already unregistered
+        }
+        Dependency.get(KeyguardUpdateMonitor.class).removeCallback(mCallback);
+        mAmbientIndicationContainer.hideAmbientMusic();
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (!isForCurrentUser()) {

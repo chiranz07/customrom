@@ -6,6 +6,10 @@
 # Mist-OS product makefile for Pixel 8 Pro (husky). See mist_shiba.mk for
 # the face-unlock/JamesDSP auto-wiring note -- same applies here.
 
+# Parity with mist_shiba.mk (see that file for the reasoning behind each).
+MISTOS_MAINTAINER := chiranz
+TARGET_SUPPORTS_QUICK_TAP := true
+
 $(call inherit-product, vendor/lineage/config/common_full_phone.mk)
 
 # Minimal GMS -- see mist_shiba.mk for rationale.
@@ -21,6 +25,9 @@ DEVICE_CODENAME := husky
 DEVICE_PATH := device/google/shusky
 VENDOR_PATH := vendor/google/husky
 $(call inherit-product, $(DEVICE_PATH)/aosp_$(DEVICE_CODENAME).mk)
+
+# Mist "About phone" hardware card props (.prop file: PRODUCT_*_PROPERTIES split on spaces).
+TARGET_PRODUCT_PROP += $(DEVICE_PATH)/$(DEVICE_CODENAME)/mist_about.prop
 
 # Device identifier. Must come after all inclusions.
 PRODUCT_NAME := mist_$(DEVICE_CODENAME)
