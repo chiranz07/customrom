@@ -1451,6 +1451,98 @@ is an empty `<merge/>` stub included by `keyguard_bottom_area.xml`;
   bottom of the lock screen / on AOD. Mist's own "Now Playing" toggle in
   Mistify is unrelated to this and can stay off.
 
+## eSIM — works, don't re-investigate (2026-09-17)
+
+A false alarm: the user inferred "no eSIM" from seeing a single ringtone
+entry, but Android only offers per-SIM ringtones with two *active*
+subscriptions. The full Pixel eSIM stack is in the build and matches the
+`cp2a.260605.012` factory image exactly: `EuiccGoogle` LPA
+(`product/priv-app`, privapp grants identical incl.
+`WRITE_EMBEDDED_SUBSCRIPTIONS`), `EuiccSupportPixel-P23` + firmware
+images, `EuiccGoogleOverlay` (static RRO prio 2001) and
+`EuiccSupportPixelOverlay`, `android.hardware.telephony.euicc(.mep).xml`,
+`com.google.euiccpixel*.xml`, `/vendor/apex/com.google.pixel.euicc.update.apex`,
+`ro.setupwizard.esim_cid_ignore=00000001`. "Add eSIM" is present under
+Settings → Network & internet → SIMs. If it ever disappears, the gate is
+`packages/apps/Settings/.../network/telephony/euicc/EuiccRepository.kt`
+(`showEuiccSettings()` logs its reason under tag `EuiccRepository`:
+EuiccManager not enabled / cid ignored / dev-settings / country support).
+
+## Auto HBM (added 2026-09-17 evening, opt-in, first build pending)
+
+User asked for an "Auto HBM" option under Display. Nothing existed for
+zuma in any tree (Lineage/crDroid/Evolution/Rising `GoogleParts` is only
+an eSIM helper). Implemented Lineage-style in `device/google/zuma/parts/`
+(app `org.lineageos.settings`, `GoogleParts`, runs as `system_app` via
+`android.uid.system`):
+- `src/org/lineageos/settings/autohbm/AutoHbmService.java` — one
+  `START_STICKY` service for both modes, writing `1`/`0` to
+  `/sys/class/backlight/panel0-backlight/hbm_mode`: **manual** (`hbm`
+  pref) forces HBM whenever the screen is on; **auto** (`auto_hbm`)
+  listens to `TYPE_LIGHT` (TMD3719) and turns HBM on after lux ≥ threshold
+  for the turn-on delay, off after lux < threshold for the turn-off delay
+  (hysteresis). Manual wins over auto; HBM is always released on
+  screen-off / service stop. Started from `BootCompletedReceiver`, the
+  page switches and the tile via `AutoHbmService.sync()`.
+- `autohbm/HbmTileService.java` — Quick Settings tile ("HBM",
+  `res/drawable/ic_hbm.xml`) toggling the manual `hbm` pref.
+- `autohbm/AutoHbmFragment.java` + `AutoHbmActivity.java`
+  (`CollapsingToolbarBaseActivity`), `res/xml/autohbm_settings.xml`
+  (Manual: `hbm`; Automatic: `auto_hbm`, `auto_hbm_threshold` 1000–60000
+  lux default 20000, `auto_hbm_enable_time` 0–10 s default 1,
+  `auto_hbm_disable_time` 0–30 s default 3), `res/values/strings.xml`.
+  The activity theme `Theme.SubSettingsBase` comes from
+  `SettingsLibSettingsTheme` — do NOT define it locally (a local copy
+  referencing `PreferenceTheme.SettingsBase` failed aapt2; that style
+  doesn't exist, the real one is `PreferenceThemeOverlay`). Page is
+  Settings → Display → "High brightness mode", injected via `IA_SETTINGS` +
+  `com.android.settings.category.ia.display`. `Android.bp` gained
+  `resource_dirs` + `androidx.preference`, `SettingsLib`,
+  `SettingsLibSettingsTheme`, `SettingsLibCollapsingToolbarBaseActivity`;
+  `proguard.flags` keeps `org.lineageos.settings.**`.
+- Kernel side (no change needed): `panel-samsung-drv.c` `hbm_mode_store`
+  accepts 0/1/2 (`HBM_OFF`, `HBM_ON_IRC_ON`, `HBM_ON_IRC_OFF`), refuses in
+  LP/AOD mode (EPERM) or when the panel lacks `set_hbm_mode`.
+- Sepolicy (`device/google/shusky/sepolicy/vendor/`): `sysfs_hbm.te`
+  (`type sysfs_hbm, sysfs_type, fs_type;` + `allow system_app
+  sysfs_leds:dir search; allow system_app sysfs_hbm:file rw_file_perms;`)
+  and `genfs_contexts` labelling
+  `/devices/platform/19440000.drmdsim/19440000.drmdsim.0/backlight/panel0-backlight/hbm_mode`
+  (zuma labels the parent `backlight` dir `sysfs_leds`; the node needed
+  its own type because `system_app` may not touch `sysfs_leds` files).
+- **Open question, only a device test answers it:** Pixel's own stack
+  (`com.android.pixeldisplayservice` `AmbientLbeObserver` on the same
+  light sensor + the display HAL setting the DRM `hbm_mode` property from
+  the brightness table) may re-assert its own mode after our sysfs write.
+  Verify with the toggle on in bright light: `logcat | grep AutoHbmService`
+  ("HBM enabled"/"Failed to write HBM node"), and any
+  `avc: denied ... sysfs_hbm|sysfs_leds ... scontext=u:r:system_app`.
+  The node is NOT readable from adb shell (`sysfs_leds`), so don't try to
+  verify it with `cat`.
+
+## Settings crashes found by the user on `...-1457` (fixed in source 2026-09-17 evening, need a rebuild)
+
+1. **Display → Lock screen → "Tap to check phone" page crashes** with
+   `ClassNotFoundException: org.evolution.settings.preferences.SecureSettingSwitchPreference`.
+   `packages/apps/Settings/res/xml/tap_screen_gesture_settings.xml` used an
+   Evolution-X preference class that doesn't exist in Mist's Settings (Mist's
+   equivalent, used by 10 other pages, is
+   `org.mist.settings.preferences.SecureSettingSwitchPreference`). Replaced
+   the class name (two occurrences). The sibling "Lift to check phone" page
+   never used it, which is why it opened fine.
+2. **Display → Lock screen → Shortcuts crashes** with
+   `ActivityNotFoundException ... act=SET_WALLPAPER pkg=com.android.wallpaper`.
+   Two static RROs on `com.android.settings` both define
+   `config_wallpaper_picker_package` at priority 1: Mist's generic
+   `vendor/lineage/overlay/rro_packages/SettingsMist` (`com.android.wallpaper`,
+   AOSP WallpaperPicker2 — not installed on GMS builds) and pixel-style's
+   `GoogleSettingsOverlay` (`com.google.android.apps.wallpaper`, the picker
+   we ship). With equal priorities SettingsMist won. Fixed by raising
+   `GoogleSettingsOverlay`'s priority to 2 in its `AndroidManifest.xml`
+   (only other overlapping key is `config_styles_and_wallpaper_picker_class`,
+   identical in both). Editing the shortcuts from the wallpaper app itself
+   already worked (that path doesn't go through Settings' config string).
+
 ## Deliberately deferred — Pixel Framework (real SystemUI/Settings source)
 
 The user asked specifically for the *real* Google Settings/SystemUI

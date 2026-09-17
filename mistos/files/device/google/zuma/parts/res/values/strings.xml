@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2026 Mist-OS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="hbm_title">High brightness mode</string>
+    <string name="hbm_summary">Manual HBM, Quick Settings tile, automatic HBM in sunlight</string>
+    <string name="hbm_tile_label">HBM</string>
+
+    <string name="hbm_manual_category">Manual</string>
+    <string name="hbm_enable_title">High brightness mode</string>
+    <string name="hbm_enable_summary">Force the panel to peak brightness while the screen is on</string>
+
+    <string name="hbm_auto_category">Automatic</string>
+    <string name="auto_hbm_enable_title">Automatic high brightness mode</string>
+    <string name="auto_hbm_enable_summary">Switch to high brightness mode when ambient light stays above the threshold</string>
+    <string name="auto_hbm_threshold_title">Light threshold (lux)</string>
+    <string name="auto_hbm_threshold_summary">Direct sunlight is typically above 20000 lux</string>
+    <string name="auto_hbm_enable_time_title">Turn-on delay (seconds)</string>
+    <string name="auto_hbm_enable_time_summary">How long the light must stay above the threshold before HBM turns on</string>
+    <string name="auto_hbm_disable_time_title">Turn-off delay (seconds)</string>
+    <string name="auto_hbm_disable_time_summary">How long the light must stay below the threshold before HBM turns off (prevents flicker)</string>
+
+    <string name="hbm_footer">HBM is always released when the screen turns off. Manual mode takes precedence over automatic mode. Adaptive brightness already boosts the display in sunlight; HBM forces the panel\'s peak mode regardless of the brightness slider and uses more power.</string>
+</resources>

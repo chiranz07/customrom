@@ -15,3 +15,16 @@ index b156e04..1f91b89 100644
  
      <!-- Battery Info: mAh divider
           Some devices with prebuilt kernels report battery capacity in different units.
+diff --git a/res/xml/tap_screen_gesture_settings.xml b/res/xml/tap_screen_gesture_settings.xml
+index e4c99ac..0c5cf44 100644
+--- a/res/xml/tap_screen_gesture_settings.xml
++++ b/res/xml/tap_screen_gesture_settings.xml
+@@ -41,7 +41,7 @@
+         android:summary="@string/doze_gesture_ambient_summary"
+         android:defaultValue="true" />
+ 
+-    <org.evolution.settings.preferences.SecureSettingSwitchPreference
++    <org.mist.settings.preferences.SecureSettingSwitchPreference
+         android:key="doze_tap_gesture_vibrate"
+         android:title="@string/doze_gesture_vibrate_title"
+         android:summary="@string/doze_gesture_vibrate_summary"

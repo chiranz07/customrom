@@ -18,3 +18,22 @@ index 3743b73..8f47e15 100644
 +# self-identifies as the bare com.google.android.apps.wallpaper). Both
 +# overlays share the same self-package name (com.google.android.wallpaper.
 +# picker.overlay) so only one can ever be installed at a time regardless.
+diff --git a/rro_overlays/GoogleSettingsOverlay/AndroidManifest.xml b/rro_overlays/GoogleSettingsOverlay/AndroidManifest.xml
+index bc536b8..071d92a 100644
+--- a/rro_overlays/GoogleSettingsOverlay/AndroidManifest.xml
++++ b/rro_overlays/GoogleSettingsOverlay/AndroidManifest.xml
+@@ -2,5 +2,13 @@
+     package="com.plus.android.overlay.settings"
+     android:versionCode="1"
+     android:versionName="1.0">
+-    <overlay android:targetPackage="com.android.settings" android:priority="1" android:isStatic="true" />
++    <!-- priority 2 (was 1): vendor/lineage's SettingsMist RRO also sets
++         config_wallpaper_picker_package (to com.android.wallpaper, the AOSP picker)
++         at priority 1, and with equal priorities it won on shiba, so Settings >
++         Display > Lock screen > Shortcuts launched SET_WALLPAPER at a package that
++         does not exist on GMS builds (ActivityNotFoundException). GMS builds ship
++         WallpaperPickerGoogleRelease (com.google.android.apps.wallpaper), which is
++         what this overlay points at. The only other overlapping key,
++         config_styles_and_wallpaper_picker_class, has the same value in both. -->
++    <overlay android:targetPackage="com.android.settings" android:priority="2" android:isStatic="true" />
+ </manifest>

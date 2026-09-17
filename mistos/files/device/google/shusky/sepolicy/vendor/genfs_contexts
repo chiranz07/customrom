@@ -1,0 +1,4 @@
+# Panel high-brightness-mode knob written by GoogleParts' Auto HBM service
+# (see sysfs_hbm.te). More specific than zuma's sysfs_leds label on the
+# parent backlight directory, so it wins for this one node.
+genfscon sysfs /devices/platform/19440000.drmdsim/19440000.drmdsim.0/backlight/panel0-backlight/hbm_mode u:object_r:sysfs_hbm:s0
