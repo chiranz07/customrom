@@ -136,6 +136,26 @@ clean -f '*.ko'` in `device/google/shusky-kernels/`, then the stock
 caused and a test kernel has been verified to boot** (`fastboot boot
 <boot.img>` is the safe way to test a kernel without flashing it).
 
+**END-OF-DAY STATE 2026-09-17 (authoritative; later sections carry the detail):**
+- **Published (SourceForge project `chiranz`):** shiba `...-20260917-1457`
+  (sha256 `56a11da23b0265bdd3b5bcf113ebf4c9e5c6e0276748ef68ba070b7281d959c0`),
+  husky `...-20260917-1514` (sha256
+  `5c6fa94023b869a896dd5479a07b0b535885eccebf5de9657b1ba62b7190c955`,
+  **untested on hardware**), each with `img/` (boot, vendor_boot,
+  vendor_kernel_boot, dtbo from the zip's payload).
+- **Verified on the user's Pixel 8 today:** real Face Unlock, fingerprint,
+  Google Camera, wallpaper picker, JamesDSP (+ screen-off fix), DocumentsUI
+  icon, Quick Tap (ColumbusService), About-phone card, Clear Calling (DCS,
+  active 428 s on a real call), Now Playing song text on the lock screen
+  (Pixel ambient indication ported via KeyguardSection, centered), tap/lift
+  to check phone with haptic toggle, StrongBox retry-loop fix, gpuflag
+  domain. Kernel is the stock prebuilt; root via blu_spark r271 is the
+  user's separate step.
+- **Not done / parked:** Pixel Framework (SystemUIGoogle/SettingsGoogle),
+  self-built KSU kernel (bootloops), release-key signing, committing the
+  ~20 dirty repos on a local branch (patch backup + GitHub copy exist).
+- Docs + patches: https://github.com/chiranz07/customrom/tree/main/mistos
+
 **Confirmed working on-device by the user or their live-device debugging agent:**
 - Boot (stock prebuilt kernel; no root — the KSU kernel is a separate, unfinished project)
 - Real Pixel fingerprint
@@ -1849,7 +1869,22 @@ copy this HANDOFF.md into `mistos/`, commit, `git push origin main`.
 
 ## Publishing to SourceForge (set up 2026-09-17)
 
-Project: `mistos-shiba-unofficial`, SourceForge user `chiranz`. A
+**Current project (moved 2026-09-17 evening): `chiranz`** —
+https://sourceforge.net/projects/chiranz/files/ , SFTP path
+`/home/frs/project/chiranz/`. Layout the user asked for:
+```
+shiba/  MistOS-...-shiba-UNOFFICIAL.zip
+shiba/img/  boot.img  vendor_boot.img  vendor_kernel_boot.img  dtbo.img   (extracted from that zip's payload.bin via ota_extractor)
+husky/  MistOS-...-husky-UNOFFICIAL.zip
+husky/img/  (same four)
+```
+Notes: the SFTP dir only appears after the project's *Files* tool is
+enabled in project admin; cross-project `rename` fails ("Failure") so a
+move between projects is a re-upload; moving between folders inside one
+project works with sftp `rename` (the web UI can't move). The older
+project `mistos-shiba-unofficial` still holds a copy of the same layout.
+
+Original project: `mistos-shiba-unofficial`, SourceForge user `chiranz`. A
 dedicated SSH key (`~/.ssh/id_ed25519_sourceforge`, no passphrase) is
 registered on the user's SourceForge account and `~/.ssh/config` has a
 `Host frs.sourceforge.net` entry, so uploads from this server need no

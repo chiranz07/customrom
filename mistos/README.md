@@ -193,6 +193,8 @@ Then `sha256sum` the zip and keep the value with the release.
 On the phone after flashing (no root needed):
 - Face unlock: `dumpsys face` → `provider: FaceProvider`, `Strength: 15`.
 - Files icon present; Quick Tap in Settings → System → Gestures; About phone card populated.
+- Clear Calling toggle under Settings → Sound & vibration; after a call, `logcat -d | grep CcaAtom` shows `is_active: 1` (do NOT use `getprop persist.vendor.audio.cca.*` — not shell-readable).
+- Now Playing: with a song recognized and the screen locked, song text appears above the indication area; `logcat | grep AmbientIndicationSection` shows "Ambient indication bound to keyguard root view".
 - `logcat -d | grep -c "IRemotelyProvisionedComponent/strongbox"` → ~1, not hundreds.
 - `getprop` **omits** properties whose SELinux type isn't shell-readable — check `getprop -Z` before concluding anything is "missing".
 
@@ -200,12 +202,27 @@ On the phone after flashing (no root needed):
 
 ## 7. Publish
 
+SourceForge project **`chiranz`** (https://sourceforge.net/projects/chiranz/files/),
+layout per device:
+```
+shiba/  MistOS-...-shiba-UNOFFICIAL.zip
+shiba/img/  boot.img  vendor_boot.img  vendor_kernel_boot.img  dtbo.img
+husky/  MistOS-...-husky-UNOFFICIAL.zip
+husky/img/  (same four)
+```
 ```bash
-scp -o ServerAliveInterval=30 MistOS-*.zip chiranz@frs.sourceforge.net:/home/frs/project/mistos-shiba-unofficial/
+# zip
+scp -o ServerAliveInterval=30 MistOS-*-shiba-UNOFFICIAL.zip chiranz@frs.sourceforge.net:/home/frs/project/chiranz/shiba/
+# img/ files: extract from that zip's own payload so they match the OTA exactly
+unzip -o -j MistOS-*-shiba-UNOFFICIAL.zip payload.bin -d /tmp/pl
+out/host/linux-x86/bin/ota_extractor -payload /tmp/pl/payload.bin -output_dir /tmp/pl -partitions boot,vendor_boot,vendor_kernel_boot,dtbo
+scp /tmp/pl/{boot,vendor_boot,vendor_kernel_boot,dtbo}.img chiranz@frs.sourceforge.net:/home/frs/project/chiranz/shiba/img/
 ```
 Uses the SSH key `~/.ssh/id_ed25519_sourceforge` (registered on the SourceForge
-account; `~/.ssh/config` has the host entry). Verify the remote size with
-`sftp … ls -l`. No README is wanted in the file area.
+account; `~/.ssh/config` has the host entry). Verify remote sizes with
+`sftp … ls -l`. Moving files between folders inside a project works with sftp
+`rename`; moving between projects does not (re-upload). No README is wanted in
+the file area.
 
 ---
 
@@ -236,7 +253,7 @@ account; `~/.ssh/config` has the host entry). Verify the remote size with
   limitation, not fixable from the ROM. Play Integrity is handled with Tricky
   Store + Play Integrity Fix as KernelSU modules.
 - StrongBox remote provisioning absent on this blob revision (the retry loop is fixed; the capability isn't restorable).
-- Clear Calling: dropped (the DCS app doesn't exist in any public blob dump).
+- Clear Calling: WORKS (the earlier "DCS doesn't exist" note was wrong — it was in `vendor/gms` all along, only listed by `gms_full.mk`).
 - Pixel Framework (Google SystemUI/Settings): deferred; best base is `RisingOS-Revived/android_vendor_pixel-framework` branch `sixteen`; no Android 17 branch exists anywhere yet.
 - Files by Google: intentionally excluded.
 - Signed with AOSP test-keys, `userdebug` (`ro.debuggable=0`). Switching to release keys needs a data wipe.
@@ -250,4 +267,18 @@ account; `~/.ssh/config` has the host entry). Verify the remote size with
 |---|---|
 | 20260916-1813 | First booting build (stock kernel; the KSU kernel builds before it bootlooped) |
 | 20260917-0904 | Face unlock fix, GCam, StrongBox fix, JamesDSP screen-off fix, DocumentsUI fix (confirmed) |
-| 20260917-1036 | + Quick Tap, About-phone card, maintainer; **published to SourceForge**, sha256 `229ff6afcd9a28f4df6dcaf4f6ddded681748d250c34db1d3f54b08f848b89f6` |
+| 20260917-1036 | + Quick Tap, About-phone card, maintainer; sha256 `229ff6af…89f6` |
+| 20260917-1253/1254 | + Clear Calling (DCS, verified on a real call), first Now Playing lock-screen attempt (rendered 0×0: wrong parent) |
+| 20260917-1358 | Now Playing via KeyguardSection — song text on lock screen confirmed |
+| **20260917-1457** | **Current shiba release.** Now Playing pill centered. sha256 `56a11da23b0265bdd3b5bcf113ebf4c9e5c6e0276748ef68ba070b7281d959c0` |
+| **20260917-1514 (husky)** | **First husky build**, same feature set, **untested on hardware**. sha256 `5c6fa94023b869a896dd5479a07b0b535885eccebf5de9657b1ba62b7190c955` |
+
+## 11. husky (Pixel 8 Pro)
+
+Same tree, second lunch target `mist_husky-aosp_current-userdebug`. Differences
+from shiba are only in `mist_husky.mk` / `device-husky.mk` / `husky/mist_about.prop`
+/ `husky-vendor.mk` (all in the patches). Build with `scripts/mist_build_supervisor_husky.sh`
+(separate status file `~/mist_build_final_status_husky.txt`, output under
+`out/target/product/husky/`). Both products share the prebuilt kernel repo and
+every framework/vendor patch. Nobody has booted the husky build yet — treat the
+first report from a Pixel 8 Pro owner as the real test.
