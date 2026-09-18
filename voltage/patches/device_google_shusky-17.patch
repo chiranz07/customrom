@@ -21,10 +21,10 @@ index 0000000..eb626b2
 +allow hal_face_default metadata_file:dir r_dir_perms;
 diff --git a/voltage_husky.mk b/voltage_husky.mk
 new file mode 100644
-index 0000000..74d90a5
+index 0000000..1b3762c
 --- /dev/null
 +++ b/voltage_husky.mk
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,59 @@
 +#
 +# SPDX-FileCopyrightText: The LineageOS Project
 +# SPDX-FileCopyrightText: The Calyx Institute
@@ -71,12 +71,25 @@ index 0000000..74d90a5
 +# and Settings hides fingerprint entirely. Same fix as Mist-OS (FEATURES.md #3).
 +PRODUCT_PACKAGES += \
 +    android.hardware.fingerprint.prebuilt.xml
++
++# Real Google Class-3 face unlock comes from the vendor face HAL apex in the blobs.
++# Voltage's bundled Megvii/Sense FaceUnlock registers a software provider first and the
++# framework then never constructs the real FaceProvider (same root cause as Mist-OS
++# FEATURES.md section 2). Set here rather than in vendor/voltage/config/common.mk because the
++# product makefile is parsed before the parent's `?=`, so this wins.
++TARGET_FACE_UNLOCK_SUPPORTED := false
++
++# ...but keep the face feature XML that the same upstream block would have copied, or
++# Settings hides face unlock entirely.
++PRODUCT_COPY_FILES += \
++    frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.hardware.biometrics.face.xml
++
 diff --git a/voltage_shiba.mk b/voltage_shiba.mk
 new file mode 100644
-index 0000000..10c3809
+index 0000000..bfcf7ce
 --- /dev/null
 +++ b/voltage_shiba.mk
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,59 @@
 +#
 +# SPDX-FileCopyrightText: The LineageOS Project
 +# SPDX-FileCopyrightText: The Calyx Institute
@@ -123,3 +136,16 @@ index 0000000..10c3809
 +# and Settings hides fingerprint entirely. Same fix as Mist-OS (FEATURES.md #3).
 +PRODUCT_PACKAGES += \
 +    android.hardware.fingerprint.prebuilt.xml
++
++# Real Google Class-3 face unlock comes from the vendor face HAL apex in the blobs.
++# Voltage's bundled Megvii/Sense FaceUnlock registers a software provider first and the
++# framework then never constructs the real FaceProvider (same root cause as Mist-OS
++# FEATURES.md section 2). Set here rather than in vendor/voltage/config/common.mk because the
++# product makefile is parsed before the parent's `?=`, so this wins.
++TARGET_FACE_UNLOCK_SUPPORTED := false
++
++# ...but keep the face feature XML that the same upstream block would have copied, or
++# Settings hides face unlock entirely.
++PRODUCT_COPY_FILES += \
++    frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.hardware.biometrics.face.xml
++

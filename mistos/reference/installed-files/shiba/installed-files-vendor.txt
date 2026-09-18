@@ -57,7 +57,7 @@
      1354408  /vendor/lib64/libtachyon_dsp_core.so
      1293192  /vendor/bin/hw/hostapd
      1282452  /vendor/overlay/Settings__mist_shiba__auto_generated_rro_vendor.apk
-     1260826  /vendor/etc/selinux/precompiled_sepolicy
+     1261171  /vendor/etc/selinux/precompiled_sepolicy
      1244328  /vendor/lib64/libflatbuffers-cpp.so
      1228952  /vendor/lib64/soundfx/libaudiopreprocessing.so
      1192176  /vendor/lib64/libxml2.so
@@ -86,7 +86,7 @@
      1007624  /vendor/lib64/libExynosC2Vp8Dec.so
       991872  /vendor/lib64/libExynosC2H263Enc.so
       969248  /vendor/lib64/libtouchflow.so
-      966194  /vendor/etc/selinux/vendor_sepolicy.cil
+      966613  /vendor/etc/selinux/vendor_sepolicy.cil
       956128  /vendor/lib64/libdisplaycolor.so
       933824  /vendor/lib64/libbinder.so
       932336  /vendor/lib64/libstd.dylib.so

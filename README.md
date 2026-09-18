@@ -1,11 +1,17 @@
 # customrom — Pixel 8 (shiba) custom ROM build notes
 
-Two ROMs are documented here, each self-contained:
+Four ROM builds are documented here, each self-contained:
 
 | ROM | Where | Status |
 |---|---|---|
-| **Mist-OS 5.0 (Android 17)** | **[`mistos/`](mistos/README.md)** — build guide, full knowledge base (`HANDOFF.md`), per-repo patches, scripts, manifests | Built & published Sept 2026 |
-| Project Infinity-X (Android 16) | this directory (below) | Built June 2026 |
+| **Mist-OS 5.0 (Android 17)** | **[`mistos/`](mistos/README.md)** — build guide, full knowledge base (`HANDOFF.md`), per-feature recipes (`FEATURES.md`), per-repo patches, scripts, manifests | **Maintained.** shiba + husky published, both tested on hardware |
+| **VoltageOS 6.1 (Android 17)** | **[`voltage/`](voltage/VOLTAGE.md)** — procedure, patches, changelog | **Maintained.** shiba + husky published; vanilla ROM, GmsCompat instead of GApps |
+| PixelOS (Android 17) | [`pixelos/`](pixelos/PIXELOS.md) | Built Sept 2026, not maintained |
+| Project Infinity-X (Android 16) | this directory (below) | Built June 2026, superseded |
+
+Downloads for the maintained ROMs: **https://sourceforge.net/projects/chiranz/files/** —
+`mistos/{shiba,husky}/` and `voltage/{shiba,husky}/`, each with an `img/` folder
+(boot, init_boot, vendor_boot, vendor_kernel_boot, dtbo). Only the latest build per device is kept.
 
 ---
 

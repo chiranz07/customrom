@@ -7,7 +7,7 @@
      1634312  /root/system/bin/fastbootd
      1496808  /root/system/lib64/libprotobuf-cpp-lite-6.33.5.so
      1365016  /root/system/lib64/libc.so
-     1278473  /root/sepolicy
+     1278818  /root/sepolicy
      1152760  /root/system/lib64/libc++.so
      1001904  /root/system/lib64/libbinder.so
       744544  /root/system/lib64/libhidlbase.so

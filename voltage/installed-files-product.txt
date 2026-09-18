@@ -31,7 +31,6 @@
      1690423  /product/media/audio/ringtones/plasma-mobile_glazed.ogg
      1690423  /product/media/audio/alarms/plasma-mobile_glazed.ogg
      1447374  /product/priv-app/AICorePrebuilt-aicore_20260302.01_RC00/AICorePrebuilt-aicore_20260302.01_RC00.apk
-     1417534  /product/overlay/FaceUnlockOverlay.apk
      1154016  /product/lib64/libc++.so
      1153921  /product/media/audio/ringtones/plasma-mobile_wubstep.ogg
      1153921  /product/media/audio/alarms/plasma-mobile_wubstep.ogg

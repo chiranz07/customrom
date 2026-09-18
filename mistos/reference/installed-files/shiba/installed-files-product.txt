@@ -40,7 +40,7 @@
      8526265  /product/priv-app/PrebuiltGmsCore/m/optional/TfliteDynamitePrebuilt.apk
      7915931  /product/app/Backgrounds/Backgrounds.apk
      7893992  /product/priv-app/PrebuiltGmsCore/m/optional/VisionBarcodePrebuilt.apk
-     7790192  /product/app/Twelve/Twelve.apk
+     7798384  /product/app/Twelve/Twelve.apk
      7206628  /product/priv-app/VerifierPrebuiltClassic/VerifierPrebuiltClassic.apk
      7200834  /product/app/SoundPickerPrebuilt_33000242/SoundPickerPrebuilt_33000242.apk
      6875934  /product/app/MarkupGoogle_v2/MarkupGoogle_v2.apk
@@ -480,7 +480,6 @@
        43965  /product/media/audio/ringtones/Ring_Synth_04.ogg
        43522  /product/media/audio/notifications/TaDa.ogg
        43487  /product/etc/selinux/product_sepolicy.cil
-       42882  /product/overlay/Updater__mist_shiba__auto_generated_rro_product.apk
        42882  /product/overlay/TeleService__mist_shiba__auto_generated_rro_product.apk
        42882  /product/overlay/SystemUI__mist_shiba__auto_generated_rro_product.apk
        42882  /product/overlay/StorageManager__mist_shiba__auto_generated_rro_product.apk
@@ -1314,6 +1313,7 @@
         2054  /product/etc/CarrierSettings/virgin_us.pb
         2054  /product/etc/CarrierSettings/boost_us.pb
         2040  /product/etc/CarrierSettings/kt_kr.pb
+        2012  /product/etc/sysconfig/allowlist_com.google.android.as.xml
         2011  /product/etc/sysconfig/preinstalled-packages-product-pixel-2018-and-newer.xml
         2010  /product/etc/CarrierSettings/telenor_dk.pb
         2009  /product/etc/CarrierSettings/bob_at.pb
@@ -1372,7 +1372,6 @@
         1483  /product/etc/CarrierSettings/digimobil_es.pb
         1480  /product/etc/CarrierSettings/claro_pr.pb
         1476  /product/etc/CarrierSettings/digi_my.pb
-        1473  /product/etc/sysconfig/allowlist_com.google.android.as.xml
         1465  /product/etc/default-permissions/default-permissions-safetyhub.xml
         1456  /product/etc/CarrierSettings/cordova_us.pb
         1452  /product/etc/CarrierSettings/tango_lu.pb

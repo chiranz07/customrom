@@ -3,12 +3,15 @@
 Built from https://github.com/VoltageOS/manifest branch `17` (AOSP android-17.0.0_r1, manifest
 "Forks for 2026-09 ASB", release config `cp2a`), userdebug, signed with a locally generated key set (§4).
 
-**Current release (2026-09-18, second build — tester-feedback fixes, see §6):**
+**Current release (2026-09-18, third build — face unlock fix, see §9; build 2 fixes in §6):**
 
 | Device | Zip | Size | sha256 |
 |---|---|---|---|
-| shiba | `voltage-6.1-shiba-20260918-1629-UNOFFICIAL.zip` | 1.58 GB | `bf66ab74c7a8f478804583bec810792ad83eb4d34cf6fe0c73f075dd66d81f44` |
-| husky | `voltage-6.1-husky-20260918-1659-UNOFFICIAL.zip` | 1.58 GB | `a9db735e3003872c5047aaaf5afeb05115bac4da0e6155b45cab447b0f6335cb` |
+| shiba | `voltage-6.1-shiba-20260918-2104-UNOFFICIAL.zip` | 1.55 GB | `dce4ee65ed8c3976e547e5ee98e66bf584ce7a488fcd05c70a6eb5c218e64129` |
+| husky | `voltage-6.1-husky-20260918-2116-UNOFFICIAL.zip` | 1.55 GB | `1ae2f303e38c276e673366c6760657e3cc740744b564fdc43f01c6b1bc5b280c` |
+
+Build 3 adds the face unlock fix (§9) on top of build 2. Older builds are removed from SourceForge;
+each folder keeps only the latest.
 
 Build times on the 96-core server with RBE: shiba 28:30 from a clean `installclean`, husky 8:34 incremental.
 

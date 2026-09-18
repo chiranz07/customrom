@@ -2,7 +2,6 @@
     96807126  /system_ext/priv-app/Settings/Settings.apk
     48924998  /system_ext/priv-app/ThemePicker/ThemePicker.apk
     43216837  /system_ext/priv-app/SystemUI/SystemUI.apk
-    36357476  /system_ext/priv-app/FaceUnlock/FaceUnlock.apk
     29094952  /system_ext/priv-app/Launcher3QuickStep/Launcher3QuickStep.apk
     24088352  /system_ext/priv-app/Seedvault/Seedvault.apk
     17973088  /system_ext/priv-app/MyVerizonServices/MyVerizonServices.apk
@@ -18,7 +17,6 @@
      8168083  /system_ext/priv-app/LMOFreeformSidebar/LMOFreeformSidebar.apk
      7796510  /system_ext/priv-app/ConnectivityThermalPowerManager/ConnectivityThermalPowerManager.apk
      7447575  /system_ext/priv-app/ShannonRcs/ShannonRcs.apk
-     7213272  /system_ext/lib64/libmegface.so
      5307760  /system_ext/priv-app/EuiccGoogleOverlay/EuiccGoogleOverlay.apk
      4960256  /system_ext/apex/com.android.compos.apex
      4570641  /system_ext/priv-app/PixelDisplayService/PixelDisplayService.apk
@@ -36,17 +34,12 @@
      1912001  /system_ext/priv-app/PixelImsMediaService/PixelImsMediaService.apk
      1326263  /system_ext/priv-app/LMOFreeform/LMOFreeform.apk
      1127963  /system_ext/priv-app/QuickAccessWallet/QuickAccessWallet.apk
-     1066008  /system_ext/lib64/libMegviiUnlock.so
-      839680  /system_ext/apex/com.android.hardware.biometrics.fingerprint.virtual.apex
       647930  /system_ext/priv-app/PixelQualifiedNetworksService/PixelQualifiedNetworksService.apk
       613028  /system_ext/app/PersistentBackgroundCameraServices/PersistentBackgroundCameraServices.apk
-      557056  /system_ext/apex/com.android.hardware.biometrics.face.virtual.apex
       546459  /system_ext/priv-app/grilservice/grilservice.apk
       293795  /system_ext/framework/androidx.window.sidecar.jar
       282182  /system_ext/framework/androidx.window.extensions.jar
       262531  /system_ext/priv-app/CarrierConfig/CarrierConfig.apk
-      260176  /system_ext/lib64/libMegviiUnlock-jni-1.2.so
-      256088  /system_ext/lib64/libFaceDetectCA.so
       237791  /system_ext/priv-app/Iwlan/Iwlan.apk
       234193  /system_ext/etc/selinux/system_ext_sepolicy.cil
       187394  /system_ext/framework/google-ril.jar
@@ -68,7 +61,7 @@
        89627  /system_ext/etc/build_flags.json
        85592  /system_ext/lib64/com.google.edgetpu_app_service-V6-ndk.so
        78047  /system_ext/app/LocalContactsBackup/LocalContactsBackup.apk
-       76688  /system_ext/etc/NOTICE.xml.gz
+       76400  /system_ext/etc/NOTICE.xml.gz
        69184  /system_ext/bin/hw/vendor.google.whitechapel.audio.hal.parserservice
        69120  /system_ext/lib64/libpixeldisplaymanager_jni.so
        65131  /system_ext/etc/aconfig_flags.pb
@@ -140,7 +133,7 @@
         3032  /system_ext/framework/oat/arm64/google-ril.vdex
         2976  /system_ext/framework/oat/arm64/com.google.pixel.camera.connectivity.vdex
         2872  /system_ext/framework/oat/arm64/SatelliteClient.vdex
-        2872  /system_ext/etc/build.prop
+        2829  /system_ext/etc/build.prop
         2792  /system_ext/etc/sysconfig/preinstalled-packages-handheld-system-ext.xml
         2629  /system_ext/etc/selinux/system_ext_seapp_contexts
         2252  /system_ext/etc/permissions/com.android.launcher3.xml
@@ -166,7 +159,6 @@
         1027  /system_ext/etc/sysconfig/preinstalled-packages-telephony-system-ext.xml
         1008  /system_ext/etc/permissions/com.google.android.rilextension.xml
          980  /system_ext/framework/oat/arm64/com.google.android.camerax.extensions.vdex
-         980  /system_ext/etc/permissions/privapp_whitelist_com.voltageos.faceunlock.xml
          920  /system_ext/framework/oat/arm64/com.google.android.camera.extensions.vdex
          912  /system_ext/etc/permissions/com.android.qns.xml
          901  /system_ext/etc/sysconfig/preinstalled-packages-pixelimsmedia.xml
@@ -183,10 +175,8 @@
          836  /system_ext/framework/oat/arm64/apex@com.android.compos@javalib@service-compos.jar@classes.vdex
          830  /system_ext/etc/permissions/androidx.window.extensions.xml
          824  /system_ext/etc/permissions/androidx.window.sidecar.xml
-         824  /system_ext/etc/default-permissions/default_permissions_com.voltageos.faceunlock.xml
          816  /system_ext/etc/permissions/permissions_com.stevesoltys.seedvault.xml
          787  /system_ext/etc/permissions/google-ril.xml
-         748  /system_ext/etc/sysconfig/hiddenapi-whitelist-com.voltageos.faceunlock.xml
          710  /system_ext/etc/aconfig/package.map
          685  /system_ext/etc/vintf/manifest/com.google.pixel.camera.services@1.0-service-google.xml
          673  /system_ext/etc/default-permissions/default-permissions_com.android.bluetooth.bthelper.xml

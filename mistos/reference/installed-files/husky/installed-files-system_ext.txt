@@ -1,4 +1,4 @@
-   193089937  /system_ext/priv-app/Settings/Settings.apk
+   193098129  /system_ext/priv-app/Settings/Settings.apk
    131320630  /system_ext/app/UdfpsAnimations/UdfpsAnimations.apk
    115370643  /system_ext/app/OmniJaws/OmniJaws.apk
     69353677  /system_ext/priv-app/AxSandbox/AxSandbox.apk
@@ -14,7 +14,6 @@
     13106709  /system_ext/priv-app/DeviceConnectivityServicePrebuilt_26.01.00/DeviceConnectivityServicePrebuilt_26.01.00.apk
     12933964  /system_ext/priv-app/GoogleParts/GoogleParts.apk
     12635565  /system_ext/priv-app/EmergencyInfo/EmergencyInfo.apk
-    12140473  /system_ext/priv-app/Updater/Updater.apk
     12095517  /system_ext/priv-app/StorageManager/StorageManager.apk
     11834379  /system_ext/app/BatteryStatsViewer/BatteryStatsViewer.apk
     11000707  /system_ext/priv-app/BtHelperAdapter/BtHelperAdapter.apk
@@ -105,7 +104,7 @@
        86479  /system_ext/usr/share/vim/syntax/obse.vim
        86317  /system_ext/app/Profiles/Profiles.apk
        85592  /system_ext/lib64/com.google.edgetpu_app_service-V6-ndk.so
-       85321  /system_ext/etc/NOTICE.xml.gz
+       84868  /system_ext/etc/NOTICE.xml.gz
        83355  /system_ext/usr/share/vim/doc/index.txt
        83262  /system_ext/usr/share/vim/doc/change.txt
        83128  /system_ext/usr/share/vim/doc/autocmd.txt
@@ -2344,7 +2343,6 @@
         1048  /system_ext/etc/terminfo/t/tvi955-w
         1047  /system_ext/usr/share/vim/doc/maketags.awk
         1045  /system_ext/etc/terminfo/d/dg+fixed
-        1044  /system_ext/etc/permissions/privapp_whitelist_com.mist.updater.xml
         1041  /system_ext/etc/terminfo/w/wyse30-mc
         1041  /system_ext/etc/terminfo/w/wy30-mc
         1035  /system_ext/etc/terminfo/t/tvi920c-p
@@ -2564,7 +2562,6 @@
          887  /system_ext/etc/terminfo/c/cit500
          883  /system_ext/etc/terminfo/x/xterm+sm+1005
          882  /system_ext/usr/share/vim/syntax/cvs.vim
-         882  /system_ext/etc/default-permissions/default-permissions_com.mist.updater.xml
          880  /system_ext/usr/share/vim/syntax/sbt.vim
          880  /system_ext/etc/terminfo/v/viewdata-rv
          879  /system_ext/usr/share/vim/syntax/conf.vim
