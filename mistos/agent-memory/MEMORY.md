@@ -1,6 +1,5 @@
 - [Mist-OS ROM build goal](mistos_rom_build.md) — Pixel 8 (shiba)-only Android 17 build, see ~/mistos/HANDOFF.md for details
 - [Mist-OS build ops gotchas](mistos_build_ops.md) — shared-server memory kills, don't misread a killed monitor as a dead build
 - [Don't stop builds unasked](feedback_dont_stop_builds_unasked.md) — user has a 96-core agreement; admin broadcasts are for everyone; only stop on explicit instruction
-- [AOSPA shiba build](aospa_build.md) — ~/aospa calcite (Android 17), Lineage 24.0 trees, vendor/aospa product conventions, scripts/status
 - [PixelOS shiba build](pixelos_build.md) — Lineage 24.0 trees, apex-contributions fix; server tree deleted 2026-09-18, zips on SourceForge pixelos/
 - [Never delete published builds](feedback_never_delete_published_builds.md) — "delete everything related to X" means the local tree only; SourceForge/GitHub need an explicit, named instruction

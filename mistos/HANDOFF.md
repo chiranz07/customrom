@@ -2086,3 +2086,12 @@ the file area. First release uploaded:
 
 **SourceForge layout change 2026-09-18 07:15 UTC:** Mist builds moved into `chiranz/mistos/shiba/` and `chiranz/mistos/husky/`
 (each with img/). PixelOS stays in `chiranz/pixelos/{shiba,husky}/`. Any older path mention of `chiranz/shiba/` means `chiranz/mistos/shiba/`.
+
+**AOSPA (Paranoid Android) attempt, 2026-09-18, abandoned on request.** Facts worth keeping: AOSPA `calcite` is Android 17
+but the tree is Qualcomm/CodeLinaro-first with no Pixel support since Android 13 (last Google trees are Pixel 7 on `topaz`).
+Getting Soong analysis to pass on shiba needed: a port of LineageOS's `rust_prebuilt_binary` Soong module type (Pixel blobs use it),
+LineageOS hardware/google/{pixel,pixel-sepolicy,camera} + packages/resources/devicesettings (at a non-colliding path), dropping the
+Lineage touch/health/powershare HALs, excluding vendor/qcom/common, several vendor/qcom/opensource dirs and hardware/qcom/bootctrl via
+PRODUCT_SOURCE_ROOT_DIRS, swapping AOSPA's tinycompress for AOSP's, and moving AOSPA's system props/FCM off the system partition.
+Eleven rounds in, still in Soong analysis; judged not worth it versus Mist (loses Now Playing port, Clear Calling, Auto HBM,
+Lineage charging/powershare HALs; untested runtime on Tensor). Tree, scripts and notes deleted.
