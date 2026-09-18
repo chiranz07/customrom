@@ -2,7 +2,7 @@
 
 Tracker entry written by the device-side agent (rom-4c, session_013r4JxdvG95YfarQsRt7iDn) on 2026-09-18, filed verbatim.
 Source fix: `patches/rom/device_google_zuma.patch` (Mist) and `../pixelos/patches/device_google_zuma-lineage-24.0.patch` (PixelOS).
-Fixed builds: Mist shiba 20260918-0517, PixelOS shiba 0535 / husky 0608. Mist husky 1816 still affected.
+Fixed builds: Mist shiba 20260918-0517, PixelOS shiba 0535 / husky 0608. Mist husky rebuilt as 20260918-0635 with the fix.
 
 STATUS:    RESOLVED — fix verified on device
 SEVERITY:  High (feature completely non-functional)
