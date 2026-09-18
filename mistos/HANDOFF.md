@@ -2103,3 +2103,14 @@ they are private (git asks for credentials; the GitLab group's public project li
 mirrors carry alpha-17.0 only for system_core. So AlphaDroid's Android 17 is in private development; only alpha-16.2 (Android 16)
 is publicly buildable. Partial sync deleted. Mist source tree (~/mistos) deleted the same time on request; stock kernel prebuilts
 kept in ~/shusky-kernels-prebuilt (also derivable from the ionutsandroidbuilds repo pinned in reference/source-pins).
+
+**YAAP attempt, 2026-09-18 09:42–11:19 UTC, stopped on request at ~73% compiled.** Buildable from public sources
+(github.com/yaap `seventeen`, GMS/Pixel blobs on gitlab.com/yaosp). What it needed on the Pixel 8 Lineage trees, for the record:
+LineageOS forks of hardware/google/{pixel,pixel-sepolicy} (YAAP's lack lineage_health/ and touch/), LineageOS
+hardware/lineage/interfaces (YAAP's is HIDL-era: touch@1.0 only, no health AIDL) plus YAAP's HIDL touch/1.0 copied back in
+because YAAP's frameworks/base links `vendor.lineage.touch-V1.0-java`; the `rust_prebuilt_binary` Soong port (from the
+Voltage tree); Glanceable Hub overlays duplicated between zuma and vendor/google/pixel (vendor copies disabled);
+Seedvault LocalContactsBackup moved product→system_ext (system_other dexpreopt packaging conflict); lineage_health sepolicy
+(attribute, types, contexts) merged into YAAP's device/lineage/sepolicy; vendor/yaap system props → system_ext, its FCM
+guarded, apns copy guarded. Also: YAAP colourises build output — a supervisor grepping `^FAILED:` must strip ANSI codes first.
+Not finished; tree left at ~/yaap. Judged not worth it: YAAP adds little over Mist for this device.
