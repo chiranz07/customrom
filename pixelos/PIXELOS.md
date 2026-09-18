@@ -104,10 +104,20 @@ checkers, Soong then kati, so a glob list avoids a second round.)
 - NOT included vs the Mist build: DeviceConnectivityService (Clear Calling), JamesDSP, Mist's Now
   Playing lock-screen port, Auto HBM. Launcher3/Trebuchet is not installed (Pixel Launcher only).
 
-## 5. Open items
+## 5. Build-server notes
+
+- The server has Google-style remote execution configured (`/srv/rbe/rewrapper`, `exec_strategy=remote_local_fallback`);
+  that is why a full build took 26 min. Its dependency scanner occasionally dies at startup
+  (`scandeps_server terminated during startup` → `FAILED: ... turbine/framework.jar`). That is a
+  transient: just relaunch the build.
+- Upload to SourceForge confirmed 2026-09-18 04:49 UTC: `pixelos/shiba/PixelOS_shiba-17.0-20260918-0417.zip` (2,695,683,629 bytes),
+  `.md5sum`, and `img/{boot,vendor_boot,vendor_kernel_boot,dtbo}.img`.
+
+## 6. Open items
 
 - Flash on a Pixel 8 and check: boot, face unlock (ParanoidSense, not Google's), fingerprint, camera,
   Quick Tap. Test keys: Play Integrity handled by the user's Tricky Store + PIF setup as before.
-- husky build was started right after shiba (same patches); see the session notes / SourceForge
-  `pixelos/husky/` for whether it finished before the server was destroyed.
+- husky: built 2026-09-18 with the same patches → `PixelOS_husky-17.0-20260918-0449.zip` (2,703,178,180 bytes,
+  md5 OK, fingerprint google/husky/husky:17/CP2A.260805.005). Uploaded to SourceForge `pixelos/husky/` (+`img/`).
+  Untested on hardware (no Pixel 8 Pro available).
 - If PixelOS ever adds official shusky trees, drop the local manifest and use theirs.
