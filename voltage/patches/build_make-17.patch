@@ -12,3 +12,22 @@ index d980c69..13f27a3 100644
  PRODUCT_COPY_FILES += \
      device/sample/etc/apns-full-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
 +endif
+diff --git a/target/product/base_product.mk b/target/product/base_product.mk
+index 3b23c0b..8ce4eca 100644
+--- a/target/product/base_product.mk
++++ b/target/product/base_product.mk
+@@ -26,9 +26,13 @@ PRODUCT_PACKAGES += \
+     product_manifest.xml \
+     selinux_policy_product \
+     product-build.prop \
+-    com.android.hardware.biometrics.fingerprint.virtual \
+     preinstalled-packages-base-product.xml \
+ 
+ # Packages included only for eng or userdebug builds, previously debug tagged
+ PRODUCT_PACKAGES_DEBUG += \
+     adb_keys \
++
++# Virtual fingerprint HAL hijacks the real one on Pixel; skip it for voltage_* builds.
++ifeq ($(filter voltage_%,$(TARGET_PRODUCT)),)
++PRODUCT_PACKAGES += com.android.hardware.biometrics.fingerprint.virtual
++endif

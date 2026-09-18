@@ -1,0 +1,20 @@
+diff --git a/common/pixel-common-device.mk b/common/pixel-common-device.mk
+index 722881b..0bed21a 100644
+--- a/common/pixel-common-device.mk
++++ b/common/pixel-common-device.mk
+@@ -58,11 +58,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
+     dalvik.vm.systemuicompilerfilter=speed
+ endif
+ 
++# Virtual fingerprint/face HALs: they register extra IFingerprint/IFace instances and
++# hijack the real Goodix/Google HALs. Skipped for voltage_* (see Mist-OS FEATURES.md #3).
++ifeq ($(filter voltage_%,$(TARGET_PRODUCT)),)
+ # Virtual fingerprint HAL
+ PRODUCT_PACKAGES += com.android.hardware.biometrics.fingerprint.virtual
+ 
+ # Virtual face HAL
+ PRODUCT_PACKAGES += com.android.hardware.biometrics.face.virtual
++endif
+ 
+ # AI Labs artifacts
+ ifeq ($(RELEASE_INSTALL_AI_LABS_ARTIFACTS), true)

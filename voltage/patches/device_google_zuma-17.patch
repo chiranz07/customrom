@@ -1,0 +1,52 @@
+diff --git a/BoardConfig-common.mk b/BoardConfig-common.mk
+index ac2d574..6d579af 100644
+--- a/BoardConfig-common.mk
++++ b/BoardConfig-common.mk
+@@ -184,6 +184,9 @@ BOARD_SUPER_PARTITION_ERROR_LIMIT := 8006926336
+ 
+ # Reserve space for gapps install
+ -include vendor/lineage/config/BoardConfigReservedSize.mk
++# VoltageOS has no vendor/lineage, so the line above is a no-op and every image
++# was built exact-fit (0 bytes free -> no GApps package could ever install).
++-include vendor/voltage/config/BoardConfigReservedSize.mk
+ 
+ # Build a separate system_dlkm partition
+ BOARD_USES_SYSTEM_DLKMIMAGE := true
+diff --git a/allowlist_com.google.android.as.xml b/allowlist_com.google.android.as.xml
+index d973327..ab56a3e 100644
+--- a/allowlist_com.google.android.as.xml
++++ b/allowlist_com.google.android.as.xml
+@@ -16,8 +16,6 @@
+     <!-- AI services can bind to its open-source network component. -->
+     <allow-association target="com.google.android.as" allowed="com.google.android.as.oss" />
+ 
+-    <!-- AI services open-source network component can only bind back to the core package. -->
+-    <allow-association target="com.google.android.as.oss" allowed="com.google.android.as" />
+-    <!-- AI services open-source network component can bind to AI Core. -->
+-    <allow-association target="com.google.android.as.oss" allowed="com.google.android.aicore" />
++    <!-- VoltageOS/Mist fix: stock does not restrict com.google.android.as.oss (PCS); the LineageOS restriction
++         breaks the split Now Playing app (com.google.android.apps.pixel.nowplaying), Gboard and TTS. -->
+ </config>
+diff --git a/sepolicy/vendor/gxp_logging.te b/sepolicy/vendor/gxp_logging.te
+index 9554f39..318bd69 100644
+--- a/sepolicy/vendor/gxp_logging.te
++++ b/sepolicy/vendor/gxp_logging.te
+@@ -14,3 +14,6 @@ allow gxp_logging fwk_stats_service:service_manager find;
+ allow gxp_logging gxp_device:chr_file rw_file_perms;
+ allow gxp_logging sysfs_gxp:dir search;
+ allow gxp_logging sysfs_gxp:file rw_file_perms;
++
++# Perfetto producer connection attempt; harmless if refused (15x/boot).
++dontaudit gxp_logging traced_producer_socket:sock_file write;
+diff --git a/sepolicy/vendor/hal_camera_default.te b/sepolicy/vendor/hal_camera_default.te
+index 3f6fdd6..84df80b 100644
+--- a/sepolicy/vendor/hal_camera_default.te
++++ b/sepolicy/vendor/hal_camera_default.te
+@@ -61,6 +61,7 @@ allow hal_camera_default sysfs_leds:dir r_dir_perms;
+ allow hal_camera_default sysfs_leds:file r_file_perms;
+ allow hal_camera_default tee_device:chr_file rw_file_perms;
+ allow hal_camera_default vendor_camera_data_file:dir rw_dir_perms;
++allow hal_camera_default vendor_camera_data_file:dir create;
+ allow hal_camera_default vendor_camera_data_file:file create_file_perms;
+ 
+ dontaudit hal_camera_default system_data_file:dir search;
