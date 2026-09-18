@@ -117,8 +117,7 @@ checkers, Soong then kati, so a glob list avoids a second round.)
 
 The zuma allowlist fix from mistos/FEATURES.md ("Now Playing stopped recognising anything") was applied to
 `device/google/zuma/allowlist_com.google.android.as.xml` in this tree too (same LineageOS file) and both devices
-rebuilt. shiba: `PixelOS_shiba-17.0-20260918-0535.zip` replaces 0417 on SourceForge. husky: rebuilt after,
-see SourceForge `pixelos/husky/` for the current zip name.
+rebuilt. shiba: `PixelOS_shiba-17.0-20260918-0535.zip` replaces 0417 on SourceForge. husky: `PixelOS_husky-17.0-20260918-0608.zip` replaces 0449 (md5 OK, allowlist verified in the built product image).
 
 Gotcha seen on the rebuild: `m pixelos` emits the new zip AND refreshes the previous zip name, because both
 `PixelOS_<dev>-<date>.zip` files are hard links to `lineage_<dev>-ota.zip`. After a rebuild the old-named zip has
