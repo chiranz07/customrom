@@ -227,3 +227,22 @@ POST_NOTIFICATIONS for the Now Playing app is in default-permissions_nowplaying.
 seen DENIED on the device — grant it in Settings if the notification does not show.
 
 The same LineageOS file is in the PixelOS build (pixelos/PIXELOS.md); patched there too.
+
+**Verified on device 2026-09-18 (build 0517, device agent rom-4c):** association denials = 0 both before and after
+updating ASI (C.0 → C.6) and Now Playing (315 → 52709, the exact versions that failed on 1804); SoundTrigger model
+9f6ad62a… LOADED+ACTIVE owned by com.google.android.as; full chain in logcat
+(StHal AmbientMusic recognition → AmbientMusicDetector → MusicRecognitionHandler "Music recognized" →
+MusicRelayApiImpl → SystemUI "AmbientIndication: Showing ambient indication"); lock-screen pill rendered
+("505 • Arctic Monkeys", "Sailor Song • Gigi Perez"). The allowlist change was the sole root cause.
+Architecture note: com.google.android.apps.pixel.nowplaying is never running; detection, shards and the SHOW
+broadcast all live in ASI. The split app is only a history/settings front end, yet its blocked PCS bind still
+made ASI treat Now Playing as unavailable.
+
+Known cosmetic follow-ups (not fixed):
+- After an ASI Play update, ASI disables its own AmbientMusicSettingsActivity /
+  AmbientMusicNotificationsSettingsActivity, so the "Now Playing" entry vanishes from Settings > Sound & vibration
+  (the feature keeps working). AOSP/Lineage Settings has no entry of its own. Fix idea: add a Settings/Mistify
+  preference launching com.google.android.as/com.google.intelligence.sense.ambientmusic.NowPlayingAmbientMusicSettingsActivity
+  (stays enabled) or com.google.android.apps.pixel.nowplaying/.settings.MainSettingsActivity.
+- POST_NOTIFICATIONS ships denied on the split app despite default-permissions_nowplaying.xml (fixed="false");
+  consider fixed="true" or granting on first boot.
