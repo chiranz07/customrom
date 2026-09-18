@@ -6,7 +6,7 @@ Built 2026-09-18 from https://github.com/VoltageOS/manifest branch `17` (AOSP an
 server (remote execution).
 
 Download: SourceForge project `chiranz`, folder `voltage/shiba/` (zip + md5) and `voltage/shiba/img/`
-(boot, vendor_boot, vendor_kernel_boot, dtbo). husky in `voltage/husky/` if that build finished.
+(boot, vendor_boot, vendor_kernel_boot, dtbo). husky: `voltage-6.1-husky-20260918-0848-UNOFFICIAL.zip` (1.57 GB, built 08:48, same patches, untested) in `voltage/husky/` (+img/).
 
 **Untested on hardware at the time of writing.**
 
