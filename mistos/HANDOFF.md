@@ -2095,3 +2095,11 @@ Lineage touch/health/powershare HALs, excluding vendor/qcom/common, several vend
 PRODUCT_SOURCE_ROOT_DIRS, swapping AOSPA's tinycompress for AOSP's, and moving AOSPA's system props/FCM off the system partition.
 Eleven rounds in, still in Soong analysis; judged not worth it versus Mist (loses Now Playing port, Clear Calling, Auto HBM,
 Lineage charging/powershare HALs; untested runtime on Tensor). Tree, scripts and notes deleted.
+
+**AlphaDroid attempt, 2026-09-18 09:20 UTC, not possible.** Manifest branch `alpha-17.0-gitlab` (updated 2026-09-17) points its 13
+core repos (frameworks_base, build_make, build_soong, system_core, bootable_recovery, vendor_alpha, device_alpha_sepolicy,
+packages_apps_{Settings,Launcher3,SetupWizard,Updater,SimpleSettingsConfig,FlipFlap}) at gitlab.com/alphadroid-project, where
+they are private (git asks for credentials; the GitLab group's public project list only has alpha-16.2 vendor blobs). GitHub
+mirrors carry alpha-17.0 only for system_core. So AlphaDroid's Android 17 is in private development; only alpha-16.2 (Android 16)
+is publicly buildable. Partial sync deleted. Mist source tree (~/mistos) deleted the same time on request; stock kernel prebuilts
+kept in ~/shusky-kernels-prebuilt (also derivable from the ionutsandroidbuilds repo pinned in reference/source-pins).
