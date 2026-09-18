@@ -1,0 +1,14 @@
+diff --git a/target/product/aosp_product.mk b/target/product/aosp_product.mk
+index d980c69..13f27a3 100644
+--- a/target/product/aosp_product.mk
++++ b/target/product/aosp_product.mk
+@@ -28,5 +28,9 @@ PRODUCT_PACKAGES += \
+ 
+ # Telephony:
+ #   Provide a APN configuration to GSI product
++# VoltageOS ships its own apns-conf.xml (vendor/apn) via telephony.mk; skip the sample copy
++# for voltage_* products (same guard LineageOS uses with LINEAGE_BUILD).
++ifeq ($(VOLTAGE_BUILD),)
+ PRODUCT_COPY_FILES += \
+     device/sample/etc/apns-full-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
++endif

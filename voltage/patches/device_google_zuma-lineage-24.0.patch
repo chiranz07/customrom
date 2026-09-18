@@ -1,0 +1,15 @@
+diff --git a/allowlist_com.google.android.as.xml b/allowlist_com.google.android.as.xml
+index d973327..ab56a3e 100644
+--- a/allowlist_com.google.android.as.xml
++++ b/allowlist_com.google.android.as.xml
+@@ -16,8 +16,6 @@
+     <!-- AI services can bind to its open-source network component. -->
+     <allow-association target="com.google.android.as" allowed="com.google.android.as.oss" />
+ 
+-    <!-- AI services open-source network component can only bind back to the core package. -->
+-    <allow-association target="com.google.android.as.oss" allowed="com.google.android.as" />
+-    <!-- AI services open-source network component can bind to AI Core. -->
+-    <allow-association target="com.google.android.as.oss" allowed="com.google.android.aicore" />
++    <!-- VoltageOS/Mist fix: stock does not restrict com.google.android.as.oss (PCS); the LineageOS restriction
++         breaks the split Now Playing app (com.google.android.apps.pixel.nowplaying), Gboard and TTS. -->
+ </config>

@@ -1,0 +1,144 @@
+diff --git a/config/common.mk b/config/common.mk
+index f7b6fd4..2224677 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -1,6 +1,6 @@
+ PRODUCT_BRAND ?= VoltageOS
+ 
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     dalvik.vm.debug.alloc=0 \
+     keyguard.no_require_sim=true \
+     media.recorder.show_manufacturer_and_model=true \
+@@ -15,11 +15,11 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+     ro.url.legal.android_privacy=http://www.google.com/intl/%s/mobile/android/basic/privacy.html
+ 
+ ifeq ($(PRODUCT_GMS_CLIENTID_BASE),)
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     ro.com.google.clientidbase=android-google
+ 
+ else
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     ro.com.google.clientidbase=$(PRODUCT_GMS_CLIENTID_BASE)
+ endif
+ 
+@@ -32,16 +32,16 @@ PRODUCT_SOURCE_ROOT_DIRS += -prebuilts/misc/protobuf_vendorcompat
+ 
+ ifeq ($(TARGET_BUILD_VARIANT),eng)
+ # Disable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=0
++PRODUCT_SYSTEM_EXT_PROPERTIES += ro.adb.secure=0
+ else
+ # Enable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=1
++PRODUCT_SYSTEM_EXT_PROPERTIES += ro.adb.secure=1
+ 
+ # Disable extra StrictMode features on all non-engineering builds
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.strictmode.disable=true
++PRODUCT_SYSTEM_EXT_PROPERTIES += persist.sys.strictmode.disable=true
+ 
+ # Disable debug and verbose logging by default
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += log.tag=I
++PRODUCT_SYSTEM_EXT_PROPERTIES += log.tag=I
+ endif
+ 
+ # Disable default frame rate limit for games
+@@ -63,7 +63,7 @@ PRODUCT_COPY_FILES += \
+     vendor/voltage/prebuilt/common/bin/backuptool_postinstall.sh:$(TARGET_COPY_OUT_SYSTEM)/bin/backuptool_postinstall.sh
+ endif
+ 
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     ro.ota.allow_downgrade=true
+ 
+ # Backup Services whitelist
+@@ -73,12 +73,12 @@ PRODUCT_COPY_FILES += \
+ # Enable blur
+ TARGET_ENABLE_BLUR ?= true
+ ifeq ($(TARGET_ENABLE_BLUR),true)
+-PRODUCT_SYSTEM_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     ro.custom.blur.enable=true \
+     persist.sysui.disableBlur=false \
+     ro.surface_flinger.supports_background_blur=1
+ else
+-PRODUCT_SYSTEM_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     ro.custom.blur.enable=false \
+     persist.sysui.disableBlur=true \
+     ro.surface_flinger.supports_background_blur=0
+@@ -129,7 +129,7 @@ PRODUCT_PACKAGES += \
+     FaceUnlock
+ 
+ # Silence noisy Megvii face unlock logging
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     log.tag.mgulk=S
+ 
+ PRODUCT_SYSTEM_EXT_PROPERTIES += \
+@@ -140,7 +140,7 @@ PRODUCT_COPY_FILES += \
+ endif
+ 
+ # Enforce privapp-permissions whitelist
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     ro.control_privapp_permissions=log
+ 
+ # Speed profile services and wifi-service to reduce RAM and storage
+@@ -165,7 +165,7 @@ SYSTEMUI_OPTIMIZE_JAVA ?= true
+ FULL_SYSTEM_OPTIMIZE_JAVA ?= true
+ 
+ # Storage manager
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     ro.storage_manager.enabled=true
+ 
+ # These packages are excluded from user builds
+@@ -189,7 +189,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
+     pm.dexopt.ab-ota=quicken
+ endif
+ 
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     dalvik.vm.systemuicompilerfilter=speed
+ 
+ # Non-RRO overlays
+diff --git a/config/common_mobile.mk b/config/common_mobile.mk
+index b1c8d7b..7aeb8dd 100644
+--- a/config/common_mobile.mk
++++ b/config/common_mobile.mk
+@@ -2,7 +2,7 @@
+ $(call inherit-product, vendor/voltage/config/common.mk)
+ 
+ # Media
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     media.recorder.show_manufacturer_and_model=true
+ 
+ # SystemUI plugins
+diff --git a/config/telephony.mk b/config/telephony.mk
+index b4f1440..f09e8c5 100644
+--- a/config/telephony.mk
++++ b/config/telephony.mk
+@@ -13,5 +13,5 @@ PRODUCT_PACKAGES += \
+ 
+ # Tethering - allow without requiring a provisioning app
+ # (for devices that check this)
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+     net.tethering.noprovisioning=true
+diff --git a/config/version.mk b/config/version.mk
+index bb1808f..94f07cd 100644
+--- a/config/version.mk
++++ b/config/version.mk
+@@ -95,7 +95,7 @@ VOLTAGE_FINGERPRINT := VoltageOS/$(VOLTAGE_MOD_VERSION)/$(TARGET_PRODUCT_SHORT)/
+ VOLTAGE_PLATFORM_RELEASE_OR_CODENAME := 17.0
+ 
+ # Voltageos System Version
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++PRODUCT_SYSTEM_EXT_PROPERTIES += \
+   ro.voltage.version=$(VOLTAGE_DISPLAY_VERSION) \
+   ro.voltage.build.status=$(VOLTAGE_BUILD_TYPE) \
+   ro.voltageversion=$(VOLTAGE_MOD_VERSION) \
