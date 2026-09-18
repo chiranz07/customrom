@@ -301,8 +301,17 @@ checks it resolves via PackageManager, and only falls back to the Mistify fragme
   with the split app's `MainSettingsActivity` as fallback. This is the fix for ASI disabling its own settings
   activities after a Play update (§ "Known cosmetic follow-ups"). The entry hides itself when neither
   component resolves, so it can never dead-end.
-- `default-permissions_nowplaying.xml` POST_NOTIFICATIONS changed `fixed="false"` -> `fixed="true"` in both
-  the shiba and husky blob trees.
+- POST_NOTIFICATIONS **cannot be granted by default-permissions on this blob, and the attempt was reverted.**
+  The preinstalled `NowPlayingPrebuilt.apk` (versionCode 315) declares only INTERNET, WAKE_LOCK,
+  ACCESS_NETWORK_STATE and GET_PACKAGE_SIZE — no POST_NOTIFICATIONS. The Play build (52709) requests it.
+  `DefaultPermissionGrantPolicy.grantRuntimePermissions()` refuses to grant a default permission that the
+  *system image* version didn't declare once the package `isUpdatedSystemApp()` ("we don't grant default
+  permissions if the version on the system image does not declare them"). So the exceptions file is read and
+  honoured, and the permission is then filtered out; `fixed="true"` only controls revocability and changes
+  nothing here. Verified on-device: package flags carry UPDATED_SYSTEM_APP, active version 52709 requests the
+  permission, hidden system package is /product/app/NowPlayingPrebuilt, grant still denied on a clean first
+  boot. Left at upstream `fixed="false"`. The user grants it in Settings > Notifications, or a future blob
+  whose system-image version declares it would fix it properly. Do not re-attempt via the XML.
 
 ## 18. Mist Updater removed (2026-09-18, user decision)
 
@@ -310,3 +319,30 @@ checks it resolves via PackageManager, and only falls back to the Mistify fragme
 TARGET_PRODUCT, because a `filter-out` in the product makefile does not work — parents are parsed after the
 child). It pointed at Mist's official OTA channel, and accepting an official build would have replaced this
 one wholesale. No OTA prompt can appear now.
+
+
+## 19. Verification of build 20260918-1908 (clean flash, on-device)
+
+Checked by the live-device agent on a clean flash, 12 min uptime:
+
+- **GNSS fixed.** `init.svc.lhd` running with full-uptime ETIME (single PID, never respawned), **0** denials for
+  `u:r:lhd` (was 1,816+), **0** gpsd wakelock acquires (was ~394 / 21 per minute), `flags_health_check`
+  exec counter gone (was 522, climbing ~12/min). Wireless-charger `features` denial also gone, confirming
+  genfscon prefix inheritance covers it without a separate line.
+- **Whole-system SELinux inventory on a clean boot is now one domain:** `hal_face_default -> default_prop`,
+  upstream-tracked as b/487141902. Every previous leftover (lhd, hal_wireless_charger, hardware_info_app,
+  mediacodeclist_generator, gpuservice) is gone.
+- Black QS header with blur off, and Settings > Wallpaper opening the wallpaper app: both user-confirmed.
+- Now Playing entry works — ApplicationStartInfo shows
+  `com.google.intelligence.sense.ambientmusic.NowPlayingAmbientMusicSettingsActivity` launched from Settings
+  (startType=WARM), component enabled state DEFAULT.
+- Mist Updater absent from the package list; no OTA prompt possible.
+- **Two ANRs at first boot are benign:** 8-second `onStartJob` timeouts at ~92 s and ~104 s, one from ASI
+  (`SimpleStorageMaintenanceWorker`) and one from Play Store (`PhoneskyJobServiceMain`), on a freshly wiped
+  /data with load average 14 while every package installed and optimised at once. No Mist component appears
+  in either trace. Recovered with `adb bugreport` (contains /data/anr/* and needs no root on userdebug) after
+  the log buffer had rotated past them.
+- Open: `/sys/class/pps/` still empty because nothing has requested a GPS fix yet (the node cannot exist until
+  a session runs, so it is a pass signal, not a fail); and VoLTE is unprovisioned on this carrier
+  (`volte_vt_enabled` and `wfc_ims_enabled` both null, six `getTechsFromCarrierConfig failed`) with data up,
+  which points at carrier config rather than the ROM.
