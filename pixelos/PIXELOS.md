@@ -113,7 +113,18 @@ checkers, Soong then kati, so a glob list avoids a second round.)
 - Upload to SourceForge confirmed 2026-09-18 04:49 UTC: `pixelos/shiba/PixelOS_shiba-17.0-20260918-0417.zip` (2,695,683,629 bytes),
   `.md5sum`, and `img/{boot,vendor_boot,vendor_kernel_boot,dtbo}.img`.
 
-## 6. Open items
+## 6. Rebuild with the Now Playing PCS fix (2026-09-18, later)
+
+The zuma allowlist fix from mistos/FEATURES.md ("Now Playing stopped recognising anything") was applied to
+`device/google/zuma/allowlist_com.google.android.as.xml` in this tree too (same LineageOS file) and both devices
+rebuilt. shiba: `PixelOS_shiba-17.0-20260918-0535.zip` replaces 0417 on SourceForge. husky: rebuilt after,
+see SourceForge `pixelos/husky/` for the current zip name.
+
+Gotcha seen on the rebuild: `m pixelos` emits the new zip AND refreshes the previous zip name, because both
+`PixelOS_<dev>-<date>.zip` files are hard links to `lineage_<dev>-ota.zip`. After a rebuild the old-named zip has
+NEW content and its old `.md5sum` no longer matches. Always take the newest-named zip and its own md5.
+
+## 7. Open items
 
 - Flash on a Pixel 8 and check: boot, face unlock (ParanoidSense, not Google's), fingerprint, camera,
   Quick Tap. Test keys: Play Integrity handled by the user's Tricky Store + PIF setup as before.
