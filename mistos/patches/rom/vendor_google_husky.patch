@@ -32,19 +32,6 @@ index 26ee7a0..6e88476 100644
      vendor/google/husky/proprietary/recovery/system/etc/init/android.hardware.boot-service.default_recovery-pixel.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/android.hardware.boot-service.default_recovery-pixel.rc \
      vendor/google/husky/proprietary/recovery/system/etc/init/android.hardware.health-service.zuma_recovery.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/android.hardware.health-service.zuma_recovery.rc \
      vendor/google/husky/proprietary/system_ext/etc/default-permissions/default-permissions-euiccpixel.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/default-permissions/default-permissions-euiccpixel.xml \
-diff --git a/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml b/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml
-index 2586e91..72e5104 100644
---- a/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml
-+++ b/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml
-@@ -2,6 +2,6 @@
- 
- <exceptions>
-   <exception package="com.google.android.apps.pixel.nowplaying">
--    <permission name="android.permission.POST_NOTIFICATIONS" fixed="false"/>
-+    <permission name="android.permission.POST_NOTIFICATIONS" fixed="true"/>
-   </exception>
- </exceptions>
-\ No newline at end of file
 diff --git a/proprietary/vendor/etc/init/hw/init.zuma.rc b/proprietary/vendor/etc/init/hw/init.zuma.rc
 index 55ea2fa..51a6184 100644
 --- a/proprietary/vendor/etc/init/hw/init.zuma.rc

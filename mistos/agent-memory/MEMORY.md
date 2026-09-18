@@ -3,3 +3,5 @@
 - [Don't stop builds unasked](feedback_dont_stop_builds_unasked.md) — user has a 96-core agreement; admin broadcasts are for everyone; only stop on explicit instruction
 - [PixelOS shiba build](pixelos_build.md) — Lineage 24.0 trees, apex-contributions fix; server tree deleted 2026-09-18, zips on SourceForge pixelos/
 - [Never delete published builds](feedback_never_delete_published_builds.md) — "delete everything related to X" means the local tree only; SourceForge/GitHub need an explicit, named instruction
+- [Build server state after the 2026-09-18 reset](customrom_server_state.md) — what survived, what is gone, repo is the source of truth
+- [VoltageOS build](voltage_build.md) — ~/voltage, keys not in git, GApps reserve fix, recovery still broken

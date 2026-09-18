@@ -1,16 +1,3 @@
-diff --git a/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml b/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml
-index 2586e91..72e5104 100644
---- a/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml
-+++ b/proprietary/product/etc/default-permissions/default-permissions_nowplaying.xml
-@@ -2,6 +2,6 @@
- 
- <exceptions>
-   <exception package="com.google.android.apps.pixel.nowplaying">
--    <permission name="android.permission.POST_NOTIFICATIONS" fixed="false"/>
-+    <permission name="android.permission.POST_NOTIFICATIONS" fixed="true"/>
-   </exception>
- </exceptions>
-\ No newline at end of file
 diff --git a/proprietary/vendor/etc/init/hw/init.zuma.rc b/proprietary/vendor/etc/init/hw/init.zuma.rc
 index 55ea2fa..51a6184 100644
 --- a/proprietary/vendor/etc/init/hw/init.zuma.rc

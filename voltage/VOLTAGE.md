@@ -21,7 +21,8 @@ flashing images by hand rather than sideloading the zip.
 §4). There is no OTA path across a key change: anyone on `…-0808`/`…-0848` must clean-flash.
 
 **Neither build has been confirmed booting on hardware by the maintainer.** First-build feedback from a Pixel 8
-Pro tester: ROM boots, calls/SMS/wifi/location work; recovery does not (§7); GApps would not install (fixed, §6).
+Pro tester: ROM boots, calls/SMS/wifi/location work; GApps would not install (fixed, §6). The reported
+recovery failure turned out to be tester error and is not a ROM issue — recovery works.
 
 ## 0. What VoltageOS is (read before flashing)
 
@@ -169,26 +170,65 @@ real features again. The space they take is no longer a problem now that the res
   looks like a boot-order artifact. Corrected 2026-09-18 — an earlier version of this file wrongly called it
   a VINTF gap.
 
-## 7. Recovery does not boot (open, first build; unchanged in the second)
+## 7. Recovery — CLOSED, not a ROM issue
 
-Symptom on the tester's Pixel 8 Pro: after flashing, rebooting to recovery hangs on the Google logo. Flashing
-the `img/` files did not help; an older crDroid recovery (20250515) boots fine.
+The first tester reported recovery hanging on the Google logo. It was tester error: recovery works.
+Confirmed independently on Mist-OS, which ships a structurally identical recovery image (same single
+vendor ramdisk fragment, same 214 modules, same contents).
 
-What has been checked, from the published images themselves:
-- The `vendor_boot` recovery ramdisk is complete — `/system/bin/recovery`, `fastbootd`, `minadbd`, 109
-  `res/images`, `init.recovery.husky.rc` + `init.recovery.zuma.rc`.
-- `vendor_kernel_boot` carries all 214 modules including the display stack (`exynos-drm`, `gs-panel`,
-  `panel-google-hk3` = husky's panel) and the four recovery touch modules from
-  `device/google/shusky/recovery/modules.load.vendor_kernel_boot`.
-- Structure is a single unnamed type-0x1 vendor ramdisk fragment, which is what
-  `BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true` produces when
-  `BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT` is not set — and it is **byte-for-byte the same shape as the
-  Mist-OS images**, whose module set is identical. So this is not Voltage-specific packaging; it very likely
-  affects Mist-OS too, where recovery has never been tested either.
-- `hardware/google/pixel/recovery/recovery_ui.cpp`'s `make_device()` does no work at startup, so the Pixel
-  recovery UI library is not the hang.
+Kept only as a record of what was verified while chasing it, so nobody re-runs it: the vendor_boot
+recovery ramdisk is complete (`/system/bin/recovery`, `fastbootd`, `minadbd`, 109 res images, both
+init.recovery rc files); every DT_NEEDED of every recovery binary resolves inside the ramdisk;
+`fstab.zuma` is byte-identical to the one a working third-party recovery used; vendor_kernel_boot
+carries all 214 modules including the panel driver and the four recovery touch modules; and
+`hardware/google/pixel/recovery`'s `make_device()` does no work at startup.
 
-Still needed to root-cause, in order of value: (1) does recovery work on Mist-OS on a Pixel 8 — splits the
-hypothesis in half; (2) while stuck at the logo, does `adb devices` enumerate — separates "init/recovery alive,
-display dead" from "nothing running"; (3) is the device on stock CP2A firmware — a ROM zip never updates
-bootloader/radio, and the tester came from an Android 16 build.
+## 8. Google Play on a vanilla ROM
+
+VoltageOS ships GrapheneOS's **GmsCompat** (sandboxed Play) but no app store, and GmsCompat expects
+one: its manifest declares `<package android:name="app.grapheneos.apps"/>` and
+`BinderGms2Gca.kt` calls `app.grapheneos.apps.RpcProvider` to refresh the gmscompat config. So without
+that store there is no supported route to Play, and the gmscompat config can never update.
+
+**We deliberately do not bundle it.** GrapheneOS asks other OSes not to redistribute their apps or
+lean on their servers, and that is their call to make. Tell users instead:
+
+> Install GrapheneOS's Apps store from https://github.com/GrapheneOS/AppStore/releases (v36, MIT),
+> then install Play services and Play Store through it. Alternatively flash a GApps package —
+> mutually exclusive with GmsCompat, pick one.
+
+For the record, integrating it would be small if that stance ever changes: `INSTALL_PACKAGES` is the
+only signature|privileged permission it requests (everything else is normal or appop), so the privapp
+allowlist is a single line, and it drops in as an `android_app_import` with `presigned: true,
+privileged: true`.
+
+## 9. Face unlock is the software one, not real Class-3 (fixed 2026-09-18)
+
+`vendor/voltage/config/common.mk` ships Megvii/Sense `FaceUnlock` and sets `ro.face.sense_service=true`.
+That is the same hijack Mist-OS root-caused (mistos/FEATURES.md §2): the framework registers the
+software provider and never constructs the real Pixel `FaceProvider`, even though the real Class-3 face
+HAL apex is present in the TheMuppets blobs and its service starts (confirmed in the tester's logcat).
+
+Fix, in `voltage_{shiba,husky}.mk` rather than upstream's `common.mk`, because the product makefile is
+parsed *before* the parent's `?=` and therefore wins:
+
+```make
+TARGET_FACE_UNLOCK_SUPPORTED := false
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.hardware.biometrics.face.xml
+```
+
+The second half matters: the same upstream block also copies the face feature XML, and dropping it
+would remove face unlock from Settings altogether. Verify with `dumpsys face` → `provider: FaceProvider`,
+`Strength: 15`. If enrolment doesn't appear, add crdroid's `vendor/google/faceunlock` enabler repo,
+which is what Mist uses for the enrolment UI and its sepolicy.
+
+## 10. Open question: libperfmgr log noise
+
+Voltage logs 409 `libperfmgr: Failed to find <field> in JSON config` lines at boot; Mist-OS logs zero.
+That string does **not** exist in the ROM's `hardware/google/pixel/power-libperfmgr` source — the
+source-built version says `"Failed to read Node[i]'s <field>, set to 'true'"` at INFO for a missing
+optional key — so the lines are coming from elsewhere, probably a vendor binary, and may be the same
+benign optional-key pattern logged at ERROR. **Not confirmed as a bug.** To settle it: one full log
+line with tag and PID from a Voltage device, plus whether the running power HAL is the source-built one
+or a blob. Do not repeat the earlier PowerStats mistake of assuming a scary log line is a defect.

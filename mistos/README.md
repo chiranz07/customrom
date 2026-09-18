@@ -287,7 +287,8 @@ the file area.
 | **20260917-1804** | **Current shiba release.** High brightness mode reimplemented on the framework's HighBrightnessModeController (manual force + QS tile, custom sunlight threshold, no-time-limit). sha256 `2ca4126411165f1b6eb6e7d8ac2fe60b3e599ef94714632a7e6796abb7b3d9c7` |
 | **20260917-1816 (husky)** | same changes as shiba 1804. sha256 `d5920c1c9ffaf088d45f88945d45cfebb9d94be81d586372b80e710d4e459f52` |
 | 20260918-0517 / 0635 (husky) | Now Playing PCS allowlist fix |
-| **20260918-1908** | **Current shiba release.** GNSS + wireless-charging sepolicy regression fixed (see FEATURES.md §14), black QS header/shade when blur is off, Settings > Wallpaper opens the wallpaper app, Now Playing Settings entry, POST_NOTIFICATIONS for the split app, Mist Updater removed. sha256 `1ee80fb09946cc7a4861ec97f77b91c64359262b963e35f60387eec5e6f98d1a` |
+| 20260918-1908 | **Current shiba release.** GNSS + wireless-charging sepolicy regression fixed (see FEATURES.md §14), black QS header/shade when blur is off, Settings > Wallpaper opens the wallpaper app, Now Playing Settings entry, POST_NOTIFICATIONS for the split app, Mist Updater removed. sha256 `1ee80fb09946cc7a4861ec97f77b91c64359262b963e35f60387eec5e6f98d1a` |
+| **20260918-2024** | **Current shiba release.** Adds the AOD Now Playing fix (FEATURES.md §20) on top of 1908. sha256 `8c337c5a6085e341bba519b5b749f6f7667a3433a074e22102524dde1b47b5df` |
 
 ## 11. husky (Pixel 8 Pro)
 

@@ -346,3 +346,22 @@ Checked by the live-device agent on a clean flash, 12 min uptime:
   a session runs, so it is a pass signal, not a fail); and VoLTE is unprovisioned on this carrier
   (`volte_vt_enabled` and `wfc_ims_enabled` both null, six `getTechsFromCarrierConfig failed`) with data up,
   which points at carrier config rather than the ROM.
+
+
+## 20. Now Playing on AOD showed the previous song (2026-09-18)
+
+- **Symptom:** with AOD on, a track change made the old song text disappear but the new one only
+  appeared after waking to the lock screen.
+- **Root cause, ours:** `AmbientIndicationContainer.updatePill()` has two paths. Hiding is a plain
+  visibility change, which renders fine on AOD. Showing text that was previously hidden runs a
+  ViewPropertyAnimator fade-in — `alpha = 0`, `translationY = height/2`, then animate back over
+  150 ms delay + 100 ms. Under doze suspend the animator's frame callbacks don't run, so the text
+  stays at alpha 0: present, laid out, invisible. Waking resumes frames and it appears.
+- **Fix:** a `!textVisible && dozing` branch that skips the animation and applies its end state
+  (`alpha = 1`, `translationY = 0`) directly, plus the static note icon instead of the
+  AnimatedVectorDrawable (whose frames wouldn't run either). Wakelock handling is `wakeLock.wrap {}`
+  as in the hide path, so it holds the device up for one doze frame and no longer for the animation
+  duration — marginally *less* power than before, not more.
+- **Ruled out first:** the receiver is not unregistered during doze (the section only stops on a
+  keyguard blueprint rebuild), nothing suppresses updates while dozing, and the DelayedWakeLock
+  mechanism was already present. ASI does broadcast during AOD — the hide rendering proves it.

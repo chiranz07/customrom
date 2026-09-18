@@ -58,3 +58,30 @@ Google's split Now Playing app (com.google.android.apps.pixel.nowplaying, Play u
 product.img). Fix: removed the two as.oss-target lines (mirrors stock), same in ~/pixelos zuma tree. Lock-screen port verified
 correct on device (SystemUI runtime receivers while keyguard showing; ASI is the sender and holds AMBIENT_INDICATION).
 Rebuilt as MistOS-5.0-Alpha-17.0-MINI-20260918-0517-shiba-UNOFFICIAL.zip (allowlist verified in product image, stock kernel); uploaded to SourceForge shiba/ (1804 removed) 05:37 UTC; VERIFIED on device by rom-4c (0 denials, pill renders, same app versions that failed on 1804). Follow-ups: Settings "Now Playing" entry vanishes after ASI updates (ASI disables its own settings activities) — add own Settings entry; POST_NOTIFICATIONS denied on split app. PixelOS shiba (0535) and husky (0608) rebuilt with the same fix and re-uploaded to SourceForge pixelos/ (old zips removed). Documented in FEATURES.md (repo ba657b0).
+
+**2026-09-18 evening — current shipped state.** shiba `MistOS-5.0-Alpha-17.0-MINI-20260918-2024`
+(sha256 8c337c5a…b5df), husky `…-20260918-2050` (sha256 0289f907…fd26), both on SourceForge
+`chiranz/mistos/{shiba,husky}/` with img/ sets that now include **init_boot.img**. Older builds deleted.
+**husky is confirmed working on real hardware** (earlier notes saying untested are wrong).
+
+Fixed this session: (1) a REGRESSION WE CAUSED — `device_google_shusky.patch` deleted
+`sepolicy/vendor/genfs_contexts`, collateral from reverting the sysfs-HBM experiment; that file held four
+upstream genfscon lines, so `nstandby` lost its `sysfs_gps` label and `lhd` crash-looped every 5 s: GPS
+dead, gpsd wakelock churn ~21/min, 522 flags_health_check execs, 1816 denials. Restored; verified live
+with a real GNSS session and zero denials. Wireless-charger `features` node was collateral too.
+(2) black QS header/shade when blur is off (the existing black branch was dead code — it read
+`berry_black_theme` from AOSP Settings.Secure while the toggle writes LineageSettings). (3) Settings >
+Wallpaper opens the wallpaper app again. (4) Now Playing entry in Sound & vibration that survives ASI
+updates. (5) Mist Updater gated out — no OTA can replace the build. (6) AOD Now Playing showed the
+previous song: the fade-in animator's frames don't run under doze suspend, so text sat at alpha 0;
+dozing now skips the animation.
+
+**POST_NOTIFICATIONS for com.google.android.apps.pixel.nowplaying is NOT fixable via
+default-permissions** — the preinstalled blob (315) doesn't declare it, the Play build (52709) does, and
+DefaultPermissionGrantPolicy refuses to grant what the system-image version never requested once the app
+is an updated system app. Reverted to upstream; do not re-attempt via XML.
+
+Thermals investigated end-to-end and closed as no-fault: mitigation escalates 0→1→2, CPU and charge
+cooling devices engage, power HAL parses clean, nothing of Mist's burns CPU. Heat is Tensor + 4K decode
++ 120 Hz at max brightness + charging. Device-level thermal status can sit a level above every zone
+because of hysteresis (VIRTUAL-SKIN MODERATE 43.0, hysteresis 1.9 → clears at 41.1).

@@ -1353,10 +1353,10 @@ index a66a5f9b5..cf1a11534 100644
  }
 diff --git a/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt
 new file mode 100644
-index 000000000..29a8fc9fd
+index 000000000..2705f3264
 --- /dev/null
 +++ b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt
-@@ -0,0 +1,419 @@
+@@ -0,0 +1,432 @@
 +/*
 + * Copyright (C) 2023 The Android Open Source Project
 + *
@@ -1551,7 +1551,10 @@ index 000000000..29a8fc9fd
 +        indicationTextMode = 1
 +        var text = ambientMusicText
 +        val textVisible = textView.visibility == View.VISIBLE
-+        var icon: Drawable? = if (textVisible) ambientMusicNoteIcon else ambientMusicAnimation
++        // While dozing the animated drawable's frame callbacks don't run, so it would sit on its
++        // first frame; use the static note icon on AOD.
++        var icon: Drawable? =
++            if (textVisible || dozing) ambientMusicNoteIcon else ambientMusicAnimation
 +        if (ambientIconOverride != null) {
 +            icon = ambientIconOverride
 +        }
@@ -1608,6 +1611,16 @@ index 000000000..29a8fc9fd
 +            if (icon is AnimatedVectorDrawable) {
 +                icon.reset()
 +            }
++            handler.post(wakeLock.wrap {})
++        } else if (!textVisible && dozing) {
++            // AOD: the panel is parked in doze suspend and the ViewPropertyAnimator's frame
++            // callbacks don't run, so the fade-in never completes and the text stays at alpha 0
++            // until the screen wakes. That is the "old song disappears, new song only appears
++            // after unlocking" symptom on a track change. Apply the animation's end state
++            // directly and let the wakelock hold the device up for one doze frame.
++            textView.animate().cancel()
++            textView.translationY = 0.0f
++            textView.alpha = 1.0f
 +            handler.post(wakeLock.wrap {})
 +        } else if (!textVisible) {
 +            wakeLock.acquire(TAG)
