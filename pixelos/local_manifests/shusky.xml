@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Pixel 8 / 8 Pro (shusky) — LineageOS lineage-24.0 (Android 17) trees + TheMuppets blobs -->
+  <project path="device/google/shusky" name="LineageOS/android_device_google_shusky" remote="github" revision="lineage-24.0" clone-depth="1" />
+  <project path="device/google/zuma" name="LineageOS/android_device_google_zuma" remote="github" revision="lineage-24.0" clone-depth="1" />
+  <project path="device/google/shusky-kernels" name="LineageOS/android_device_google_shusky-kernels" remote="github" revision="lineage-24.0" clone-depth="1" />
+  <project path="vendor/google/shiba" name="TheMuppets/proprietary_vendor_google_shiba" remote="github" revision="lineage-24.0" clone-depth="1" />
+  <project path="vendor/google/husky" name="TheMuppets/proprietary_vendor_google_husky" remote="github" revision="lineage-24.0" clone-depth="1" />
+</manifest>
