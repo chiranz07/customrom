@@ -2073,13 +2073,16 @@ the file area. First release uploaded:
 
 ## Addendum 2026-09-18: build 0517 (Now Playing PCS fix) + PixelOS side project
 
-- Latest shiba build on SourceForge `chiranz/shiba/`: **MistOS-5.0-Alpha-17.0-MINI-20260918-0517-shiba-UNOFFICIAL.zip**
+- Latest shiba build on SourceForge `chiranz/mistos/shiba/`: **MistOS-5.0-Alpha-17.0-MINI-20260918-0517-shiba-UNOFFICIAL.zip**
   (replaces 1804). Only change vs 1804: device/google/zuma/allowlist_com.google.android.as.xml no longer restricts
   Private Compute Services (see FEATURES.md "Now Playing stopped recognising anything"). Husky rebuilt too:
-  **MistOS-5.0-Alpha-17.0-MINI-20260918-0635-husky-UNOFFICIAL.zip** on `chiranz/husky/` (replaces 1816; untested, no Pixel 8 Pro).
+  **MistOS-5.0-Alpha-17.0-MINI-20260918-0635-husky-UNOFFICIAL.zip** on `chiranz/mistos/husky/` (replaces 1816; untested, no Pixel 8 Pro).
 - Post-flash verification plan agreed with the device agent (7 checks: no "association not allowed" for nowplaying,
   now_playing_preferences_data_store.pb changes from 50 00 58 00, toggle row latches, app data > 284K with
   DataDownload/musiciq logs, history_database.db counts > 0, soundtrigger_middleware shows a loaded model,
   AMBIENT_INDICATION_SHOW from com.google.android.as + lock-screen pill). Toggle via the app UI only; the
   Settings.Secure now_playing_enabled key is inert with the split app.
 - PixelOS Android 17 builds for shiba/husky: see ../pixelos/PIXELOS.md. SourceForge `chiranz/pixelos/` (shiba 0535, husky 0608, both with the Now Playing PCS fix). The server-side tree was deleted 2026-09-18 to make room for AOSPA; the zips and images were re-uploaded from kept copies.
+
+**SourceForge layout change 2026-09-18 07:15 UTC:** Mist builds moved into `chiranz/mistos/shiba/` and `chiranz/mistos/husky/`
+(each with img/). PixelOS stays in `chiranz/pixelos/{shiba,husky}/`. Any older path mention of `chiranz/shiba/` means `chiranz/mistos/shiba/`.
