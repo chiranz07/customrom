@@ -192,3 +192,38 @@ Port recipe (untested, needs a full build):
 Cheaper alternative if only the picker matters: do step 1 only; Android's own
 Settings > Apps > Default apps > Home app then offers both launchers (recents
 stay with Pixel Launcher).
+
+## Now Playing stopped recognising anything (found 2026-09-18, after build 1804) — root cause + fix
+
+Symptom (device agent rom-4c, root via KernelSU, logcat): toggle on, DSP fires, nothing ever shown, history
+empty. Every launch of com.google.android.apps.pixel.nowplaying logs
+`ActivityManager: Service lookup failed: association not allowed between packages
+com.google.android.apps.pixel.nowplaying (uid=10392) and com.google.android.as.oss (uid=10365)`.
+No music database exists on the device (only ASI's fingerprint code libsense_nnfp_v3.so); the app
+pulled 0 bytes while ASI pulled 422 MB of SODA models through PCS at the same moment. Permissions, AppOps,
+IFW, network, SoundTrigger all ruled out. Same denial hits com.google.android.inputmethod.latin and
+com.google.android.tts against as.oss.
+
+Root cause: `device/google/zuma/allowlist_com.google.android.as.xml` (LineageOS file Mist inherits)
+restricts Private Compute Services with `allow-association target="com.google.android.as.oss"` to
+`com.google.android.as` and `com.google.android.aicore` only. Google split Now Playing out of ASI into
+the standalone app (Play update versionCode 52709, 2026-08-27; the shipped NowPlayingPrebuilt is 315),
+so the split app can no longer bind PCS. Stock CP2A.260605.012 (checked in the factory product.img
+with debugfs) has NO allow-association with target as.oss at all — PCS is unrestricted on stock.
+
+Fix (in patches/rom/device_google_zuma.patch, files/allowlist_com.google.android.as.xml): remove the
+two as.oss-target lines, with a comment. Alternative (narrower): add
+`<allow-association target="com.google.android.as.oss" allowed="com.google.android.apps.pixel.nowplaying" />`
+plus the same for inputmethod.latin and tts. SystemConfig merges allow-association per target across all
+sysconfig XMLs, so a new file in the device tree also works.
+
+Lock-screen pill note: SystemUI's receiver requires the sender to hold
+com.google.android.ambientindication.permission.AMBIENT_INDICATION (signature|privileged). NowPlayingPrebuilt
+is a non-privileged /product/app on stock too, so the SHOW broadcast must still come from ASI (priv-app);
+that is how it worked on build 1804. Verify after flashing:
+`adb logcat -d | grep "association not allowed"` (expect nothing);
+`du -sh /data/data/com.google.android.apps.pixel.nowplaying` should grow past 284K after some minutes on Wi-Fi.
+POST_NOTIFICATIONS for the Now Playing app is in default-permissions_nowplaying.xml (fixed=false) but was
+seen DENIED on the device — grant it in Settings if the notification does not show.
+
+The same LineageOS file is in the PixelOS build (pixelos/PIXELOS.md); patched there too.

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<config>
+    <!-- Specify the explicit set of other applications that AI services are allowed to
+         interact with, including the providers that back the implementation of the APIs
+         provided by the package. -->
+    <allow-association target="com.google.android.as" allowed="com.android.bluetooth" />
+    <allow-association target="com.google.android.as" allowed="com.android.bluetooth.services" />
+    <allow-association target="com.google.android.as" allowed="com.android.providers.contacts" />
+    <allow-association target="com.google.android.as" allowed="com.android.providers.media" />
+    <allow-association target="com.google.android.as" allowed="com.android.providers.telephony" />
+    <allow-association target="com.google.android.as" allowed="com.android.systemui" />
+    <!-- AI services can bind to its open-source network component. -->
+    <allow-association target="com.google.android.as" allowed="com.google.android.as.oss" />
+
+    <!-- Mist-OS/PixelOS fix (2026-09-18): LineageOS restricted Private Compute Services
+         (com.google.android.as.oss) to com.google.android.as and com.google.android.aicore.
+         Stock Pixel firmware (CP2A.260605.012, verified from the factory product.img) does NOT
+         list as.oss as an allow-association target at all, i.e. any app may bind PCS. Since
+         Google split Now Playing out of ASI into com.google.android.apps.pixel.nowplaying
+         (Play update versionCode 52709, Aug 2026), the split app could no longer bind PCS
+         ("Service lookup failed: association not allowed between packages
+         com.google.android.apps.pixel.nowplaying and com.google.android.as.oss") and Now
+         Playing silently never recognised anything. Gboard (com.google.android.inputmethod.latin)
+         and TTS hit the same denial. Mirror stock: leave as.oss unrestricted. -->
+</config>
