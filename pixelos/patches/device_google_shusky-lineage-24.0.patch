@@ -1,0 +1,86 @@
+diff --git a/lineage_husky.mk b/lineage_husky.mk
+index 5f8dfc1..b2ca41c 100644
+--- a/lineage_husky.mk
++++ b/lineage_husky.mk
+@@ -5,10 +5,11 @@
+ #
+ 
+ # Inherit some common stuff
+-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
++$(call inherit-product, vendor/custom/config/common_full_phone.mk)
+ 
+ # Inherit device configuration
+ DEVICE_CODENAME := husky
++CUSTOM_BUILD := husky
+ DEVICE_PATH := device/google/shusky
+ VENDOR_PATH := vendor/google/husky
+ $(call inherit-product, $(DEVICE_PATH)/aosp_$(DEVICE_CODENAME).mk)
+@@ -30,3 +31,25 @@ PRODUCT_BUILD_PROP_OVERRIDES += \
+     DeviceProduct=$(DEVICE_CODENAME)
+ 
+ $(call inherit-product, $(VENDOR_PATH)/$(DEVICE_CODENAME)-vendor.mk)
++
++# PixelOS ships Google's prebuilt extservices APEX (vendor/pixel/gms), which
++# makes build/make think the full set of Google mainline prebuilts is present
++# and then fails on the missing "*.google.contributions.prebuilt" modules.
++# Build mainline modules from source instead (what LineageOS/Mist do).
++PRODUCT_BUILD_IGNORE_APEX_CONTRIBUTION_CONTENTS := true
++
++# PixelOS GMS / ParanoidSense / Google libs land in bare system/ and trip
++# generic_system.mk's GSI artifact-path requirement (Soong checker first,
++# then kati). Allow them wholesale.
++PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST += \
++    system/apex/% \
++    system/app/% \
++    system/priv-app/% \
++    system/lib/% \
++    system/lib64/% \
++    system/etc/% \
++    system/framework/% \
++    system/bin/% \
++    system/fonts/% \
++    system/media/% \
++    system/usr/%
+diff --git a/lineage_shiba.mk b/lineage_shiba.mk
+index e9c380d..7516d93 100644
+--- a/lineage_shiba.mk
++++ b/lineage_shiba.mk
+@@ -5,10 +5,11 @@
+ #
+ 
+ # Inherit some common stuff
+-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
++$(call inherit-product, vendor/custom/config/common_full_phone.mk)
+ 
+ # Inherit device configuration
+ DEVICE_CODENAME := shiba
++CUSTOM_BUILD := shiba
+ DEVICE_PATH := device/google/shusky
+ VENDOR_PATH := vendor/google/shiba
+ $(call inherit-product, $(DEVICE_PATH)/aosp_$(DEVICE_CODENAME).mk)
+@@ -30,3 +31,25 @@ PRODUCT_BUILD_PROP_OVERRIDES += \
+     DeviceProduct=$(DEVICE_CODENAME)
+ 
+ $(call inherit-product, $(VENDOR_PATH)/$(DEVICE_CODENAME)-vendor.mk)
++
++# PixelOS ships Google's prebuilt extservices APEX (vendor/pixel/gms), which
++# makes build/make think the full set of Google mainline prebuilts is present
++# and then fails on the missing "*.google.contributions.prebuilt" modules.
++# Build mainline modules from source instead (what LineageOS/Mist do).
++PRODUCT_BUILD_IGNORE_APEX_CONTRIBUTION_CONTENTS := true
++
++# PixelOS GMS / ParanoidSense / Google libs land in bare system/ and trip
++# generic_system.mk's GSI artifact-path requirement (Soong checker first,
++# then kati). Allow them wholesale.
++PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST += \
++    system/apex/% \
++    system/app/% \
++    system/priv-app/% \
++    system/lib/% \
++    system/lib64/% \
++    system/etc/% \
++    system/framework/% \
++    system/bin/% \
++    system/fonts/% \
++    system/media/% \
++    system/usr/%

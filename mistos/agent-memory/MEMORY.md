@@ -1,3 +1,4 @@
 - [Mist-OS ROM build goal](mistos_rom_build.md) — Pixel 8 (shiba)-only Android 17 build, see ~/mistos/HANDOFF.md for details
 - [Mist-OS build ops gotchas](mistos_build_ops.md) — shared-server memory kills, don't misread a killed monitor as a dead build
 - [Don't stop builds unasked](feedback_dont_stop_builds_unasked.md) — user has a 96-core agreement; admin broadcasts are for everyone; only stop on explicit instruction
+- [PixelOS shiba build](pixelos_build.md) — Lineage 24.0 trees, apex-contributions fix, scripts/status; tree deleted, builds on SourceForge

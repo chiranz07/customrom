@@ -1,0 +1,23 @@
+diff --git a/allowlist_com.google.android.as.xml b/allowlist_com.google.android.as.xml
+index d973327..9031205 100644
+--- a/allowlist_com.google.android.as.xml
++++ b/allowlist_com.google.android.as.xml
+@@ -16,8 +16,14 @@
+     <!-- AI services can bind to its open-source network component. -->
+     <allow-association target="com.google.android.as" allowed="com.google.android.as.oss" />
+ 
+-    <!-- AI services open-source network component can only bind back to the core package. -->
+-    <allow-association target="com.google.android.as.oss" allowed="com.google.android.as" />
+-    <!-- AI services open-source network component can bind to AI Core. -->
+-    <allow-association target="com.google.android.as.oss" allowed="com.google.android.aicore" />
++    <!-- Mist-OS/PixelOS fix (2026-09-18): LineageOS restricted Private Compute Services
++         (com.google.android.as.oss) to com.google.android.as and com.google.android.aicore.
++         Stock Pixel firmware (CP2A.260605.012, verified from the factory product.img) does NOT
++         list as.oss as an allow-association target at all, i.e. any app may bind PCS. Since
++         Google split Now Playing out of ASI into com.google.android.apps.pixel.nowplaying
++         (Play update versionCode 52709, Aug 2026), the split app could no longer bind PCS
++         ("Service lookup failed: association not allowed between packages
++         com.google.android.apps.pixel.nowplaying and com.google.android.as.oss") and Now
++         Playing silently never recognised anything. Gboard (com.google.android.inputmethod.latin)
++         and TTS hit the same denial. Mirror stock: leave as.oss unrestricted. -->
+ </config>

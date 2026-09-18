@@ -2082,4 +2082,4 @@ the file area. First release uploaded:
   DataDownload/musiciq logs, history_database.db counts > 0, soundtrigger_middleware shows a loaded model,
   AMBIENT_INDICATION_SHOW from com.google.android.as + lock-screen pill). Toggle via the app UI only; the
   Settings.Secure now_playing_enabled key is inert with the split app.
-- PixelOS Android 17 side project (2026-09-18) was built for shiba/husky, then deleted on request (tree, SourceForge folder, docs); history is in git if ever needed (commits 0cee9f1..4655f87).
+- PixelOS Android 17 builds for shiba/husky: see ../pixelos/PIXELOS.md. SourceForge `chiranz/pixelos/` (shiba 0535, husky 0608, both with the Now Playing PCS fix). The server-side tree was deleted 2026-09-18 to make room for AOSPA; the zips and images were re-uploaded from kept copies.
