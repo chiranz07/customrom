@@ -42,7 +42,6 @@ Maintainer: chiranz · Downloads: https://sourceforge.net/projects/chiranz/files
   its backend calls without Play services. Untested with GApps — please report if you try it.
 - **GmsCompat and flashed GApps are mutually exclusive.** Use sandboxed Play *or* flash GApps, not both.
 - RCS messaging services don't start.
-- Battery stats are missing rail-level power attribution (PowerStats HAL not declared in VINTF).
 - Neither build has been confirmed booting by the maintainer; Pixel 8 Pro (husky) is untested hardware.
 
 ---

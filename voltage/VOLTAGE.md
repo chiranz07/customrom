@@ -162,8 +162,12 @@ real features again. The space they take is no longer a problem now that the res
   DNS-over-TLS probing carrier servers that do not answer on 853, and `res_nsend … terrno: 101` is ENETUNREACH
   on AAAA lookups with no IPv6 route. `Netd: Unable to start HIDL NetdHwService` is the deprecated HIDL path;
   AIDL netd registers immediately after.
-- `BatteryStatsService: Unable to load Power.Stats.HAL` — `android.hardware.power.stats@1.0::IPowerStats/default`
-  is in neither framework nor device VINTF, so rail-level battery attribution is missing. Not yet fixed.
+- `BatteryStatsService: Unable to load Power.Stats.HAL` — **not a missing HAL.** The AIDL PowerStats HAL is
+  declared by the blobs (`vendor/etc/vintf/manifest/android.hardware.power.stats-service.pixel.xml`,
+  `android.hardware.power.stats` v2, `IPowerStats/default`) and the service runs. The `hwservicemanager` line
+  in the log is a **HIDL 1.0** lookup, which is deprecated and correctly absent; the BatteryStats message
+  looks like a boot-order artifact. Corrected 2026-09-18 — an earlier version of this file wrongly called it
+  a VINTF gap.
 
 ## 7. Recovery does not boot (open, first build; unchanged in the second)
 

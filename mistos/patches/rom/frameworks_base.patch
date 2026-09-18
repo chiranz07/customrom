@@ -1292,6 +1292,65 @@ index 016bc7cb2..6e78050c7 100644
      @BindsOptionalOf
      @Named(KEYGUARD_BATTERY_CHARGING_SECTION)
      abstract fun batteryChargingSection(): KeyguardSection
+diff --git a/packages/SystemUI/src/com/android/systemui/shade/ui/ShadeColors.kt b/packages/SystemUI/src/com/android/systemui/shade/ui/ShadeColors.kt
+index a66a5f9b5..cf1a11534 100644
+--- a/packages/SystemUI/src/com/android/systemui/shade/ui/ShadeColors.kt
++++ b/packages/SystemUI/src/com/android/systemui/shade/ui/ShadeColors.kt
+@@ -19,8 +19,6 @@ package com.android.systemui.shade.ui
+ import android.content.Context
+ import android.content.res.Configuration
+ import android.graphics.Color
+-import android.os.UserHandle
+-import android.provider.Settings
+ import com.android.internal.graphics.ColorUtils
+ import com.android.systemui.res.R
+ 
+@@ -98,14 +96,27 @@ object ShadeColors {
+         return ColorUtils.compositeColors(layerAbove, layerBelow)
+     }
+ 
++    /**
++     * True when the shade/QS surfaces should be flat black instead of the Monet fallback tint.
++     *
++     * With blur off there is no translucency for the tint to sit in, so `shade_panel_fallback`
++     * (`system_accent2_800`) reads as a flat Monet-coloured QS header. In dark mode we use black
++     * instead, whether or not the "Pure black" theme is on.
++     *
++     * NOTE: the previous version of this gated on `berry_black_theme` read from AOSP
++     * `Settings.Secure` — but that setting lives in the LineageSettings provider (see
++     * DarkModeBlackThemeStorage and ThemeOverlayController), so the read always returned 0 and the
++     * black branch was dead code. Do not "restore" that read against Settings.Secure.
++     */
+     @JvmStatic
+-     private fun shadePanelFallback(context: Context): Int {
+-        val isNightMode = (context.resources.configuration.uiMode and
++    private fun useBlackShadeFallback(context: Context): Boolean {
++        return (context.resources.configuration.uiMode and
+                 Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+-        val useBlackTheme = Settings.Secure.getIntForUser(
+-            context.contentResolver, "berry_black_theme", 0, UserHandle.USER_CURRENT
+-        ) == 1
+-        return if (useBlackTheme && isNightMode) {
++    }
++
++    @JvmStatic
++     private fun shadePanelFallback(context: Context): Int {
++        return if (useBlackShadeFallback(context)) {
+             Color.BLACK
+         } else {
+             context.getColor(R.color.shade_panel_fallback)
+@@ -122,6 +133,10 @@ object ShadeColors {
+ 
+     @JvmStatic
+     private fun notificationScrimFallback(context: Context): Int {
+-        return context.getColor(R.color.notification_scrim_fallback)
++        return if (useBlackShadeFallback(context)) {
++            Color.BLACK
++        } else {
++            context.getColor(R.color.notification_scrim_fallback)
++        }
+     }
+ }
 diff --git a/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt b/packages/SystemUI/src/com/google/android/systemui/ambientmusic/AmbientIndicationContainer.kt
 new file mode 100644
 index 000000000..29a8fc9fd

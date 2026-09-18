@@ -246,3 +246,67 @@ Known cosmetic follow-ups (not fixed):
   (stays enabled) or com.google.android.apps.pixel.nowplaying/.settings.MainSettingsActivity.
 - POST_NOTIFICATIONS ships denied on the split app despite default-permissions_nowplaying.xml (fixed="false");
   consider fixed="true" or granting on first boot.
+
+
+---
+
+## 14. GNSS + wireless charging dead from a deleted sepolicy file (2026-09-18, REGRESSION we caused)
+
+- **Symptom, found by the on-device agent:** `lhd` (the Broadcom GNSS daemon) in a permanent ~5 s respawn loop
+  since boot, GPS completely dead (every provider `last location=null`), `gpsd` acquiring/releasing a wakelock
+  ~21x/minute, and init re-running `flags_health_check UPDATABLE_CRASHING` 522 times and climbing because lhd
+  "exited 4 times in 4 minutes". 1,816 denials in under half an hour, all the same one:
+  `avc: denied { read write } for name="nstandby" scontext=u:r:lhd:s0 tcontext=u:object_r:sysfs:s0`.
+- **Root cause, ours:** the Mist patch **deleted `device/google/shusky/sepolicy/vendor/genfs_contexts`
+  outright**. That file held four upstream genfscon lines. It was collateral damage from reverting the
+  abandoned sysfs-based HBM experiment, which had added an `hbm_mode` line to the same file — the revert
+  removed the whole file instead of that one line. `lhd.te` was untouched and still correct
+  (`type sysfs_gps, fs_type, sysfs_type;` + `allow lhd sysfs_gps:file rw_file_perms;`), which is why the
+  policy looked right against an unlabeled node.
+- **Blast radius beyond GPS:** the same deletion unlabeled the wireless-charger i2c node — confirmed live,
+  `hal_wireless_charger` is denied reading its `features` node at every boot — and both PPS nodes. The PPS
+  denials could never appear because the PPS device only registers after lhd successfully brings the chip up.
+- **Fix:** restore the file. All four lines, unchanged from upstream:
+  `10c90000.hsi2c/i2c-9/9-003c` -> `sysfs_wlc`, `111e0000.spi/.../spi21.0/nstandby` -> `sysfs_gps`,
+  `bbd_pps/pps_assert` and `virtual/pps/pps0/assert_elapsed` -> `sysfs_gps_assert`. genfscon is
+  longest-prefix, so the `features` node inherits `sysfs_wlc` from the directory entry; no extra line needed.
+- **Verify:** `/sys/class/pps/` becomes non-empty (that node cannot exist until lhd works, so it is a
+  pass/fail signal rather than an absence of denials), `init.svc.lhd` stays `running`, zero `u:r:lhd` denials,
+  `dumpsys location` returns a real fix, and the `hal_wireless_charger` `features` denial disappears.
+- **Lesson:** never delete a whole sepolicy file to revert an experiment that only added lines to it. Check
+  `git log -p` on the file before deleting, and diff the patch's file count against MANIFEST.txt.
+
+## 15. Shade / QS header goes black when blur is off (2026-09-18)
+
+`ShadeColors.shadePanelFallback()` returned `R.color.shade_panel_fallback` (`system_accent2_800` in dark
+mode) whenever blur is unavailable, so the QS header rendered as a flat Monet tint. It had a black branch,
+but it was dead code: it read `berry_black_theme` from AOSP `Settings.Secure` while the "Pure black" toggle
+writes it to **LineageSettings.Secure** (see `DarkModeBlackThemeStorage`; `ThemeOverlayController` reads it
+correctly). Now `useBlackShadeFallback()` returns black in dark mode regardless of the Pure black toggle, and
+`notificationScrimFallback()` got the same treatment so the notifications area matches. Light mode unchanged.
+
+## 16. Settings > Wallpaper opens the wallpaper app again (2026-09-18)
+
+`TopLevelWallpaperPreferenceController` had AOSP's intent launch replaced with a `SubSettingLauncher` to
+`org.mist.settings.fragments.themes.Wallpaper`, so the top-level entry opened Mistify's page instead of the
+installed wallpaper app — even though `GoogleSettingsOverlay` (priority 2) already points
+`config_wallpaper_picker_package` at `com.google.android.apps.wallpaper` and
+`config_styles_and_wallpaper_picker_class` at `CustomizationPickerActivity`. Now it builds that component,
+checks it resolves via PackageManager, and only falls back to the Mistify fragment if the app is absent.
+
+## 17. Now Playing: Settings entry + notifications (2026-09-18)
+
+- New `com.android.settings.sound.NowPlayingPreferenceController` + a "Now Playing" entry in
+  Sound & vibration, targeting `com.google.android.as/com.google.intelligence.sense.ambientmusic.NowPlayingAmbientMusicSettingsActivity`
+  with the split app's `MainSettingsActivity` as fallback. This is the fix for ASI disabling its own settings
+  activities after a Play update (§ "Known cosmetic follow-ups"). The entry hides itself when neither
+  component resolves, so it can never dead-end.
+- `default-permissions_nowplaying.xml` POST_NOTIFICATIONS changed `fixed="false"` -> `fixed="true"` in both
+  the shiba and husky blob trees.
+
+## 18. Mist Updater removed (2026-09-18, user decision)
+
+`Updater` is gated out of `mist_shiba`/`mist_husky` in `vendor/lineage/config/mist.mk` (guarded on
+TARGET_PRODUCT, because a `filter-out` in the product makefile does not work — parents are parsed after the
+child). It pointed at Mist's official OTA channel, and accepting an official build would have replaced this
+one wholesale. No OTA prompt can appear now.

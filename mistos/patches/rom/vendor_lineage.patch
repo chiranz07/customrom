@@ -1,8 +1,29 @@
 diff --git a/config/mist.mk b/config/mist.mk
-index 66401fe..e1621ee 100644
+index 66401fe..37a2a5b 100644
 --- a/config/mist.mk
 +++ b/config/mist.mk
-@@ -66,6 +66,21 @@ ifeq ($(TARGET_BUILD_DEVICE_AS_WEBCAM), true)
+@@ -19,10 +19,19 @@ PRODUCT_PACKAGES += \
+    AxSandbox \
+    BatteryStatsViewer \
+    GameSpace \
+-   Updater \
+    OmniJaws \
+    OmniStyle
+ 
++# Updater is gated out for mist_shiba/mist_husky: it points at Mist's official OTA channel
++# (MistOS-Devices/official_devices/17/<PACKAGETYPE>/<device>.json). Accepting an official build
++# would replace this one wholesale -- stock kernel stamp, face unlock fix, GCam, JamesDSP, the
++# Now Playing port, Auto HBM. Gated on TARGET_PRODUCT because a filter-out in the product
++# makefile does not work (parents are parsed after the child).
++ifeq ($(filter mist_shiba mist_husky,$(TARGET_PRODUCT)),)
++PRODUCT_PACKAGES += \
++   Updater
++endif
++
+ # LMO packages
+ PRODUCT_PACKAGES += \
+     LMOFreeform \
+@@ -66,6 +75,21 @@ ifeq ($(TARGET_BUILD_DEVICE_AS_WEBCAM), true)
  endif
  
  # Face Unlock
@@ -24,7 +45,7 @@ index 66401fe..e1621ee 100644
  ifeq ($(TARGET_SUPPORTS_64_BIT_APPS),true)
  PRODUCT_PACKAGES += \
      FaceUnlock
-@@ -76,6 +91,7 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
+@@ -76,6 +100,7 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
  PRODUCT_COPY_FILES += \
      frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/android.hardware.biometrics.face.xml
  endif

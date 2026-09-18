@@ -393,16 +393,6 @@ index f8663d6..9497e5d 100644
  /vendor/bin/hw/scd u:object_r:scd_exec:s0
  /vendor/bin/hw/vendor\.dolby\.media\.c2-default-service u:object_r:mediacodec_exec:s0
 +/vendor/bin/gpuflag u:object_r:gpuflag_exec:s0
-diff --git a/sepolicy/vendor/genfs_contexts b/sepolicy/vendor/genfs_contexts
-deleted file mode 100644
-index 7995265..0000000
---- a/sepolicy/vendor/genfs_contexts
-+++ /dev/null
-@@ -1,4 +0,0 @@
--genfscon sysfs /devices/platform/10c90000.hsi2c/i2c-9/9-003c u:object_r:sysfs_wlc:s0
--genfscon sysfs /devices/platform/111e0000.spi/spi_master/spi21/spi21.0/nstandby u:object_r:sysfs_gps:s0
--genfscon sysfs /devices/platform/bbd_pps/pps_assert u:object_r:sysfs_gps_assert:s0
--genfscon sysfs /devices/virtual/pps/pps0/assert_elapsed u:object_r:sysfs_gps_assert:s0
 diff --git a/sepolicy/vendor/gpuflag.te b/sepolicy/vendor/gpuflag.te
 new file mode 100644
 index 0000000..66bea4d

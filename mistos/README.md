@@ -216,7 +216,7 @@ SourceForge project **`chiranz`** (https://sourceforge.net/projects/chiranz/file
 layout per device:
 ```
 shiba/  MistOS-...-shiba-UNOFFICIAL.zip
-shiba/img/  boot.img  vendor_boot.img  vendor_kernel_boot.img  dtbo.img
+shiba/img/  boot.img  init_boot.img  vendor_boot.img  vendor_kernel_boot.img  dtbo.img
 husky/  MistOS-...-husky-UNOFFICIAL.zip
 husky/img/  (same four)
 ```
@@ -225,7 +225,7 @@ husky/img/  (same four)
 scp -o ServerAliveInterval=30 MistOS-*-shiba-UNOFFICIAL.zip chiranz@frs.sourceforge.net:/home/frs/project/chiranz/shiba/
 # img/ files: extract from that zip's own payload so they match the OTA exactly
 unzip -o -j MistOS-*-shiba-UNOFFICIAL.zip payload.bin -d /tmp/pl
-out/host/linux-x86/bin/ota_extractor -payload /tmp/pl/payload.bin -output_dir /tmp/pl -partitions boot,vendor_boot,vendor_kernel_boot,dtbo
+out/host/linux-x86/bin/ota_extractor -payload /tmp/pl/payload.bin -output_dir /tmp/pl -partitions boot,init_boot,vendor_boot,vendor_kernel_boot,dtbo
 scp /tmp/pl/{boot,vendor_boot,vendor_kernel_boot,dtbo}.img chiranz@frs.sourceforge.net:/home/frs/project/chiranz/shiba/img/
 ```
 Uses the SSH key `~/.ssh/id_ed25519_sourceforge` (registered on the SourceForge
@@ -285,7 +285,9 @@ the file area.
 | 20260917-1723 | + HBM page (sysfs-based — did not work: the display HAL overrides the panel node), Tap-to-check page crash fix, Lock screen → Shortcuts fix. sha256 `49d9a097…1a4a` |
 | 20260917-1731 (husky) | same as 1723. sha256 `e90bb34b…5c0a` |
 | **20260917-1804** | **Current shiba release.** High brightness mode reimplemented on the framework's HighBrightnessModeController (manual force + QS tile, custom sunlight threshold, no-time-limit). sha256 `2ca4126411165f1b6eb6e7d8ac2fe60b3e599ef94714632a7e6796abb7b3d9c7` |
-| **20260917-1816 (husky)** | **Current husky release**, same changes, **untested on hardware**. sha256 `d5920c1c9ffaf088d45f88945d45cfebb9d94be81d586372b80e710d4e459f52` |
+| **20260917-1816 (husky)** | same changes as shiba 1804. sha256 `d5920c1c9ffaf088d45f88945d45cfebb9d94be81d586372b80e710d4e459f52` |
+| 20260918-0517 / 0635 (husky) | Now Playing PCS allowlist fix |
+| **20260918-1908** | **Current shiba release.** GNSS + wireless-charging sepolicy regression fixed (see FEATURES.md §14), black QS header/shade when blur is off, Settings > Wallpaper opens the wallpaper app, Now Playing Settings entry, POST_NOTIFICATIONS for the split app, Mist Updater removed. sha256 `1ee80fb09946cc7a4861ec97f77b91c64359262b963e35f60387eec5e6f98d1a` |
 
 ## 11. husky (Pixel 8 Pro)
 
@@ -294,8 +296,7 @@ from shiba are only in `mist_husky.mk` / `device-husky.mk` / `husky/mist_about.p
 / `husky-vendor.mk` (all in the patches). Build with `scripts/mist_build_supervisor_husky.sh`
 (separate status file `~/mist_build_final_status_husky.txt`, output under
 `out/target/product/husky/`). Both products share the prebuilt kernel repo and
-every framework/vendor patch. Nobody has booted the husky build yet — treat the
-first report from a Pixel 8 Pro owner as the real test.
+every framework/vendor patch. **husky has been tested on real hardware and works** (reported 2026-09-18).
 
 ---
 
