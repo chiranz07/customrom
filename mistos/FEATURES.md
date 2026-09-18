@@ -116,3 +116,79 @@ Real Google Camera does **not** come from GMS — it's the separate `vendor/goog
 - **Pixel Framework (SystemUIGoogle/SettingsGoogle):** RisingOS `sixteen` SystemUIGoogle is smartspace-only (27 k lines stripped; Mist already has that smartspace natively); SettingsGoogle compiles but needs ~8 hand-ported hooks + a jar compat shim and overrides 116 Mist-themed resources. Neither delivers Now Playing or Clear Calling. Leaving the clone inside `vendor/` breaks whole-tree Soong analysis (`Settings_manifest` filegroup missing).
 - Boot patch level / attestation, `pixelstats` config, `speaker_version` node: blob/firmware-level, not fixable here.
 - eSIM: works; a single ringtone entry with one active SIM is normal.
+
+## Quick Switch (Mist launcher ↔ Pixel Launcher picker) — NOT in 17.0, parked
+
+Users of the Android 16 builds remember Settings > Mistify > Themes > Extras >
+**Quick Switch** ("Switch default launcher": Mistify Launcher / Pixel Launcher,
+then a SystemUI restart). It is a risingOS feature the Mist team carried on
+16/16.2 and dropped entirely on 17.0. Verified 2026-09-18 by fetching the
+upstream 16.2 branches and diffing against 17.0.
+
+How it worked on 16.2 (all pieces needed for a port):
+
+- `packages/apps/Mistify` (branch `16.2`): `res/xml/quick_switch.xml`
+  (`SystemPropertyListPreference` on `persist.sys.default_launcher`, values 0 =
+  Launcher3/Mist, 1 = Pixel), entry in `res/xml/mist_settings_themes.xml`
+  ("extras_category"), fragment
+  `src/org/mist/settings/fragments/miscellaneous/QuickSwitch.java` (adds the
+  Pixel entry only when `persist.sys.quickswitch_pixel_shipped=1`, shows the
+  system-restart dialog), `Themes.java` hides the entry unless the
+  `with_google_apps` prop is set, strings `quickswitch_*` in
+  `res/values/mist_strings.xml`, arrays `quickswitch_launcher_entries/values`
+  in `res/values/mist_arrays.xml`.
+- `frameworks/base` (branch `16.2`, remote Project-Mist-OS/frameworks_base_qpr2):
+  `services/core/java/org/rising/server/QuickSwitchService.java` (disables the
+  non-selected launcher per user and hides it from package queries),
+  `RisingServicesStarter.java` + call in `SystemServer.java`; hooks in
+  `services/core/java/com/android/server/pm/ComputerEngine.java`
+  (`shouldHide` in getApplicationInfo/getPackageInfo, filtered
+  recreatePackageList/recreateApplicationList),
+  `services/core/java/com/android/server/wm/RecentTasks.java`
+  (`loadRecentsComponent` reads `config_launcherComponents[idx]`),
+  `packages/SystemUI/.../LauncherProxyService.java` (recents component from the
+  same array) and `.../navigationbar/gestural/EdgeBackGestureHandler.java`
+  (back-gesture-blocking activities from the selected launcher);
+  `core/res/res/values/quickswitch_arrays.xml` + `quickswitch_symbols.xml`
+  (`config_launcherComponents`, `config_launcherPackages`; index 0 = launcher3,
+  1 = nexuslauncher).
+- `vendor/lineage` (vendor_mist, branch `16.2`): `config/mist.mk` "Quick Switch"
+  block (`TARGET_DEFAULT_PIXEL_LAUNCHER ?= true`; sets
+  `persist.sys.default_launcher` and `persist.sys.quickswitch_pixel_shipped`
+  under `WITH_GMS`); `config/common_mobile.mk` ships `Launcher3QuickStep`.
+- vendor/gms on 16.2 did NOT override Launcher3QuickStep, so both launchers
+  were installed.
+
+State on 17.0 (our tree, build 1804/1816):
+
+- Only the two arrays survive in `frameworks/base/core/res/res/values/mist_arrays.xml`
+  / `mist_symbols.xml` — and note their order is REVERSED vs 16.2 (index 0 =
+  nexuslauncher). Nothing reads them. No service, no hooks, no Mistify page, no
+  props. `org/rising/server/` only has ShakeGestureService.
+- `vendor/gms/system_ext/packages/privileged_apps/NexusLauncherRelease/Android.mk`
+  has `LOCAL_OVERRIDES_PACKAGES := Launcher3 Launcher3QuickStep Trebuchet
+  QuickSearchBox`, so the Mist launcher (Launcher3QuickStep, branded
+  "Trebuchet" via `lineage_strings.xml`) is not installed at all. Recents are
+  pinned to Pixel Launcher by `PixelConfigOverlayCommon`
+  (`config_recentsComponentName`).
+
+Port recipe (untested, needs a full build):
+
+1. Remove `Launcher3`/`Launcher3QuickStep`/`Trebuchet` from the override line
+   above so both launchers install.
+2. Cherry-pick the 16.2 frameworks/base pieces listed above onto 17.0
+   (QuickSwitchService, starter, SystemServer call, ComputerEngine, RecentTasks,
+   LauncherProxyService — check the 17.0 class name, EdgeBackGestureHandler).
+   Fix the array order in `mist_arrays.xml` to match the property values, or
+   swap the values.
+3. Restore the vendor_mist property block in `vendor/lineage/config/mist.mk`
+   (or put the props in `mist_shiba.mk`) and set `with_google_apps=true` (or
+   drop that check in Themes.java).
+4. Restore the Mistify fragment, XML, strings, arrays; register the fragment in
+   Mistify's AndroidManifest if 17.0 requires it.
+5. Rebuild, then verify: picker visible, switching + SystemUI restart changes
+   both home and recents, other launcher disappears from app lists.
+
+Cheaper alternative if only the picker matters: do step 1 only; Android's own
+Settings > Apps > Default apps > Home app then offers both launchers (recents
+stay with Pixel Launcher).
