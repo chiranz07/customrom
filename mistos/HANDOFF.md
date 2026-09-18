@@ -2070,3 +2070,16 @@ the file area. First release uploaded:
   collaboration self-corrected several real mistakes on both sides this
   session by staying skeptical of each other's claims rather than
   compounding them.
+
+## Addendum 2026-09-18: build 0517 (Now Playing PCS fix) + PixelOS side project
+
+- Latest shiba build on SourceForge `chiranz/shiba/`: **MistOS-5.0-Alpha-17.0-MINI-20260918-0517-shiba-UNOFFICIAL.zip**
+  (replaces 1804). Only change vs 1804: device/google/zuma/allowlist_com.google.android.as.xml no longer restricts
+  Private Compute Services (see FEATURES.md "Now Playing stopped recognising anything"). Husky was NOT rebuilt for this;
+  husky 1816 on SourceForge still has the bug — apply patches/rom/device_google_zuma.patch and rebuild.
+- Post-flash verification plan agreed with the device agent (7 checks: no "association not allowed" for nowplaying,
+  now_playing_preferences_data_store.pb changes from 50 00 58 00, toggle row latches, app data > 284K with
+  DataDownload/musiciq logs, history_database.db counts > 0, soundtrigger_middleware shows a loaded model,
+  AMBIENT_INDICATION_SHOW from com.google.android.as + lock-screen pill). Toggle via the app UI only; the
+  Settings.Secure now_playing_enabled key is inert with the split app.
+- PixelOS Android 17 builds for shiba/husky: see ../pixelos/PIXELOS.md. SourceForge `chiranz/pixelos/`.
