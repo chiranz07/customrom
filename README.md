@@ -9,6 +9,11 @@ Four ROM builds are documented here, each self-contained:
 | PixelOS (Android 17) | [`pixelos/`](pixelos/PIXELOS.md) | Built Sept 2026, not maintained |
 | Project Infinity-X (Android 16) | this directory (below) | Built June 2026, superseded |
 
+**[ROM_LANDSCAPE_AND_EFFORT.md](ROM_LANDSCAPE_AND_EFFORT.md)** — which other ROMs are actually
+buildable for shiba/husky on Android 16 and 17 (verified live, with the method to re-check),
+why AlphaDroid 17 and PenguinOS are not options, what running our own ROM would cost, and what
+changes when an AI agent maintains it.
+
 Downloads for the maintained ROMs: **https://sourceforge.net/projects/chiranz/files/** —
 `mistos/{shiba,husky}/` and `voltage/{shiba,husky}/`, each with an `img/` folder
 (boot, init_boot, vendor_boot, vendor_kernel_boot, dtbo). Only the latest build per device is kept.
