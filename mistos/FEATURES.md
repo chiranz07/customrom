@@ -270,9 +270,22 @@ Known cosmetic follow-ups (not fixed):
   `10c90000.hsi2c/i2c-9/9-003c` -> `sysfs_wlc`, `111e0000.spi/.../spi21.0/nstandby` -> `sysfs_gps`,
   `bbd_pps/pps_assert` and `virtual/pps/pps0/assert_elapsed` -> `sysfs_gps_assert`. genfscon is
   longest-prefix, so the `features` node inherits `sysfs_wlc` from the directory entry; no extra line needed.
-- **Verify:** `/sys/class/pps/` becomes non-empty (that node cannot exist until lhd works, so it is a
-  pass/fail signal rather than an absence of denials), `init.svc.lhd` stays `running`, zero `u:r:lhd` denials,
-  `dumpsys location` returns a real fix, and the `hal_wireless_charger` `features` denial disappears.
+- **Verify:** `init.svc.lhd` stays `running` with an ELAPSED equal to uptime (it used to respawn every 5 s),
+  zero `u:r:lhd` denials, the `hal_wireless_charger` `features` denial gone, and a **satellite** fix from the
+  **gps provider** — `dumpsys location` gps-provider last-location non-null plus KPI counters moving
+  (location reports, TTFF, sv status messages, used-in-fix constellations).
+- **Do NOT use `/sys/class/pps/` as the signal — it is always empty on this device, by design.** An earlier
+  version of this file claimed pps0 would appear once the chip got satellite time sync. That was wrong, and it
+  wasted a device session. Google's `bbd_pps_gpio.c` (private/google-modules/gps/broadcom/bcm47765) never calls
+  `pps_register_source`; it registers a GPIO IRQ handler that records a boottime timestamp and a sequence
+  number, and exposes them through the sysfs attribute `pps_assert` (`DEVICE_ATTR_RO`). So the kernel PPS
+  subsystem is never involved and `/sys/class/pps/` never populates. The real 1PPS evidence is the sequence
+  counter in `/sys/devices/platform/bbd_pps/pps_assert` incrementing — which is labelled `sysfs_gps_assert`
+  (one of the four restored genfscon lines) and is therefore not readable from an adb shell.
+- **Do NOT judge a satellite fix by the `fused` provider's accuracy.** Fused reported 3.9 m while the gps
+  provider had produced zero locations and zero sv messages — GMS was fusing wifi and sensors. Confirmed
+  working on 2026-09-19: TTFF 3.1 s, 51 gps-provider locations, mean accuracy 5.5 m, 2481 sv status messages,
+  1062 sv used in fix, GPS/GLONASS/QZSS/BEIDOU/GALILEO/IRNSS plus L5.
 - **Lesson:** never delete a whole sepolicy file to revert an experiment that only added lines to it. Check
   `git log -p` on the file before deleting, and diff the patch's file count against MANIFEST.txt.
 
@@ -342,10 +355,17 @@ Checked by the live-device agent on a clean flash, 12 min uptime:
   /data with load average 14 while every package installed and optimised at once. No Mist component appears
   in either trace. Recovered with `adb bugreport` (contains /data/anr/* and needs no root on userdebug) after
   the log buffer had rotated past them.
-- Open: `/sys/class/pps/` still empty because nothing has requested a GPS fix yet (the node cannot exist until
-  a session runs, so it is a pass signal, not a fail); and VoLTE is unprovisioned on this carrier
-  (`volte_vt_enabled` and `wfc_ims_enabled` both null, six `getTechsFromCarrierConfig failed`) with data up,
-  which points at carrier config rather than the ROM.
+- **Closed 2026-09-19:** GNSS confirmed with a real satellite fix (see §14); VoLTE confirmed working — three
+  IMS calls on LTE (`ImsReasonInfo` on each disconnect, HD property, `networkType 13`, `isWifi: N`,
+  `inCsCall: 0 / inImsCall: 1`, `GsmCdmaCallTracker` never leaving IDLE, so no CSFB). The null
+  `volte_vt_enabled` / `wfc_ims_enabled` globals and the `getTechsFromCarrierConfig failed` warnings are noise:
+  VoLTE state lives in carrier config and ImsMmTel provisioning, not those two keys.
+- **Now Playing on AOD updates about a minute after a track change, and that is normal.** ASI recognises
+  ambient music in periodic short windows rather than continuously. Two theories were chased and both were
+  wrong (a fade-in animator stalling under doze suspend, then the keyguard section tearing down and clearing
+  the text); the user then observed the AOD updating on its own 48 s after a track change with no wake, which
+  proves ASI broadcasts during doze, our receiver is registered during doze, and the AOD does redraw. The
+  doze-path animation change in §20 stays because it removes a real alpha-0 risk, but it fixed nothing.
 
 
 ## 20. Now Playing on AOD showed the previous song (2026-09-18)
